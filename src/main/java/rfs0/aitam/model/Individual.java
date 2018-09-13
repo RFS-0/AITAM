@@ -1,5 +1,6 @@
 package rfs0.aitam.model;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +13,7 @@ import com.vividsolutions.jts.linearref.LengthIndexedLine;
 import com.vividsolutions.jts.planargraph.DirectedEdgeStar;
 import com.vividsolutions.jts.planargraph.Node;
 
+import rfs0.aitam.utilities.GraphUtility;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.util.geo.GeomPlanarGraphDirectedEdge;
@@ -23,20 +25,30 @@ public class Individual implements Steppable {
 
 	private static final long serialVersionUID = 1L;
 
+	Environment m_environment;
+
 	// Needs
 	private NeedTimeSplit m_needTimeSplit;
 
 	// GIS
+	private Node m_homeLocation;
+	private Node m_workLocation;
 	private MasonGeometry m_currentLocation;
 	private double m_basemoveRate = 50.0;
 	private double m_moveRate = m_basemoveRate;
-	private LengthIndexedLine m_segment = null;
+	private LengthIndexedLine m_segment = null; // Used by individual to walk along line segment
 	private double m_startIndex = 0.0;
 	private double m_endIndex = 0.0;
 	private double m_currentIndex = 0.0;
 	private PointMoveTo m_pointMoveTo = new PointMoveTo();
+	private ArrayList<GeomPlanarGraphDirectedEdge> m_pathToNextTarget = new ArrayList<GeomPlanarGraphDirectedEdge>();
+	private GeomPlanarGraphEdge m_currentEdge = null;
+	private boolean m_hasReachedDestination = false;
+	private int m_linkDirection = 1; // used to indicate the direction the individual walks along the path
+	private int m_pathDirection = 1; // used to indicate the direction of the path
 
-	private Individual(Environment state) {
+	private Individual(Environment environment) {
+		m_environment = environment;
 	}
 
 	public static class Builder {
@@ -57,8 +69,8 @@ public class Individual implements Steppable {
 			individualToBuild.m_currentLocation.isMovable = true;
 			LineString line = null;
 			while (line == null) {
-				int path = state.random.nextInt(state.m_pedestrianPaths.getGeometries().numObjs);
-				MasonGeometry mg = (MasonGeometry) state.m_pedestrianPaths.getGeometries().objs[path];
+				int path = state.random.nextInt(state.m_paths.getGeometries().numObjs);
+				MasonGeometry mg = (MasonGeometry) state.m_paths.getGeometries().objs[path];
 				line = extractLineString(mg);
 			}
 			initRoute(line);
@@ -75,17 +87,7 @@ public class Individual implements Steppable {
 			individualToBuild.m_basemoveRate *= Math.abs(state.random.nextGaussian());
 			individualToBuild.m_currentLocation.addDoubleAttribute("MOVE RATE", individualToBuild.m_basemoveRate);
 		}
-
-		private LineString extractLineString(MasonGeometry masonGeometry) {
-			for (int i = 0; i < masonGeometry.getGeometry().getNumGeometries(); i++) {
-				Geometry geometry = masonGeometry.getGeometry().getGeometryN(i);
-				if (geometry.getGeometryType().equals("LineString")) {
-					return (LineString) geometry;
-				}
-			}
-			return null;
-		}
-
+		
 		private void initRoute(LineString line) {
 			individualToBuild.m_segment = new LengthIndexedLine(line);
 			individualToBuild.m_startIndex = individualToBuild.m_segment.getStartIndex();
@@ -97,6 +99,16 @@ public class Individual implements Steppable {
 			individualToBuild.m_pointMoveTo.setCoordinate(coord);
 			individualToBuild.m_currentLocation.getGeometry().apply(individualToBuild.m_pointMoveTo);
 			individualToBuild.m_currentLocation.geometry.geometryChanged();
+		}
+		
+		private LineString extractLineString(MasonGeometry masonGeometry) {
+			for (int i = 0; i < masonGeometry.getGeometry().getNumGeometries(); i++) {
+				Geometry geometry = masonGeometry.getGeometry().getGeometryN(i);
+				if (geometry.getGeometryType().equals("LineString")) {
+					return (LineString) geometry;
+				}
+			}
+			return null;
 		}
 
 		public Individual build() {
@@ -110,13 +122,43 @@ public class Individual implements Steppable {
 			individualToBuild.m_needTimeSplit = needTimeSplit;
 			return this;
 		}
+		
+		public Builder withHomeLocation(Node homeLocation) {
+			individualToBuild.m_homeLocation = homeLocation;
+			return this;
+		}
+		
+		public Builder withWorkLocation(Node workLocation) {
+			individualToBuild.m_homeLocation = workLocation;
+			return this;
+		}
 	}
 
 	@Override
 	public void step(SimState state) {
-		Environment world = (Environment) state;
-		move(world);
+		Environment environment = (Environment) state;
+		move(environment);
 	}
+	
+	public void findPath(Environment environment, Node targetNode) {
+		try {
+			Node currentNode = getCurrentNode(environment);
+			if (currentNode == null || targetNode == null) {
+				throw new Exception("Invalid nodes. Can find path...");
+			}
+		} catch (Exception e) {
+			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, e.getMessage(), e);
+		}
+		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(targetNode, targetNode);
+		if (pathToTarget != null && pathToTarget.size() > 0) {
+			m_pathToNextTarget = pathToTarget;
+			GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) pathToTarget.get(0).getEdge();
+			setupEdge(edge);
+			updatePosition(m_segment.extractPoint(m_currentIndex));
+		}
+	}
+
+
 
 	public void setNewRoute(LineString line, boolean isStart) {
 		m_segment = new LengthIndexedLine(line);
@@ -143,6 +185,28 @@ public class Individual implements Steppable {
 		m_currentLocation.geometry.geometryChanged();
 	}
 
+	public MasonGeometry getCurrentLocation() {
+		return m_currentLocation;
+	}
+
+	public Node getCurrentNode(Environment environment) {
+		return environment.m_pathNetwork.findNode(m_currentLocation.getGeometry().getCoordinate());
+	}
+
+	public String getType() {
+		return m_currentLocation.getStringAttribute("TYPE");
+	}
+
+	public NeedTimeSplit getNeedTimeSplit() {
+		return m_needTimeSplit;
+	}
+	
+	private void flipPath() {
+        m_hasReachedDestination = false;
+        m_pathDirection = -m_pathDirection;
+        m_linkDirection = -m_linkDirection;
+	}
+
 	private void moveAlongPath() {
 		m_currentIndex += m_moveRate;
 
@@ -160,11 +224,11 @@ public class Individual implements Steppable {
 		moveTo(currentPosition);
 	}
 
-	private void move(Environment world) {
+	private void move(Environment environment) {
 		if (!hasArrived()) {
 			moveAlongPath();
 		} else {
-			findNewPath(world);
+			findNewPath(environment);
 		}
 	}
 
@@ -175,13 +239,13 @@ public class Individual implements Steppable {
 		return false;
 	}
 
-	private void findNewPath(Environment world) {
-		Node currentJunction = world.m_pathNetwork.findNode(m_currentLocation.getGeometry().getCoordinate());
+	private void findNewPath(Environment environment) {
+		Node currentJunction = environment.m_pathNetwork.findNode(m_currentLocation.getGeometry().getCoordinate());
 		if (currentJunction != null) {
 			DirectedEdgeStar directedEdgeStar = currentJunction.getOutEdges();
 			Object[] edges = directedEdgeStar.getEdges().toArray();
 			if (edges.length > 0) {
-				int i = world.random.nextInt(edges.length);
+				int i = environment.random.nextInt(edges.length);
 				GeomPlanarGraphDirectedEdge directedEdge = (GeomPlanarGraphDirectedEdge) edges[i];
 				GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) directedEdge.getEdge();
 				LineString newRoute = edge.getLine();
@@ -199,20 +263,67 @@ public class Individual implements Steppable {
 				}
 			}
 		} else {
-			Logger.getLogger(Individual.class.getName()).log(Level.WARNING,
-					"Could not find junction for new path! Current juction: " + currentJunction);
+			Logger.getLogger(Individual.class.getName())
+					.log(Level.WARNING, "Could not find junction for new path! Current juction: " + currentJunction);
 		}
 	}
 
-	public MasonGeometry getLocation() {
-		return m_currentLocation;
+	/**
+	 * Sets the Individual up to proceed along an Edge
+	 * 
+	 * @param edge the GeomPlanarGraphEdge to traverse next
+	 */
+	private void setupEdge(GeomPlanarGraphEdge edge) {
+		removeFromOldEdge(edge);
+		m_currentEdge = edge;
+		updateEdgeTraffic();
+		LineString line = setupNewSegment(edge);
+		updateDirection(line);
 	}
 
-	public String getType() {
-		return m_currentLocation.getStringAttribute("TYPE");
+	private void updateDirection(LineString line) {
+		double distanceToStart = line.getStartPoint().distance(m_currentLocation.geometry);
+		double distanceToEnd = line.getEndPoint().distance(m_currentLocation.geometry);
+		if (distanceToStart <= distanceToEnd) { // closer to start
+			m_currentIndex = m_startIndex;
+			m_linkDirection = 1;
+		} else if (distanceToEnd < distanceToStart) { // closer to end
+			m_currentIndex = m_endIndex;
+			m_linkDirection = -1;
+		}
 	}
 
-	public NeedTimeSplit getNeedTimeSplit() {
-		return m_needTimeSplit;
+	private LineString setupNewSegment(GeomPlanarGraphEdge edge) {
+		LineString line = edge.getLine();
+		m_segment = new LengthIndexedLine(line);
+		m_startIndex = m_segment.getStartIndex();
+		m_endIndex = m_segment.getEndIndex();
+		m_linkDirection = 1;
+		return line;
 	}
-}
+
+	private void updateEdgeTraffic() {
+		if (m_environment.m_edgeTraffic.get(m_currentEdge) == null) {
+			m_environment.m_edgeTraffic.put(m_currentEdge, new ArrayList<Individual>());
+		}
+		m_environment.m_edgeTraffic.get(m_currentEdge).add(this);
+	}
+
+	private void removeFromOldEdge(GeomPlanarGraphEdge edge) {
+		// clean up on old edge
+		if (m_currentEdge != null) {
+			ArrayList<Individual> traffic = m_environment.m_edgeTraffic.get(m_currentEdge);
+			traffic.remove(this);
+		}
+	}
+
+	/** move the agent to the given coordinates */
+	private void updatePosition(Coordinate c) {
+		m_pointMoveTo.setCoordinate(c);
+		// TODO: why is this commented out?
+//        location.geometry.apply(pointMoveTo); 
+
+		m_environment.m_individuals.setGeometryLocation(m_currentLocation, m_pointMoveTo);
+	}
+
+	}

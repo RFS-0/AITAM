@@ -1,0 +1,14 @@
+package rfs0.aitam.model;
+
+public enum Needs {
+	SUBSISTENCE,
+	PROTECTION,
+	AFFECTION,
+	UNDERSTANDING,
+	PARTICIPATION,
+	LEISURE,
+	CREATION,
+	IDENTITY,
+	FREEDOM,
+	NOT_DEFINED
+}
