@@ -1,5 +1,8 @@
 package rfs0.aitam.model;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -16,12 +19,16 @@ import sim.util.geo.GeomPlanarGraphEdge;
 import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
 
-public class Agent implements Steppable {
+public class Individual implements Steppable {
 
 	private static final long serialVersionUID = 1L;
 
+	// Needs
+	private NeedTimeSplit m_needTimeSplit;
+
+	// GIS
 	private MasonGeometry m_currentLocation;
-	private double m_basemoveRate = 10.0;
+	private double m_basemoveRate = 50.0;
 	private double m_moveRate = m_basemoveRate;
 	private LengthIndexedLine m_segment = null;
 	private double m_startIndex = 0.0;
@@ -29,36 +36,85 @@ public class Agent implements Steppable {
 	private double m_currentIndex = 0.0;
 	private PointMoveTo m_pointMoveTo = new PointMoveTo();
 
-	private static final GeometryFactory FACTORY = new GeometryFactory();
+	private Individual(Environment state) {
+	}
 
-	public Agent(World state) {
-		LineString line = null;
-		m_currentLocation = new MasonGeometry(FACTORY.createPoint(new Coordinate(10, 10)));
-		m_currentLocation.isMovable = true;
-		
-		while (line == null) {
-			int path = state.random.nextInt(state.m_pedestrianPaths.getGeometries().numObjs);
-			MasonGeometry mg = (MasonGeometry) state.m_pedestrianPaths.getGeometries().objs[path];
-			line = extractLineString(mg);
-		}
-		setNewRoute(line, true);
-		if (state.random.nextBoolean()) {
-			m_currentLocation.addStringAttribute("TYPE", "STUDENT");
+	public static class Builder {
 
-			int age = (int) (20.0 + 2.0 * state.random.nextGaussian());
-			m_currentLocation.addIntegerAttribute("AGE", age);
-		} else {
-			m_currentLocation.addStringAttribute("TYPE", "FACULTY");
-			int age = (int) (40.0 + 9.0 * state.random.nextGaussian());
-			m_currentLocation.addIntegerAttribute("AGE", age);
+		private static final GeometryFactory FACTORY = new GeometryFactory();
+
+		private Environment state;
+		private Individual individualToBuild;
+
+		public Builder(Environment state) {
+			this.state = state;
+			init();
 		}
-		m_basemoveRate *= Math.abs(state.random.nextGaussian());
-		m_currentLocation.addDoubleAttribute("MOVE RATE", m_basemoveRate);
+
+		private void init() {
+			individualToBuild = new Individual(state);
+			individualToBuild.m_currentLocation = new MasonGeometry(FACTORY.createPoint(new Coordinate(10, 10)));
+			individualToBuild.m_currentLocation.isMovable = true;
+			LineString line = null;
+			while (line == null) {
+				int path = state.random.nextInt(state.m_pedestrianPaths.getGeometries().numObjs);
+				MasonGeometry mg = (MasonGeometry) state.m_pedestrianPaths.getGeometries().objs[path];
+				line = extractLineString(mg);
+			}
+			initRoute(line);
+			if (state.random.nextBoolean()) {
+				individualToBuild.m_currentLocation.addStringAttribute("TYPE", "STUDENT");
+
+				int age = (int) (20.0 + 2.0 * state.random.nextGaussian());
+				individualToBuild.m_currentLocation.addIntegerAttribute("AGE", age);
+			} else {
+				individualToBuild.m_currentLocation.addStringAttribute("TYPE", "FACULTY");
+				int age = (int) (40.0 + 9.0 * state.random.nextGaussian());
+				individualToBuild.m_currentLocation.addIntegerAttribute("AGE", age);
+			}
+			individualToBuild.m_basemoveRate *= Math.abs(state.random.nextGaussian());
+			individualToBuild.m_currentLocation.addDoubleAttribute("MOVE RATE", individualToBuild.m_basemoveRate);
+		}
+
+		private LineString extractLineString(MasonGeometry masonGeometry) {
+			for (int i = 0; i < masonGeometry.getGeometry().getNumGeometries(); i++) {
+				Geometry geometry = masonGeometry.getGeometry().getGeometryN(i);
+				if (geometry.getGeometryType().equals("LineString")) {
+					return (LineString) geometry;
+				}
+			}
+			return null;
+		}
+
+		private void initRoute(LineString line) {
+			individualToBuild.m_segment = new LengthIndexedLine(line);
+			individualToBuild.m_startIndex = individualToBuild.m_segment.getStartIndex();
+			individualToBuild.m_endIndex = individualToBuild.m_segment.getEndIndex();
+			Coordinate coord = null;
+			coord = individualToBuild.m_segment.extractPoint(individualToBuild.m_startIndex);
+			individualToBuild.m_currentIndex = individualToBuild.m_startIndex;
+			individualToBuild.m_moveRate = individualToBuild.m_basemoveRate;
+			individualToBuild.m_pointMoveTo.setCoordinate(coord);
+			individualToBuild.m_currentLocation.getGeometry().apply(individualToBuild.m_pointMoveTo);
+			individualToBuild.m_currentLocation.geometry.geometryChanged();
+		}
+
+		public Individual build() {
+			Individual builtIndividual = individualToBuild;
+			individualToBuild = new Individual(state);
+			init();
+			return builtIndividual;
+		}
+
+		public Builder withNeedTimeSplit(NeedTimeSplit needTimeSplit) {
+			individualToBuild.m_needTimeSplit = needTimeSplit;
+			return this;
+		}
 	}
 
 	@Override
 	public void step(SimState state) {
-		World world = (World) state;
+		Environment world = (Environment) state;
 		move(world);
 	}
 
@@ -87,16 +143,6 @@ public class Agent implements Steppable {
 		m_currentLocation.geometry.geometryChanged();
 	}
 
-	private LineString extractLineString(MasonGeometry masonGeometry) {
-		for (int i = 0; i < masonGeometry.getGeometry().getNumGeometries(); i++) {
-			Geometry geometry = masonGeometry.getGeometry().getGeometryN(i);
-			if (geometry.getGeometryType().equals("LineString")) {
-				return (LineString) geometry;
-			}
-		}
-		return null;
-	}
-
 	private void moveAlongPath() {
 		m_currentIndex += m_moveRate;
 
@@ -114,7 +160,7 @@ public class Agent implements Steppable {
 		moveTo(currentPosition);
 	}
 
-	private void move(World world) {
+	private void move(Environment world) {
 		if (!hasArrived()) {
 			moveAlongPath();
 		} else {
@@ -129,7 +175,7 @@ public class Agent implements Steppable {
 		return false;
 	}
 
-	private void findNewPath(World world) {
+	private void findNewPath(Environment world) {
 		Node currentJunction = world.m_pathNetwork.findNode(m_currentLocation.getGeometry().getCoordinate());
 		if (currentJunction != null) {
 			DirectedEdgeStar directedEdgeStar = currentJunction.getOutEdges();
@@ -153,7 +199,8 @@ public class Agent implements Steppable {
 				}
 			}
 		} else {
-			System.out.println("Found no junction for new path...");
+			Logger.getLogger(Individual.class.getName()).log(Level.WARNING,
+					"Could not find junction for new path! Current juction: " + currentJunction);
 		}
 	}
 
@@ -163,5 +210,9 @@ public class Agent implements Steppable {
 
 	public String getType() {
 		return m_currentLocation.getStringAttribute("TYPE");
+	}
+
+	public NeedTimeSplit getNeedTimeSplit() {
+		return m_needTimeSplit;
 	}
 }

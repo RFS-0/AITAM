@@ -2,6 +2,8 @@ package rfs0.aitam.model;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,7 +20,7 @@ import sim.util.Bag;
 import sim.util.geo.GeomPlanarGraph;
 import sim.util.geo.MasonGeometry;
 
-public class World extends SimState {
+public class Environment extends SimState {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +28,10 @@ public class World extends SimState {
 	public static final int WIDTH = 1000;
 	public static final int HEIGHT = 1000;
 	public static final int NUMBER_OF_AGENTS = 1000;
-
+	
+	// Time
+	public static Calendar CALENDAR = new Calendar.Builder().setDate(0, 0, 0).setTimeOfDay(0, 0, 0).build();
+	
 	// GIS
 	public GeomVectorField m_buildings = new GeomVectorField(WIDTH, HEIGHT);
 	public GeomVectorField m_roads = new GeomVectorField(WIDTH, HEIGHT);
@@ -40,7 +45,7 @@ public class World extends SimState {
 	public GeomPlanarGraph m_pathNetwork = new GeomPlanarGraph();
 	public GeomVectorField m_pathJunctions = new GeomVectorField(WIDTH, HEIGHT);
 
-	public World(long seed) {
+	public Environment(long seed) {
 		super(seed);
 		Bag attributesOfBuildings = new Bag();
 		attributesOfBuildings.add("OBJECTID");
@@ -68,7 +73,7 @@ public class World extends SimState {
 			m_pathNetwork.createFromGeomField(m_pedestrianPaths);
 			addIntersectionNodes(m_pathNetwork.nodeIterator(), m_pathJunctions);
 		} catch (Exception e) {
-			Logger.getLogger(World.class.getName()).log(Level.SEVERE, "Failed to construct simulation", e);
+			Logger.getLogger(Environment.class.getName()).log(Level.SEVERE, "Failed to construct simulation", e);
 		}
 	}
 
@@ -88,7 +93,7 @@ public class World extends SimState {
 			minimumBoundingRectangle.expandToInclude(geometry.getMBR());
 
 		} catch (Exception e) {
-			Logger.getLogger(World.class.getName()).log(Level.SEVERE,
+			Logger.getLogger(Environment.class.getName()).log(Level.SEVERE,
 					String.format("Failed to read GIS file with path: %s", relativePathToFile), e);
 		}
 	}
@@ -107,15 +112,16 @@ public class World extends SimState {
 	}
 
 	protected void addAgents() {
+		Individual.Builder builder = new Individual.Builder(this);
 		for (int i = 0; i < NUMBER_OF_AGENTS; i++) {
-			Agent a = new Agent(this);
-			m_agents.addGeometry(a.getLocation());
-			schedule.scheduleRepeating(a);
+			Individual individual = builder.build();
+			m_agents.addGeometry(individual.getLocation());
+			schedule.scheduleRepeating(individual);
 		}
 	}
 
 	public static void main(String[] args) {
-		doLoop(World.class, args);
+		doLoop(Environment.class, args);
 		System.exit(0);
 	}
 
