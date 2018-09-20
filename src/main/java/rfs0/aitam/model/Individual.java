@@ -31,8 +31,8 @@ public class Individual implements Steppable {
 	private NeedTimeSplit m_needTimeSplit;
 
 	// GIS
-	private Node m_homeLocation;
-	private Node m_workLocation;
+	private MasonGeometry m_homeLocation;
+	private MasonGeometry m_targetLocation;
 	private MasonGeometry m_currentLocation;
 	private double m_basemoveRate = 50.0;
 	private double m_moveRate = m_basemoveRate;
@@ -63,6 +63,7 @@ public class Individual implements Steppable {
 			init();
 		}
 
+		// TODO: remove random initialization of paths
 		private void init() {
 			individualToBuild = new Individual(state);
 			individualToBuild.m_currentLocation = new MasonGeometry(FACTORY.createPoint(new Coordinate(10, 10)));
@@ -74,6 +75,7 @@ public class Individual implements Steppable {
 				line = extractLineString(mg);
 			}
 			initRoute(line);
+			initTarget();
 			if (state.random.nextBoolean()) {
 				individualToBuild.m_currentLocation.addStringAttribute("TYPE", "STUDENT");
 
@@ -92,8 +94,10 @@ public class Individual implements Steppable {
 			individualToBuild.m_segment = new LengthIndexedLine(line);
 			individualToBuild.m_startIndex = individualToBuild.m_segment.getStartIndex();
 			individualToBuild.m_endIndex = individualToBuild.m_segment.getEndIndex();
-			Coordinate coord = null;
-			coord = individualToBuild.m_segment.extractPoint(individualToBuild.m_startIndex);
+		}
+
+		private void initTarget() {
+			Coordinate coord = individualToBuild.m_segment.extractPoint(individualToBuild.m_startIndex);
 			individualToBuild.m_currentIndex = individualToBuild.m_startIndex;
 			individualToBuild.m_moveRate = individualToBuild.m_basemoveRate;
 			individualToBuild.m_pointMoveTo.setCoordinate(coord);
@@ -112,6 +116,9 @@ public class Individual implements Steppable {
 		}
 
 		public Individual build() {
+			MasonGeometry closestPathToHome = state.getBuildingToClosestPathMap().get(individualToBuild.m_homeLocation);
+			initRoute(extractLineString(closestPathToHome));
+			initTarget();
 			Individual builtIndividual = individualToBuild;
 			individualToBuild = new Individual(state);
 			init();
@@ -123,13 +130,20 @@ public class Individual implements Steppable {
 			return this;
 		}
 		
-		public Builder withHomeLocation(Node homeLocation) {
+		/**
+		 * Sets the {@link MasonGeometry} that represents the building in which this {@link Individual} lives in.
+		 * <b>Note:<b> Use BUILDING_TO_CLOSEST_PATH_MAP in {@link Environment} to get the {@link MasonGeometry} that represents the path which is closest to the individuals home location.
+		 * 
+		 * @param homeLocation - The {@link MasonGeometry} that represents the building this individual lives in 
+		 * @return {@link Builder}
+		 */
+		public Builder withHomeLocation(MasonGeometry homeLocation) {
 			individualToBuild.m_homeLocation = homeLocation;
 			return this;
 		}
 		
-		public Builder withWorkLocation(Node workLocation) {
-			individualToBuild.m_homeLocation = workLocation;
+		public Builder withTargetLocation(MasonGeometry targetLocation) {
+			individualToBuild.m_targetLocation = targetLocation;
 			return this;
 		}
 	}
@@ -140,22 +154,45 @@ public class Individual implements Steppable {
 		move(environment);
 	}
 	
-	public void findPath(Environment environment, Node targetNode) {
+	private void initPathToBuilding(Environment environment, MasonGeometry targetBuilding) {
+		MasonGeometry closestPathToBuilding = environment.getBuildingToClosestPathMap().get(targetBuilding);
+		Node currentNode = getCurrentNode(environment);
+		Node targetNode = getNode(environment, closestPathToBuilding);
+		initPath(currentNode, targetNode);
+	}
+
+	private void initPathToPath(Environment environment, MasonGeometry targetPath) {
+		Node currentNode = getCurrentNode(environment);
+		Node targetNode = getNode(environment, targetPath);
+		initPath(currentNode, targetNode);
+	}
+	
+	private void initPath(Node startNode, Node targetNode) {
 		try {
-			Node currentNode = getCurrentNode(environment);
-			if (currentNode == null || targetNode == null) {
-				throw new Exception("Invalid nodes. Can find path...");
+			if (startNode == null || targetNode == null) {
+				throw new Exception("Invalid nodes. Can not find path...");
 			}
 		} catch (Exception e) {
 			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, e.getMessage(), e);
 		}
 		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(targetNode, targetNode);
 		if (pathToTarget != null && pathToTarget.size() > 0) {
-			m_pathToNextTarget = pathToTarget;
-			GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) pathToTarget.get(0).getEdge();
-			setupEdge(edge);
-			updatePosition(m_segment.extractPoint(m_currentIndex));
+			savePathToNextTarget(pathToTarget);
+			initEdgeTraversal(pathToTarget); // TODO: maybe move this method out; or rename this one
+			updatePosition(m_segment.extractPoint(m_currentIndex)); // TODO: maybe move this method out or rename this one
 		}
+		else {
+			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, String.format("AStar can not find path between the following nodes: %s and %s", startNode.toString(), targetNode.toString()));
+		}
+	}
+
+	private void initEdgeTraversal(ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget) {
+		GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) pathToTarget.get(0).getEdge();
+		setupEdge(edge);
+	}
+
+	private void savePathToNextTarget(ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget) {
+		m_pathToNextTarget = pathToTarget;
 	}
 
 
@@ -185,12 +222,40 @@ public class Individual implements Steppable {
 		m_currentLocation.geometry.geometryChanged();
 	}
 
+	/**
+	 * 
+	 * @return The {@link MasonGeometry} where this individual currently is located on
+	 */
 	public MasonGeometry getCurrentLocation() {
 		return m_currentLocation;
 	}
 
+	/**
+	 * @param environment - the current state of the environment
+	 * @return the {@link Node} where the agent is currently located
+	 */
 	public Node getCurrentNode(Environment environment) {
 		return environment.m_pathNetwork.findNode(m_currentLocation.getGeometry().getCoordinate());
+	}
+	
+	/**
+	 * 
+	 * @param environment - the current state of the simulation
+	 * @param masonGeometryOfPath - some {@link MasonGeometry} that is part of the path network
+	 * @return {@link Node} of the path network
+	 */
+	public Node getNode(Environment environment, MasonGeometry masonGeometryOfPath) {
+		return environment.m_pathNetwork.findNode(masonGeometryOfPath.getGeometry().getCoordinate());
+	}
+	
+	/**
+	 * 
+	 * @param environment - the current state of the simulation
+	 * @param coordinateOfPath - some {@link Coordinate} that is part of the path network
+	 * @return {@link Node} of the path network
+	 */
+	public Node getNode(Environment environment, Coordinate coordinateOfPath) {
+		return environment.m_pathNetwork.findNode(coordinateOfPath);
 	}
 
 	public String getType() {
