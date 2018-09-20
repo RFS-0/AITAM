@@ -30,7 +30,7 @@ public class Environment extends SimState {
 
 	// DEV-Variables
 	public ArrayList<MasonGeometry> DEV_BUILDINGS = new ArrayList<>();
-	public HashMap<MasonGeometry, MasonGeometry> BUILDING_TO_CLOSEST_PATH_MAP = new HashMap<>();
+	public static final String MASON_GEOMETRY_OF_CLOSEST_PATH = "masonGeometryOfClosestPath"; // TODO: check if this is really necessary
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,6 +59,7 @@ public class Environment extends SimState {
 
 	// Individuals
 	public GeomVectorField m_individuals = new GeomVectorField(WIDTH, HEIGHT); // used to represent the individuals
+	public HashMap<MasonGeometry, MasonGeometry> m_buildingToClosestPathMap = new HashMap<>();
 
 	public Environment(long seed) {
 		super(seed);
@@ -177,7 +178,8 @@ public class Environment extends SimState {
 		home.setUserData(new GeomPortrayal(new Color(0, 255, 0), 10.0));
 		MasonGeometry closestPathToHome = getClosestPath(home);
 		closestPathToHome.setUserData(new GeomPortrayal(new Color(255, 20, 147), 10.0));
-		BUILDING_TO_CLOSEST_PATH_MAP.put(home, closestPathToHome);
+		m_buildingToClosestPathMap.put(home, closestPathToHome);
+		home.addAttribute(MASON_GEOMETRY_OF_CLOSEST_PATH, closestPathToHome);
 
 		// some target building
 		MasonGeometry target = (MasonGeometry) m_buildings.getGeometries().get(100);
@@ -185,7 +187,8 @@ public class Environment extends SimState {
 		target.setUserData(new GeomPortrayal(new Color(0, 255, 0), 10.0));
 		MasonGeometry closestPathToTarget = getClosestPath(target);
 		closestPathToTarget.setUserData(new GeomPortrayal(new Color(255, 20, 147), 10.0));
-		BUILDING_TO_CLOSEST_PATH_MAP.put(target, closestPathToTarget);
+		m_buildingToClosestPathMap.put(target, closestPathToTarget);
+		target.addAttribute(MASON_GEOMETRY_OF_CLOSEST_PATH, closestPathToTarget);
 	}
 
 	private MasonGeometry getClosestPath(MasonGeometry home) {
@@ -203,8 +206,10 @@ public class Environment extends SimState {
 	protected void initAgents() {
 		Individual.Builder builder = new Individual.Builder(this);
 		for (int i = 0; i < NUMBER_OF_AGENTS; i++) {
-
-			Individual individual = builder.build();
+			Individual individual = builder
+					.withHomeLocation(DEV_BUILDINGS.get(i))
+					.withTargetLocation(DEV_BUILDINGS.get((i+1) % 2))
+					.build();
 			m_individuals.addGeometry(individual.getCurrentLocation());
 			schedule.scheduleRepeating(individual);
 		}
@@ -213,6 +218,10 @@ public class Environment extends SimState {
 	public static void main(String[] args) {
 		doLoop(Environment.class, args);
 		System.exit(0);
+	}
+	
+	public HashMap<MasonGeometry, MasonGeometry> getBuildingToClosestPathMap() {
+		return m_buildingToClosestPathMap;
 	}
 
 }
