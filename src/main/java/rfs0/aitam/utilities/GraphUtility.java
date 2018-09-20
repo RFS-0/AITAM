@@ -98,14 +98,14 @@ public class GraphUtility {
 	 * Measure of the estimated distance between two Nodes. Extremely basic, just
 	 * Euclidean distance as implemented here.
 	 * 
-	 * @param x
-	 * @param y
+	 * @param startNode
+	 * @param endNode
 	 * @return notional "distance" between the given nodes.
 	 */
-	private static double heuristic(Node x, Node y) {
-		Coordinate xnode = x.getCoordinate();
-		Coordinate ynode = y.getCoordinate();
-		return Math.sqrt(Math.pow(xnode.x - ynode.x, 2) + Math.pow(xnode.y - ynode.y, 2));
+	private static double heuristic(Node startNode, Node endNode) {
+		Coordinate startCoordinate = startNode.getCoordinate();
+		Coordinate endCoordinate = endNode.getCoordinate();
+		return Math.sqrt(Math.pow(startCoordinate.x - endCoordinate.x, 2) + Math.pow(startCoordinate.y - endCoordinate.y, 2));
 	}
 
 	/**

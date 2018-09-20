@@ -68,41 +68,8 @@ public class Individual implements Steppable {
 			individualToBuild = new Individual(state);
 			individualToBuild.m_currentLocation = new MasonGeometry(FACTORY.createPoint(new Coordinate(10, 10)));
 			individualToBuild.m_currentLocation.isMovable = true;
-			LineString line = null;
-			while (line == null) {
-				int path = state.random.nextInt(state.m_paths.getGeometries().numObjs);
-				MasonGeometry mg = (MasonGeometry) state.m_paths.getGeometries().objs[path];
-				line = extractLineString(mg);
-			}
-			initRoute(line);
-			initTarget();
-			if (state.random.nextBoolean()) {
-				individualToBuild.m_currentLocation.addStringAttribute("TYPE", "STUDENT");
-
-				int age = (int) (20.0 + 2.0 * state.random.nextGaussian());
-				individualToBuild.m_currentLocation.addIntegerAttribute("AGE", age);
-			} else {
-				individualToBuild.m_currentLocation.addStringAttribute("TYPE", "FACULTY");
-				int age = (int) (40.0 + 9.0 * state.random.nextGaussian());
-				individualToBuild.m_currentLocation.addIntegerAttribute("AGE", age);
-			}
 			individualToBuild.m_basemoveRate *= Math.abs(state.random.nextGaussian());
 			individualToBuild.m_currentLocation.addDoubleAttribute("MOVE RATE", individualToBuild.m_basemoveRate);
-		}
-		
-		private void initRoute(LineString line) {
-			individualToBuild.m_segment = new LengthIndexedLine(line);
-			individualToBuild.m_startIndex = individualToBuild.m_segment.getStartIndex();
-			individualToBuild.m_endIndex = individualToBuild.m_segment.getEndIndex();
-		}
-
-		private void initTarget() {
-			Coordinate coord = individualToBuild.m_segment.extractPoint(individualToBuild.m_startIndex);
-			individualToBuild.m_currentIndex = individualToBuild.m_startIndex;
-			individualToBuild.m_moveRate = individualToBuild.m_basemoveRate;
-			individualToBuild.m_pointMoveTo.setCoordinate(coord);
-			individualToBuild.m_currentLocation.getGeometry().apply(individualToBuild.m_pointMoveTo);
-			individualToBuild.m_currentLocation.geometry.geometryChanged();
 		}
 		
 		private LineString extractLineString(MasonGeometry masonGeometry) {
@@ -116,9 +83,8 @@ public class Individual implements Steppable {
 		}
 
 		public Individual build() {
-			MasonGeometry closestPathToHome = state.getBuildingToClosestPathMap().get(individualToBuild.m_homeLocation);
-			initRoute(extractLineString(closestPathToHome));
-			initTarget();
+			individualToBuild.m_currentLocation = state.getBuildingToClosestPathMap().get(individualToBuild.m_homeLocation); // set current location to the path which is closes to the individual's home
+			individualToBuild.initPathToBuilding(state, individualToBuild.m_targetLocation);
 			Individual builtIndividual = individualToBuild;
 			individualToBuild = new Individual(state);
 			init();
@@ -142,6 +108,13 @@ public class Individual implements Steppable {
 			return this;
 		}
 		
+		/**
+		 * Sets the {@link MasonGeometry} that represents the building where this {@link Individual} wants to go to.
+		 * <b>Note:<b> Use BUILDING_TO_CLOSEST_PATH_MAP in {@link Environment} to get the {@link MasonGeometry} that represents the path which is closest to the individuals home location.
+		 * 
+		 * @param homeLocation - The {@link MasonGeometry} that represents the building this individual wants to go to
+		 * @return {@link Builder}
+		 */
 		public Builder withTargetLocation(MasonGeometry targetLocation) {
 			individualToBuild.m_targetLocation = targetLocation;
 			return this;
@@ -175,10 +148,10 @@ public class Individual implements Steppable {
 		} catch (Exception e) {
 			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, e.getMessage(), e);
 		}
-		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(targetNode, targetNode);
+		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(startNode, targetNode);
 		if (pathToTarget != null && pathToTarget.size() > 0) {
 			savePathToNextTarget(pathToTarget);
-			initEdgeTraversal(pathToTarget); // TODO: maybe move this method out; or rename this one
+			initEdgeTraversal(); // TODO: maybe move this method out; or rename this one
 			updatePosition(m_segment.extractPoint(m_currentIndex)); // TODO: maybe move this method out or rename this one
 		}
 		else {
@@ -186,8 +159,8 @@ public class Individual implements Steppable {
 		}
 	}
 
-	private void initEdgeTraversal(ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget) {
-		GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) pathToTarget.get(0).getEdge();
+	private void initEdgeTraversal() {
+		GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) m_pathToNextTarget.get(0).getEdge();
 		setupEdge(edge);
 	}
 
