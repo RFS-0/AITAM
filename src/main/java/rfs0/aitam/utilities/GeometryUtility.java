@@ -1,7 +1,11 @@
 package rfs0.aitam.utilities;
 
+import java.util.ArrayList;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
+import rfs0.aitam.model.Environment;
+import sim.field.geo.GeomVectorField;
 import sim.util.Bag;
 import sim.util.geo.MasonGeometry;
 
@@ -11,7 +15,7 @@ public final class GeometryUtility {
 		return c1.distance(c2);
 	}
 	
-	public static MasonGeometry findClosestCoordinate(MasonGeometry mg, Bag candidates) {
+	public static MasonGeometry findClosestGeometry(MasonGeometry mg, Bag candidates) {
 		if (candidates.isEmpty()) {
 			return null;
 		}
@@ -27,5 +31,24 @@ public final class GeometryUtility {
 			}
 		}
 		return closestGeometry;
+	}
+	
+	public static MasonGeometry getClosestGeometryToField(MasonGeometry referenceGeometry, GeomVectorField field) {
+		double searchDistance = 0.0;
+		MasonGeometry closestGeometry = null;
+		while (closestGeometry == null) {
+			Bag withinDistance = field.getObjectsWithinDistance(Environment.GEO_FACTORY.createPoint(referenceGeometry.getGeometry().getCoordinate()), searchDistance);
+			closestGeometry = GeometryUtility.findClosestGeometry(referenceGeometry, withinDistance);
+			searchDistance += 1.0;
+		}
+		return closestGeometry;
+	}
+	
+	public static ArrayList<MasonGeometry> getCoveringObjects(MasonGeometry geometryCovered, GeomVectorField coveringField) {
+		ArrayList<MasonGeometry> coveringMasonGeometries = new ArrayList<>();
+		for (Object masonGeometry: coveringField.getCoveringObjects(Environment.GEO_FACTORY.createPoint(geometryCovered.geometry.getCoordinate()))) {
+			coveringMasonGeometries.add((MasonGeometry) masonGeometry);
+		}
+		return coveringMasonGeometries;
 	}
 }
