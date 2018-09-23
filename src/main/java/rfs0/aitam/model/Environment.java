@@ -214,4 +214,16 @@ public class Environment extends SimState {
 	public GeomVectorField getPathsGeomVectorField() {
 		return m_pathsGeomVectorField;
 	}
+	
+	public GeomVectorField getBuildingsGeomVectorField() {
+		return m_buildingsGeomVectorField;
+	}
+	
+	public GeomVectorField getPathIntersectionsGeomVectorField() {
+		return m_pathIntersectionsGeomVectorField;
+	}
+	
+	public GeomPlanarGraph getPathNetworkGeomVectorField() {
+		return m_pathNetworkGeomVectorField;
+	}
 }
