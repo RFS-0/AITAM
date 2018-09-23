@@ -1,23 +1,32 @@
 package rfs0.aitam.model.ui;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
+
+import com.vividsolutions.jts.geom.Coordinate;
 
 import bsh.ParseException;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.Individual;
+import rfs0.aitam.utilities.GeometryUtility;
 import sim.display.Console;
 import sim.display.Controller;
 import sim.display.Display2D;
 import sim.display.GUIState;
 import sim.engine.SimState;
+import sim.field.geo.GeomVectorField;
 import sim.portrayal.geo.GeomPortrayal;
 import sim.portrayal.geo.GeomVectorFieldPortrayal;
+import sim.portrayal.simple.CircledPortrayal2D;
 import sim.util.Bag;
+import sim.util.geo.GeomPlanarGraphDirectedEdge;
 import sim.util.geo.MasonGeometry;
 
 public class EnvironmentWithUI extends GUIState {
@@ -32,14 +41,14 @@ public class EnvironmentWithUI extends GUIState {
 	public EnvironmentWithUI() throws ParseException {
 		super(new Environment(System.currentTimeMillis()));
 	}
-	
+
 	public EnvironmentWithUI(SimState state) {
 		super(state);
 	}
-	
+
 	public EnvironmentWithUI(long seed) throws ParseException {
 		super(new Environment(seed));
-	} 
+	}
 
 	@Override
 	public void init(Controller controller) {
@@ -63,7 +72,7 @@ public class EnvironmentWithUI extends GUIState {
 		m_display.setBackdrop(ISimulationSettings.COLOR_OF_BACKGROUND);
 		m_display.repaint();
 	}
-	
+
 	public static void main(String[] args) {
 		EnvironmentWithUI environmentGui = null;
 		try {
@@ -84,25 +93,58 @@ public class EnvironmentWithUI extends GUIState {
 
 	private void setupPortrayalForAgents(Environment environment) {
 		m_agentPortrayal.setField(environment.m_individualsGeomVectorField);
-		m_agentPortrayal.setPortrayalForAll(new GeomPortrayal(ISimulationSettings.COLOR_OF_AGENT, ISimulationSettings.SIZE_OF_AGENT, true));
+		m_agentPortrayal.setPortrayalForAll(
+				new CircledPortrayal2D(
+						new GeomPortrayal(ISimulationSettings.COLOR_OF_AGENT, ISimulationSettings.SIZE_OF_AGENT, true),
+						ISimulationSettings.COLOR_OF_AGENT_SELECTED, 
+						true)
+				);
 	}
 
 	private void setupPortrayalForPaths(Environment environment) {
 		m_pathsPortrayal.setField(environment.m_pathsGeomVectorField);
 		colorPathToTarget(environment, environment.getIndividuals().get(0)); // index does not matter since both individuals follow the same path but in the opposite direction
-		m_pathsPortrayal.setPortrayalForRemainder(new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH, true));
+		m_pathsPortrayal.setPortrayalForRemainder(
+				new CircledPortrayal2D(
+						new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH, true), 
+						ISimulationSettings.COLOR_OF_PATH_SELECTED, 
+						true)
+				);
 	}
 
 	private void setupPortrayalForBuildings(Environment environment) {
 		m_buildingsPortrayal.setField(environment.m_buildingsGeomVectorField);
-		BuildingLabelPortrayal blP = new BuildingLabelPortrayal(new GeomPortrayal(ISimulationSettings.COLOR_OF_BUILDING, ISimulationSettings.SIZE_OF_BUILDING), Color.DARK_GRAY);
-		m_buildingsPortrayal.setPortrayalForRemainder(blP);
+		m_buildingsPortrayal.setPortrayalForRemainder(
+				new CircledPortrayal2D(
+						new BuildingLabelPortrayal(
+							new GeomPortrayal(ISimulationSettings.COLOR_OF_BUILDING, ISimulationSettings.SIZE_OF_BUILDING),
+							ISimulationSettings.COLOR_OF_BUILDING),
+					ISimulationSettings.SIZE_OF_BUILDING,
+					ISimulationSettings.SIZE_OF_BUILDING,
+					ISimulationSettings.COLOR_OF_BUILDING_SELECTED,
+					true));
 	}
-	
+
 	private void colorPathToTarget(Environment environment, Individual individual) {
-		individual.getPathToNextTarget().forEach(p -> {			
-			MasonGeometry closestPath = environment.getClosestPath(new MasonGeometry(Environment.GEO_FACTORY.createPoint(p.getCoordinate())));
-			closestPath.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH_SELECTED, ISimulationSettings.SIZE_OF_PATH));
-		});
+		GeomVectorField field = environment.getPathsGeomVectorField();
+		List<Coordinate> coordinatesOfPath = individual.getPathToNextTarget()
+				.stream()
+				.map(path -> path.getCoordinate())
+				.collect(Collectors.toList());
+		for (Coordinate coordinate : coordinatesOfPath) {
+			ArrayList<MasonGeometry> coveringObjects = GeometryUtility
+					.getCoveringObjects(new MasonGeometry(Environment.GEO_FACTORY.createPoint(coordinate)), field);
+			coveringObjects.forEach(mg -> {
+				mg.setUserData(
+						new CircledPortrayal2D(
+								new GeomPortrayal(
+										ISimulationSettings.COLOR_OF_PATH_SELECTED,
+										ISimulationSettings.SIZE_OF_PATH
+										),
+								ISimulationSettings.COLOR_OF_PATH_SELECTED,
+								true
+								));
+			});
+		}
 	}
 }

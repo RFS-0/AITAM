@@ -22,7 +22,7 @@ public interface ISimulationSettings {
 	public static final double SIZE_OF_AGENT = 3.0;
 	public static final double SIZE_OF_BUILDING = 3.0;
 	public static final double SIZE_OF_PATH = 1.0; // not actually used by portrayal
-	public static final Color COLOR_OF_AGENT = new Color(255, 255, 255);
+	public static final Color COLOR_OF_AGENT = new Color(255, 255, 255); // white
 	public static final Color COLOR_OF_AGENT_SELECTED = new Color(200, 20, 120);
 	public static final Color COLOR_OF_BACKGROUND = new Color(30, 40, 50);
 	public static final Color COLOR_OF_BUILDING = new Color(70, 90, 100);
