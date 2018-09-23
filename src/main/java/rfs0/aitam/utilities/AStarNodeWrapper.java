@@ -9,21 +9,19 @@ public class AStarNodeWrapper {
 	 * A wrapper to contain the A* meta information about the Nodes
 	 *
 	 */
-
-	// the underlying Node associated with the metainformation
-	Node node;
-	// the Node from which this Node was most profitably linked
-	AStarNodeWrapper cameFrom;
-	// the edge by which this Node was discovered
-	GeomPlanarGraphDirectedEdge edgeFrom;
-	double gx, hx, fx;
+	Node m_node; // the underlying Node associated with the metainformation
+	AStarNodeWrapper m_cameFrom; // the Node from which this Node was most profitably linked
+	GeomPlanarGraphDirectedEdge m_edgeFrom; // the edge by which this Node was discovered
+	double m_gx;
+	double m_hx;
+	double m_fx;
 
 	public AStarNodeWrapper(Node n) {
-		node = n;
-		gx = 0;
-		hx = 0;
-		fx = 0;
-		cameFrom = null;
-		edgeFrom = null;
+		m_node = n;
+		m_gx = 0;
+		m_hx = 0;
+		m_fx = 0;
+		m_cameFrom = null;
+		m_edgeFrom = null;
 	}
 }

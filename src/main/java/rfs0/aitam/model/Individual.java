@@ -10,6 +10,7 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.linearref.LengthIndexedLine;
 import com.vividsolutions.jts.planargraph.Node;
 
+import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.utilities.GraphUtility;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -64,14 +65,6 @@ public class Individual implements Steppable {
 
 		private void init() {
 			individualToBuild = new Individual(state);
-		}
-
-		public Individual build() {
-			individualToBuild.initPathToBuilding(state, individualToBuild.m_targetLocationGeometry);
-			Individual builtIndividual = individualToBuild;
-			individualToBuild = new Individual(state);
-			init();
-			return builtIndividual;
 		}
 
 		public Builder withNeedTimeSplit(NeedTimeSplit needTimeSplit) {
@@ -150,6 +143,14 @@ public class Individual implements Steppable {
 			}
 			return this;
 		}
+		
+		public Individual build() {
+			individualToBuild.initPathToBuilding(state, individualToBuild.m_targetLocationGeometry);
+			Individual builtIndividual = individualToBuild;
+			individualToBuild = new Individual(state);
+			init();
+			return builtIndividual;
+		}
 	}
 
 	@Override
@@ -176,8 +177,112 @@ public class Individual implements Steppable {
 			updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
 		}
 	}
+	
+	/**
+	 * 
+	 * 
+	 * @return the travelling distance for this step
+	 */
+	private double calculateTravellingDistance() {
+		// TODO: make this more realistic
+		//		double maxTrafficCapacity = m_currentEdge.getLine().getLength() * Environment.MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT;
+		//		// edge can be occupied by at least 1 individual
+		//		if (maxTrafficCapacity < 1.0) {
+		//			maxTrafficCapacity = 1.0;
+		//		}
+		//		double traffic = m_environment.m_edgeTraffic.get(m_currentEdge).size();
+		//		double trafficFactor = 1.0 - (traffic / maxTrafficCapacity); // TODO: not realistic -> velocity does not depend linearly
+		//																// on traffic...
+		//		trafficFactor = Math.max(trafficFactor, Environment.MAX_SLOW_DOWN_FACTOR);
+		return m_edgeDirection * ISimulationSettings.MAX_VELOCITY;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param remainingDistance the distance the agent can still travel this turn
+	 */
+	private void moveRemainingDistanceOnNextEdge(double remainingDistance) {
+		m_currentIndexOnPathToNextTarget += 1;
+		if (hasReachedTarget()) {
+			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
+			m_currentIndexOnPathToNextTarget = 0;
+			m_pathToNextTarget = null;
+			m_targetCoordinate = null;
+			m_targetLocationGeometry = null;
+			m_targetLocationPoint = null;
+			m_targetNode = null;
+			return;
+		}
+		setupNextEdge();
+		m_currentIndexOnLineOfEdge += remainingDistance;
+		if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
+			// positive movement
+			moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
 
-	private void initPathToBuilding(Environment environment, MasonGeometry targetBuilding) {
+		} else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
+			// negative movement
+			moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
+		}
+	}
+	
+	/**
+	 * Update the position of this individual by moving it to to the provided
+	 * {@link Coordinate} <code>c</code>.
+	 * 
+	 * @param c - The coordinate to which the individual is moved to
+	 */
+	private void updatePosition(Coordinate c) {
+		m_pointMoveTo.setCoordinate(c);
+		m_environment.m_individualsGeomVectorField.setGeometryLocation(m_currentLocationPoint, m_pointMoveTo);
+	}
+	
+	private boolean hasReachedTarget() {
+		if (m_pathToNextTarget == null) {
+			return false;
+		}
+		return m_currentIndexOnPathToNextTarget >= m_pathToNextTarget.size();
+	}
+	
+	/**
+	 * Sets up the next edge on which the individual continues to its target
+	 * location
+	 * 
+	 * @param nextEdge - the GeomPlanarGraphEdge to traverse next
+	 */
+	private void setupNextEdge() {
+		GeomPlanarGraphEdge nextEdge = (GeomPlanarGraphEdge) m_pathToNextTarget.get(m_currentIndexOnPathToNextTarget)
+				.getEdge();
+		updateEdgeTraffic(nextEdge);
+		m_currentEdge = nextEdge;
+		LineString lineOfNextEdge = nextEdge.getLine();
+		m_segment = new LengthIndexedLine(nextEdge.getLine());
+		m_startIndexOfCurrentEdge = m_segment.getStartIndex();
+		m_endIndexOfCurrentEdge = m_segment.getEndIndex();
+		m_edgeDirection = 1;
+		m_currentIndexOnLineOfEdge = 0;
+		double distanceToStart = lineOfNextEdge.getStartPoint().distance(m_currentLocationPoint.geometry);
+		double distanceToEnd = lineOfNextEdge.getEndPoint().distance(m_currentLocationPoint.geometry);
+		if (distanceToStart <= distanceToEnd) {
+			m_currentIndexOnLineOfEdge = m_segment.getStartIndex();
+			m_edgeDirection = 1;
+		} else {
+			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
+			m_edgeDirection = -1;
+		}
+	}
+	
+	private void updateEdgeTraffic(GeomPlanarGraphEdge nextEdge) {
+		if (m_environment.m_edgeTrafficMap.get(m_currentEdge) != null) {
+			m_environment.m_edgeTrafficMap.get(m_currentEdge).remove(this); // current edge is actually the old edge here
+		}
+		if (m_environment.m_edgeTrafficMap.get(nextEdge) == null) {
+			m_environment.m_edgeTrafficMap.put(nextEdge, new ArrayList<Individual>());
+		}
+		m_environment.m_edgeTrafficMap.get(nextEdge).add(this);
+	}
+
+	public void initPathToBuilding(Environment environment, MasonGeometry targetBuilding) {
 		MasonGeometry closestPathToBuilding = Environment.BUILDING_TO_CLOSEST_PATH_MAP.get(targetBuilding);
 		Node currentNode = getCurrentNode(environment);
 		Node targetNode = getNode(environment, closestPathToBuilding);
@@ -190,7 +295,7 @@ public class Individual implements Steppable {
 //		initPath(currentNode, targetNode);
 //	}
 
-	private void initPath(Node startNode, Node targetNode) {
+	public void initPath(Node startNode, Node targetNode) {
 		try {
 			if (startNode == null || targetNode == null) {
 				throw new Exception("Invalid nodes. Can not find path...");
@@ -198,7 +303,7 @@ public class Individual implements Steppable {
 		} catch (Exception e) {
 			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, e.getMessage(), e);
 		}
-		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(startNode, targetNode);
+		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = findPath(startNode, targetNode);
 		if (pathToTarget != null && pathToTarget.size() > 0) {
 			m_pathToNextTarget = pathToTarget;
 			m_currentEdge = (GeomPlanarGraphEdge) pathToTarget.get(0).getEdge();
@@ -209,6 +314,10 @@ public class Individual implements Steppable {
 					.log(Level.WARNING, String.format("AStar can not find path between the following nodes: %s and %s",
 							startNode.toString(), targetNode.toString()));
 		}
+	}
+	
+	public ArrayList<GeomPlanarGraphDirectedEdge> findPath(Node startNode, Node targetNode) {
+		return GraphUtility.astarPath(startNode, targetNode);
 	}
 
 	/**
@@ -252,110 +361,6 @@ public class Individual implements Steppable {
 
 	public NeedTimeSplit getNeedTimeSplit() {
 		return m_needTimeSplit;
-	}
-
-	/**
-	 * Sets up the next edge on which the individual continues to its target
-	 * location
-	 * 
-	 * @param nextEdge - the GeomPlanarGraphEdge to traverse next
-	 */
-	private void setupNextEdge() {
-		GeomPlanarGraphEdge nextEdge = (GeomPlanarGraphEdge) m_pathToNextTarget.get(m_currentIndexOnPathToNextTarget)
-				.getEdge();
-		updateEdgeTraffic(nextEdge);
-		m_currentEdge = nextEdge;
-		LineString lineOfNextEdge = nextEdge.getLine();
-		m_segment = new LengthIndexedLine(nextEdge.getLine());
-		m_startIndexOfCurrentEdge = m_segment.getStartIndex();
-		m_endIndexOfCurrentEdge = m_segment.getEndIndex();
-		m_edgeDirection = 1;
-		m_currentIndexOnLineOfEdge = 0;
-		double distanceToStart = lineOfNextEdge.getStartPoint().distance(m_currentLocationPoint.geometry);
-		double distanceToEnd = lineOfNextEdge.getEndPoint().distance(m_currentLocationPoint.geometry);
-		if (distanceToStart <= distanceToEnd) {
-			m_currentIndexOnLineOfEdge = m_segment.getStartIndex();
-			m_edgeDirection = 1;
-		} else {
-			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
-			m_edgeDirection = -1;
-		}
-	}
-
-	private void updateEdgeTraffic(GeomPlanarGraphEdge nextEdge) {
-		if (m_environment.m_edgeTrafficMap.get(m_currentEdge) != null) {
-			m_environment.m_edgeTrafficMap.get(m_currentEdge).remove(this); // current edge is actually the old edge here
-		}
-		if (m_environment.m_edgeTrafficMap.get(nextEdge) == null) {
-			m_environment.m_edgeTrafficMap.put(nextEdge, new ArrayList<Individual>());
-		}
-		m_environment.m_edgeTrafficMap.get(nextEdge).add(this);
-	}
-
-	/**
-	 * Update the position of this individual by moving it to to the provided
-	 * {@link Coordinate} <code>c</code>.
-	 * 
-	 * @param c - The coordinate to which the individual is moved to
-	 */
-	private void updatePosition(Coordinate c) {
-		m_pointMoveTo.setCoordinate(c);
-		m_environment.m_individualsGeomVectorField.setGeometryLocation(m_currentLocationPoint, m_pointMoveTo);
-	}
-
-	/**
-	 * 
-	 * 
-	 * @param remainingDistance the distance the agent can still travel this turn
-	 */
-	private void moveRemainingDistanceOnNextEdge(double remainingDistance) {
-		m_currentIndexOnPathToNextTarget += 1;
-		if (hasReachedTarget()) {
-			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
-			m_currentIndexOnPathToNextTarget = 0;
-			m_pathToNextTarget = null;
-			m_targetCoordinate = null;
-			m_targetLocationGeometry = null;
-			m_targetLocationPoint = null;
-			m_targetNode = null;
-			return;
-		}
-		setupNextEdge();
-		m_currentIndexOnLineOfEdge += remainingDistance;
-		if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
-			// positive movement
-			moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
-
-		} else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
-			// negative movement
-			moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
-		}
-	}
-
-	/**
-	 * 
-	 * 
-	 * @return the travelling distance for this step
-	 */
-	private double calculateTravellingDistance() {
-		// TODO: make this more realistic
-//		double maxTrafficCapacity = m_currentEdge.getLine().getLength() * Environment.MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT;
-//		// edge can be occupied by at least 1 individual
-//		if (maxTrafficCapacity < 1.0) {
-//			maxTrafficCapacity = 1.0;
-//		}
-//		double traffic = m_environment.m_edgeTraffic.get(m_currentEdge).size();
-//		double trafficFactor = 1.0 - (traffic / maxTrafficCapacity); // TODO: not realistic -> velocity does not depend linearly
-//																// on traffic...
-//		trafficFactor = Math.max(trafficFactor, Environment.MAX_SLOW_DOWN_FACTOR);
-		return m_edgeDirection * Environment.MAX_VELOCITY;
-	}
-
-	private boolean hasReachedTarget() {
-		if (m_pathToNextTarget == null) {
-			return false;
-		}
-		return m_currentIndexOnPathToNextTarget >= m_pathToNextTarget.size();
 	}
 	
 	public ArrayList<GeomPlanarGraphDirectedEdge> getPathToNextTarget() {

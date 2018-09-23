@@ -29,9 +29,9 @@ public class GraphUtility {
 		foundNodes.put(start, startNode);
 		foundNodes.put(goal, goalNode);
 
-		startNode.gx = 0;
-		startNode.hx = heuristic(start, goal);
-		startNode.fx = heuristic(start, goal);
+		startNode.m_gx = 0;
+		startNode.m_hx = heuristic(start, goal);
+		startNode.m_fx = heuristic(start, goal);
 
 		// A* containers: nodes to be investigated, nodes that have been investigated
 		ArrayList<AStarNodeWrapper> closedSet = new ArrayList<AStarNodeWrapper>();
@@ -41,7 +41,7 @@ public class GraphUtility {
 		while (openSet.size() > 0) { // while there are reachable nodes to investigate
 
 			AStarNodeWrapper x = findMin(openSet); // find the shortest path so far
-			if (x.node == goal) { // we have found the shortest possible path to the goal!
+			if (x.m_node == goal) { // we have found the shortest possible path to the goal!
 									// Reconstruct the path and send it back.
 				return reconstructPath(goalNode);
 			}
@@ -49,7 +49,7 @@ public class GraphUtility {
 			closedSet.add(x);
 
 			// check all the edges out from this Node
-			DirectedEdgeStar des = x.node.getOutEdges();
+			DirectedEdgeStar des = x.m_node.getOutEdges();
 			for (Object o : des.getEdges().toArray()) {
 				GeomPlanarGraphDirectedEdge l = (GeomPlanarGraphDirectedEdge) o;
 				Node next = null;
@@ -70,23 +70,23 @@ public class GraphUtility {
 				}
 
 				// otherwise evaluate the cost of this node/edge combo
-				double tentativeCost = x.gx + length(l);
+				double tentativeCost = x.m_gx + length(l);
 				boolean better = false;
 
 				if (!openSet.contains(nextNode)) {
 					openSet.add(nextNode);
-					nextNode.hx = heuristic(next, goal);
+					nextNode.m_hx = heuristic(next, goal);
 					better = true;
-				} else if (tentativeCost < nextNode.gx) {
+				} else if (tentativeCost < nextNode.m_gx) {
 					better = true;
 				}
 
 				// store A* information about this promising candidate node
 				if (better) {
-					nextNode.cameFrom = x;
-					nextNode.edgeFrom = l;
-					nextNode.gx = tentativeCost;
-					nextNode.fx = nextNode.gx + nextNode.hx;
+					nextNode.m_cameFrom = x;
+					nextNode.m_edgeFrom = l;
+					nextNode.m_gx = tentativeCost;
+					nextNode.m_fx = nextNode.m_gx + nextNode.m_hx;
 				}
 			}
 		}
@@ -118,8 +118,8 @@ public class GraphUtility {
 		double min = 100000;
 		AStarNodeWrapper minNode = null;
 		for (AStarNodeWrapper n : set) {
-			if (n.fx < min) {
-				min = n.fx;
+			if (n.m_fx < min) {
+				min = n.m_fx;
 				minNode = n;
 			}
 		}
@@ -137,9 +137,9 @@ public class GraphUtility {
 	private static ArrayList<GeomPlanarGraphDirectedEdge> reconstructPath(AStarNodeWrapper n) {
 		ArrayList<GeomPlanarGraphDirectedEdge> result = new ArrayList<GeomPlanarGraphDirectedEdge>();
 		AStarNodeWrapper x = n;
-		while (x.cameFrom != null) {
-			result.add(0, x.edgeFrom); // add this edge to the front of the list
-			x = x.cameFrom;
+		while (x.m_cameFrom != null) {
+			result.add(0, x.m_edgeFrom); // add this edge to the front of the list
+			x = x.m_cameFrom;
 		}
 
 		return result;
