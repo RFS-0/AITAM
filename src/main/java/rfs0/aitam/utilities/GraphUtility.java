@@ -12,7 +12,6 @@ import sim.util.geo.GeomPlanarGraphDirectedEdge;
 public class GraphUtility {
 
 	public static ArrayList<GeomPlanarGraphDirectedEdge> astarPath(Node start, Node goal) {
-
 		// initial check
 		if (start == null || goal == null) {
 			System.out.println("Error: invalid node provided to AStar");
