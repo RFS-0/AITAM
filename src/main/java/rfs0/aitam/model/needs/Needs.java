@@ -1,4 +1,4 @@
-package rfs0.aitam.model;
+package rfs0.aitam.model.needs;
 
 public enum Needs {
 	SUBSISTENCE,
