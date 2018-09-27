@@ -51,6 +51,18 @@ public class NeedTimeSplit {
 		}
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for (Needs need: m_targetNeedTimeSplit.keySet()) {
+			builder.append(need.name() + ": " + m_targetNeedTimeSplit.get(need).toString());
+		}
+		if (builder.length() == 0) {
+			return super.toString();
+		}
+		return builder.toString();
+	}
+	
 	public HashMap<Needs, BigDecimal> getTargetNeedTimeSplit() {
 		return m_targetNeedTimeSplit;
 	}
