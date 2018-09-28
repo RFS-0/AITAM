@@ -1,6 +1,6 @@
 package rfs0.aitam.model.needs;
 
-public enum Needs {
+public enum Need {
 	SUBSISTENCE,
 	PROTECTION,
 	AFFECTION,

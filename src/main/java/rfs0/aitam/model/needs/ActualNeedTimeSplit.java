@@ -5,15 +5,15 @@ import java.util.HashMap;
 
 public class ActualNeedTimeSplit {
 	
-	private HashMap<Needs, BigDecimal> m_actualNeedTimeSplit = new HashMap<>();
+	private HashMap<Need, BigDecimal> m_actualNeedTimeSplit = new HashMap<>();
 	
 	public ActualNeedTimeSplit() {}
 	
-	public HashMap<Needs, BigDecimal> getActualNeedTimeSplit() {
+	public HashMap<Need, BigDecimal> getActualNeedTimeSplit() {
 		return m_actualNeedTimeSplit;
 	}
 	
-	public void updateNeedTimeSplit(Needs need, BigDecimal timeSpentSatisfyingNeed) {
+	public void updateNeedTimeSplit(Need need, BigDecimal timeSpentSatisfyingNeed) {
 		if (m_actualNeedTimeSplit.get(need) == null) {
 			m_actualNeedTimeSplit.put(need, timeSpentSatisfyingNeed);
 		}

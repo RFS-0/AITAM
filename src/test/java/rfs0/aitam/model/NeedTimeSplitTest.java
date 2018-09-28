@@ -21,7 +21,7 @@ public class NeedTimeSplitTest {
 				.withNeedTimeSplit(Need.FREEDOM, BigDecimal.valueOf(0.1))
 				.withNeedTimeSplit(Need.IDENTITY, BigDecimal.valueOf(0.1))
 				.build();
-		assertEquals(BigDecimal.valueOf(0.6), needTimeSplit.getTargetNeedTimeSplit().get(Need.NOT_DEFINED));
+		assertEquals(BigDecimal.valueOf(0.6), needTimeSplit.getNeedTimeSplit().get(Need.NOT_DEFINED));
 
 		needTimeSplit = builder
 				.withNeedTimeSplit(Need.AFFECTION, BigDecimal.ONE)
@@ -29,6 +29,6 @@ public class NeedTimeSplitTest {
 				.withNeedTimeSplit(Need.FREEDOM, BigDecimal.valueOf(0.1))
 				.withNeedTimeSplit(Need.IDENTITY, BigDecimal.valueOf(0.1))
 				.build();
-		assertEquals(BigDecimal.valueOf(-0.3), needTimeSplit.getTargetNeedTimeSplit().get(Need.NOT_DEFINED));
+		assertEquals(BigDecimal.valueOf(-0.3), needTimeSplit.getNeedTimeSplit().get(Need.NOT_DEFINED));
 	}
 }

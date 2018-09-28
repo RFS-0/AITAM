@@ -2,14 +2,16 @@ package rfs0.aitam.model.needs;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import rfs0.aitam.model.Individual;
 import rfs0.aitam.utilities.CalculationUtility;
 
 public class NeedTimeSplit {
 	
-	private HashMap<Needs, BigDecimal> m_targetNeedTimeSplit = new HashMap<>();
+	private HashMap<Need, BigDecimal> m_needTimeSplit = new HashMap<>();
 	
 	private NeedTimeSplit() {}
 	
@@ -29,14 +31,14 @@ public class NeedTimeSplit {
 			return builtTargetNeedTimeSplit;
 		}
 		
-		public Builder withNeedTimeSplit(Needs targetNeed, BigDecimal targetPercentageOfTime) {
-			this.targetNeedTimeSplitToBuild.m_targetNeedTimeSplit.put(targetNeed, targetPercentageOfTime);
+		public Builder withNeedTimeSplit(Need targetNeed, BigDecimal targetPercentageOfTime) {
+			this.targetNeedTimeSplitToBuild.m_needTimeSplit.put(targetNeed, targetPercentageOfTime);
 			return this;
 		}
 		
 		private void equateTargetNeedTimeSplit () {
 			BigDecimal difference =  BigDecimal.ZERO;
-			BigDecimal sum = CalculationUtility.sum(targetNeedTimeSplitToBuild.m_targetNeedTimeSplit.values());
+			BigDecimal sum = CalculationUtility.sum(targetNeedTimeSplitToBuild.m_needTimeSplit.values());
 			BigDecimal fraction = sum.subtract(new BigDecimal(sum.toString().split("\\.")[0]));
 			if (sum.compareTo(BigDecimal.ONE) == 1) {
 				difference = difference.subtract(fraction);
@@ -44,18 +46,27 @@ public class NeedTimeSplit {
 			else if (sum.compareTo(BigDecimal.ONE) == -1) {
 				difference = BigDecimal.ONE.subtract(fraction);
 			}
-			if (difference.equals(BigDecimal.ZERO)) {
-				Logger.getLogger(NeedTimeSplit.class.getName()).log(Level.WARNING, "Check creation of need time split. Detected deviation from correct time allocation of 1.0: " + difference);
+			// handle difference bigger than what can be attributed to rounding behavior
+			if (difference.compareTo(BigDecimal.valueOf(0.00001)) > 0) {
+				Logger.getLogger(NeedTimeSplit.class.getName()).log(Level.WARNING, "Check creation of need time split. Detected deviation from correct time allocation of 1.0 taking rounding issues into account: " + difference);
+				targetNeedTimeSplitToBuild.m_needTimeSplit.put(Need.NOT_DEFINED, difference);
 			}
-			targetNeedTimeSplitToBuild.m_targetNeedTimeSplit.put(Needs.NOT_DEFINED, difference);
+			else {
+				/**
+				 *
+				 * Unless fractions add up to one we will always get a difference of 0.00001. This is due to the avoidance of non-terminating decimal expansion in the divide method of {@link CalculationUtility}.
+				 * We handle this by adding the rounding difference to the first Need returned by <code>keySet()</code>
+				 */
+				targetNeedTimeSplitToBuild.m_needTimeSplit.put(targetNeedTimeSplitToBuild.m_needTimeSplit.keySet().iterator().next() , difference);
+			}
 		}
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		for (Needs need: m_targetNeedTimeSplit.keySet()) {
-			builder.append(need.name() + ": " + m_targetNeedTimeSplit.get(need).toString());
+		for (Need need: m_needTimeSplit.keySet()) {
+			builder.append(need.name() + ": " + m_needTimeSplit.get(need).toString());
 		}
 		if (builder.length() == 0) {
 			return super.toString();
@@ -63,7 +74,18 @@ public class NeedTimeSplit {
 		return builder.toString();
 	}
 	
-	public HashMap<Needs, BigDecimal> getTargetNeedTimeSplit() {
-		return m_targetNeedTimeSplit;
+	public HashMap<Need, BigDecimal> getNeedTimeSplit() {
+		return m_needTimeSplit;
+	}
+	
+	public Set<Need> getNeeds() {
+		return m_needTimeSplit.keySet();
+	}
+	
+	public BigDecimal getFractionForNeed(Need need) {
+		if (m_needTimeSplit.get(need) == null) {
+			return BigDecimal.ZERO;
+		}
+		return m_needTimeSplit.get(need);
 	}
 }

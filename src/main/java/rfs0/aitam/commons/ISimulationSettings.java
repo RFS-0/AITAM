@@ -32,4 +32,11 @@ public interface ISimulationSettings {
 	public static final Color COLOR_OF_START = new Color(250, 180, 190);
 	public static final Color COLOR_OF_TARGET = new Color(255, 100, 160);
 	
+	/**
+	 * Constants used to for simulating time
+	 */
+	public static final int BASE_YEAR = 2018;
+	public static final int BASE_MONTH = 1;
+	public static final int BASE_DAY = 1;
+	
 }

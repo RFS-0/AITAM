@@ -6,6 +6,6 @@ public enum ActivityCategory {
 	PERSONAL_CARE,
 	HOUSEHOLD_CARE,
 	FAMILY_CARE,
-	TRANSPORT,
+	TRAVEL,
 	IDLE
 }

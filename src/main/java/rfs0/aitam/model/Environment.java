@@ -6,14 +6,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.planargraph.Node;
 
+import activities.Activity;
+import activities.ActivityBuilder;
+import activities.WeekDay;
 import rfs0.aitam.commons.IDevSettings;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;
@@ -33,6 +40,37 @@ public class Environment extends SimState {
 	public static final String MASON_GEOMETRY_OF_CLOSEST_PATH = "masonGeometryOfClosestPath"; // TODO: check if this is really necessary
 	public static final GeometryFactory GEO_FACTORY = new GeometryFactory();
 	public static HashMap<MasonGeometry, MasonGeometry> BUILDING_TO_CLOSEST_PATH_MAP = new HashMap<>();
+	
+	// Activities
+	public static ArrayList<WeekDay> WEEK = Stream.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY, WeekDay.SATURDAY, WeekDay.SUNDAY).collect(Collectors.toCollection(ArrayList::new));
+	public static ArrayList<WeekDay> WORK_WEEK = Stream.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY).collect(Collectors.toCollection(ArrayList::new));
+	public static ArrayList<WeekDay> WEEKEND = Stream.of(WeekDay.SATURDAY, WeekDay.SUNDAY).collect(Collectors.toCollection(ArrayList::new));
+	public static Activity ACTIVITY_WORK_AT_HOME_ALONE;
+	public static Activity ACTIVITY_WORK_AT_WORK_LOCATION_ALONE;
+	public static Activity ACTIVITY_WORK_AT_WORK_LOCATION_WITH_COWORKERS;
+	public static Activity ACTIVITY_WORK_AT_THIRD_WORK_LOCATION_ALONE;
+	public static Activity ACTIVITY_WORK_AT_THIRD_WORK_LOCATION_WITH_COWORKERS;
+	public static Activity ACTIVITY_WORK_DURING_TRAVEL_ALONE;
+	public static Activity ACTIVITY_WORK_DURING_TRAVEL_WITH_COWORKERS;
+	public static Activity ACTIVITY_LEISURE_AT_HOME_ALONE;
+	public static Activity ACTIVITY_LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS;
+	public static Activity ACTIVITY_LEISURE_AT_HOME_WITH_FRIENDS;
+	public static Activity ACTIVITY_LEISURE_AT_THIRD_PLACE_ALONE;
+	public static Activity ACTIVITY_LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS;
+	public static Activity ACTIVITY_LEISURE_AT_THIRD_PLACE_WITH_FRIENDS;
+	public static Activity ACTIVITY_PERSONAL_CARE_AT_HOME_ALONE;
+	public static Activity ACTIVITY_PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS;
+	public static Activity ACTIVITY_PERSONAL_CARE_AT_HOME_WITH_FRIENDS;
+	public static Activity ACTIVITY_PERSONAL_CARE_AT_WORK_ALONE;
+	public static Activity ACTIVITY_PERSONAL_CARE_AT_WORK_WITH_COWORKERS;
+	public static Activity ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_ALONE;
+	public static Activity ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS;
+	public static Activity ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS;
+	public static Activity ACTIVITY_HOUSEHOLD_CARE_AT_HOME_ALONE;
+	public static Activity ACTIVITY_HOUSEHOLD_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS;
+	public static Activity ACTIVITY_HOUSEHOLD_CARE_AT_THIRD_PLACE_ALONE;
+	public static Activity ACTIVITY_HOUSEHOLD_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS;
+	public static Activity ACTIVITY_TRAVEL;
 
 	// Time
 	// TODO probably replace this with corresponding class of joda time
@@ -44,6 +82,9 @@ public class Environment extends SimState {
 	public GeomPlanarGraph m_pathNetworkGeomVectorField = new GeomPlanarGraph(); // represents graph all paths
 	public GeomVectorField m_pathIntersectionsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // TODO: check if necessary at all (represents all crossings)
 	public HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> m_edgeTrafficMap = new HashMap<>(); // used to capture the
+	
+	// Buildings
+	public Set<Integer> m_buildingsNotInitialized = IntStream.range(0, m_buildingsGeomVectorField.getGeometries().size()).boxed().collect(Collectors.toSet());
 
 	// Individuals
 	public GeomVectorField m_individualsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
@@ -52,14 +93,15 @@ public class Environment extends SimState {
 	public Environment(long seed) {
 		super(seed);
 		initEnvironment();
-		setupEnvironment();
+		initActivities();
+		initIndividuals();
+		initBuildings();
 	}
 
 	@Override
 	public void start() {
 		super.start();
 		m_individualsGeomVectorField.clear();
-		initAgents();
 		m_individualsGeomVectorField.setMBR(m_buildingsGeomVectorField.getMBR());
 		schedule.scheduleRepeating(m_individualsGeomVectorField.scheduleSpatialIndexUpdater(), Integer.MAX_VALUE, 1.0);
 	}
@@ -142,15 +184,6 @@ public class Environment extends SimState {
 		m_pathsGeomVectorField.setMBR(minimumBoundingRectangle);
 	}
 	
-	/**
-	 * adds nodes corresponding to road intersections to GeomVectorField
-	 *
-	 * @param nodeIterator  Points to first node
-	 * @param intersections GeomVectorField containing intersection geometry
-	 *
-	 *                      Nodes will belong to a planar graph populated from
-	 *                      LineString network.
-	 */
 	// TODO: check if necessary at all
 	private void addIntersectionNodes(Iterator<Node> nodeIterator) {
 		nodeIterator.forEachRemaining(node -> {
@@ -159,41 +192,100 @@ public class Environment extends SimState {
 		});
 	}
 	
-	private void setupEnvironment() {
-		allocateActivitiesToBuildings();
+	private void initActivities() {
+		initLeisureActivities();		
+		initWorkActivities();
+		initPersonalCareActivities();
+		initHouseholdCareActivities();
+		initTravelActivities();
 	}
-	
-	private void allocateActivitiesToBuildings() {
-		// home
-		MasonGeometry home = (MasonGeometry) m_buildingsGeomVectorField.getGeometries().get(IDevSettings.START_BUILDING);
-		IDevSettings.DEV_BUILDINGS.add(home);
-		home.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_BUILDING_SELECTED, ISimulationSettings.SIZE_OF_BUILDING));
-		MasonGeometry closestPathToHome = getClosestPath(home);
-		closestPathToHome.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH_SELECTED, ISimulationSettings.SIZE_OF_PATH));
-		BUILDING_TO_CLOSEST_PATH_MAP.put(home, closestPathToHome);
-		home.addAttribute(MASON_GEOMETRY_OF_CLOSEST_PATH, closestPathToHome);
 
-		// some target building
-		MasonGeometry target = (MasonGeometry) m_buildingsGeomVectorField.getGeometries().get(IDevSettings.TARGET_BUILDING);
-		IDevSettings.DEV_BUILDINGS.add(target);
-		target.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_BUILDING_SELECTED, ISimulationSettings.SIZE_OF_BUILDING));
-		MasonGeometry closestPathToTarget = getClosestPath(target);
-		closestPathToTarget.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH_SELECTED, ISimulationSettings.SIZE_OF_PATH));
-		BUILDING_TO_CLOSEST_PATH_MAP.put(target, closestPathToTarget);
-		target.addAttribute(MASON_GEOMETRY_OF_CLOSEST_PATH, closestPathToTarget);
+	private void initWorkActivities() {
+		ACTIVITY_WORK_AT_HOME_ALONE = ActivityBuilder.initWorkAtHomeAloneActivity();
+		ACTIVITY_WORK_AT_WORK_LOCATION_ALONE = ActivityBuilder.initWorkAtWorkLocationAloneActivity();
+		ACTIVITY_WORK_AT_WORK_LOCATION_WITH_COWORKERS = ActivityBuilder.initWorkAtWorkLocationWithCoworkers();
+		ACTIVITY_WORK_AT_THIRD_WORK_LOCATION_ALONE = ActivityBuilder.initWorkAtThirdWorkLocationAloneActivity();
+		ACTIVITY_WORK_AT_THIRD_WORK_LOCATION_WITH_COWORKERS = ActivityBuilder.initWortAtThirdWorkLocationWithCoworkers();
+		ACTIVITY_WORK_DURING_TRAVEL_ALONE = ActivityBuilder.initWorkDuringTravelAloneActivity();
+		ACTIVITY_WORK_DURING_TRAVEL_WITH_COWORKERS = ActivityBuilder.initWorkDuringTravelWithCoworkers();
+	}
+
+	private void initLeisureActivities() {
+		ACTIVITY_LEISURE_AT_HOME_ALONE = ActivityBuilder.initLeisureAtHomeAloneActivity();
+		ACTIVITY_LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initLeisureAtHomeWithHouseholdMembersActivity();
+		ACTIVITY_LEISURE_AT_HOME_WITH_FRIENDS = ActivityBuilder.initLeisureAtHomeWithFriendsActivity();
+		ACTIVITY_LEISURE_AT_THIRD_PLACE_ALONE = ActivityBuilder.initLeisureAtThirdPlaceAloneActivity();
+		ACTIVITY_LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initLeisureAtThirdPlaceWithHouseholdMembersActivity();
+		ACTIVITY_LEISURE_AT_THIRD_PLACE_WITH_FRIENDS = ActivityBuilder.initLeisureAtThirdPlaceWithFriendsActivity();
 	}
 	
-	private void initAgents() {
-		Individual.Builder builder = new Individual.Builder(this);
-		for (int i = 0; i < ISimulationSettings.NUMBER_OF_AGENTS; i++) {
-			Individual individual = builder
-					.withHomeLocation(IDevSettings.DEV_BUILDINGS.get(i))
-					.withTargetLocation(IDevSettings.DEV_BUILDINGS.get((i+1) % 2))
-					.build();
-			m_individuals.add(individual);
-			m_individualsGeomVectorField.addGeometry(individual.getCurrentLocation());
-			schedule.scheduleRepeating(individual);
-		}
+	private void initPersonalCareActivities() {
+		ACTIVITY_PERSONAL_CARE_AT_HOME_ALONE = ActivityBuilder.initPersonalCareAtHomeAloneActivity();
+		ACTIVITY_PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initPersonalCareAtHomeWithHouseholdMembersActivity();
+		ACTIVITY_PERSONAL_CARE_AT_HOME_WITH_FRIENDS = ActivityBuilder.initPersonalCareAtHomeWithFriendsActivity();
+		ACTIVITY_PERSONAL_CARE_AT_WORK_ALONE = ActivityBuilder.initPersonalCareAtWorkAloneActivity();
+		ACTIVITY_PERSONAL_CARE_AT_WORK_WITH_COWORKERS = ActivityBuilder.initPersonalCareAtWorkWithCoworkersActivity();
+		ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_ALONE = ActivityBuilder.initPersonalCareAtThirdPlaceAloneActivity();
+		ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initPersonalCareAtThirdPlaceWithHouseholdMembersActivity();
+		ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS = ActivityBuilder.initPersonalCareAtThirdPlaceWithFriendsActivity();
+	}
+	
+	private void initHouseholdCareActivities() {
+		ACTIVITY_HOUSEHOLD_CARE_AT_HOME_ALONE = ActivityBuilder.initHouseholdCareAtHomeAloneActivity();
+		ACTIVITY_HOUSEHOLD_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initHouseholdCareAtHomeWithHousholdMembersActivty();
+		ACTIVITY_HOUSEHOLD_CARE_AT_THIRD_PLACE_ALONE = ActivityBuilder.initHouseholdCareAtThirdPlaceAloneActivity();
+		ACTIVITY_HOUSEHOLD_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initHouseholdCareAtThirdPlaceWithHouseholdMembers();
+	}
+	
+	private void initTravelActivities() {
+		ACTIVITY_TRAVEL = ActivityBuilder.initTravelActivity();
+	}
+	
+	private void initIndividuals() {
+		Individual.Builder individualBuilder = new Individual.Builder(this);
+		Activity.Builder activityBuilder = new Activity.Builder();
+		
+		// setup test individual 1
+		Individual individual1 = individualBuilder
+				.withHomeLocation(IDevSettings.DEV_BUILDINGS.get(IDevSettings.INDEX_OF_HOME_BUILDING_1)) 
+				.withTargetLocation(IDevSettings.DEV_BUILDINGS.get(IDevSettings.INDEX_OF_INDIVIDUAL_ACTIVITY_BUILDING_1))
+				.withIndividualActivity(activityBuilder
+						.build())
+				.withIndividualActivity(activityBuilder
+						.build())
+				.build();
+		m_individuals.add(individual1);
+		m_individualsGeomVectorField.addGeometry(individual1.getCurrentLocation());
+		schedule.scheduleRepeating(individual1);
+		
+		// setup test individual 2
+		Individual individual2 = individualBuilder
+				.withHomeLocation(IDevSettings.DEV_BUILDINGS.get(1)) // index of HOME_BUILDING_2
+				.withTargetLocation(IDevSettings.DEV_BUILDINGS.get(3)) // index of INDIVIDUAL_ACTIVITY_BUILDING_2
+				.build();
+		m_individuals.add(individual2);
+		m_individualsGeomVectorField.addGeometry(individual2.getCurrentLocation());
+		schedule.scheduleRepeating(individual2);
+	}
+	
+	private void initBuildings() {
+		initDevBuilding(IDevSettings.HOME_BUILDING_1);
+		initDevBuilding(IDevSettings.HOME_BUILDING_2);
+		initDevBuilding(IDevSettings.INDIVIDUAL_ACTIVITY_BUILDING_1);
+		initDevBuilding(IDevSettings.INDIVIDUAL_ACTIVITY_BUILDING_2);
+		initDevBuilding(IDevSettings.GENERAL_ACTIVITY_BUILDING_1);
+		initDevBuilding(IDevSettings.GENERAL_ACTIVITY_BUILDING_2);
+	}
+
+	private void initDevBuilding(int building) {
+		MasonGeometry initBuilding = (MasonGeometry) m_buildingsGeomVectorField.getGeometries().get(building);
+		IDevSettings.DEV_BUILDINGS.add(initBuilding);
+		initBuilding.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_BUILDING_SELECTED, ISimulationSettings.SIZE_OF_BUILDING));
+		MasonGeometry closestPathToHome = getClosestPath(initBuilding);
+		closestPathToHome.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH_SELECTED, ISimulationSettings.SIZE_OF_PATH));
+		BUILDING_TO_CLOSEST_PATH_MAP.put(initBuilding, closestPathToHome);
+		initBuilding.addAttribute(MASON_GEOMETRY_OF_CLOSEST_PATH, closestPathToHome);
+		m_buildingsNotInitialized.remove(building);
 	}
 
 	public MasonGeometry getClosestPath(MasonGeometry geometry) {

@@ -1,8 +1,11 @@
 package rfs0.aitam.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
@@ -10,10 +13,18 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.linearref.LengthIndexedLine;
 import com.vividsolutions.jts.planargraph.Node;
 
+import activities.Activity;
 import rfs0.aitam.commons.ISimulationSettings;
+import rfs0.aitam.model.needs.ActualNeedTimeSplit;
+import rfs0.aitam.model.needs.Need;
+import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.utilities.GeometryUtility;
 import rfs0.aitam.utilities.GraphUtility;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.field.geo.GeomVectorField;
+import sim.portrayal.geo.GeomPortrayal;
+import sim.portrayal.simple.CircledPortrayal2D;
 import sim.util.geo.GeomPlanarGraphDirectedEdge;
 import sim.util.geo.GeomPlanarGraphEdge;
 import sim.util.geo.MasonGeometry;
@@ -26,7 +37,11 @@ public class Individual implements Steppable {
 	Environment m_environment;
 
 	// Needs
-	private NeedTimeSplit m_needTimeSplit;
+	private NeedTimeSplit m_targetNeedTimeSplit;
+	private ActualNeedTimeSplit m_actualNeedTimeSplit = new ActualNeedTimeSplit();
+	
+	// Activities
+	private ArrayList<Activity> m_individualActivities = new ArrayList<>()	;
 
 	// GIS
 	private MasonGeometry m_homeLocationGeometry; // actual home building
@@ -67,8 +82,8 @@ public class Individual implements Steppable {
 			individualToBuild = new Individual(state);
 		}
 
-		public Builder withNeedTimeSplit(NeedTimeSplit needTimeSplit) {
-			individualToBuild.m_needTimeSplit = needTimeSplit;
+		public Builder withTargetNeedTimeSplit(NeedTimeSplit needTimeSplit) {
+			individualToBuild.m_targetNeedTimeSplit = needTimeSplit;
 			return this;
 		}
 
@@ -90,8 +105,7 @@ public class Individual implements Steppable {
 						.log(Level.SEVERE, "Home location is invalid. The built individual may be unusable!");
 			}
 			individualToBuild.m_homeLocationGeometry = homeLocation;
-			individualToBuild.m_homeCoordinate = Environment.BUILDING_TO_CLOSEST_PATH_MAP
-					.get(individualToBuild.m_homeLocationGeometry).geometry.getCoordinate();
+			individualToBuild.m_homeCoordinate = Environment.BUILDING_TO_CLOSEST_PATH_MAP					.get(individualToBuild.m_homeLocationGeometry).geometry.getCoordinate();
 			Point homePoint = Environment.GEO_FACTORY.createPoint(individualToBuild.m_homeCoordinate);
 			if (homePoint == null) {
 				Logger.getLogger(Individual.class.getName())
@@ -144,6 +158,16 @@ public class Individual implements Steppable {
 			return this;
 		}
 		
+		public Builder withIndividualActivities(ArrayList<Activity> individualActivities) {
+			individualToBuild.m_individualActivities = individualActivities;
+			return this;
+		}
+		
+		public Builder withIndividualActivity(Activity individualActivity) {
+			individualToBuild.m_individualActivities.add(individualActivity);
+			return this;
+		}
+		
 		public Individual build() {
 			individualToBuild.initPathToBuilding(state, individualToBuild.m_targetLocationGeometry);
 			Individual builtIndividual = individualToBuild;
@@ -155,6 +179,10 @@ public class Individual implements Steppable {
 
 	@Override
 	public void step(SimState state) {
+		updateKnowledge();
+		planActivities();
+		executeActivitiy();
+		updateMemory();
 		if (m_segment == null) {
 			// TODO: make sure we are on some edge of the path network & handle case where
 			// we are not (maybe reset to last building visited or home location)
@@ -176,6 +204,25 @@ public class Individual implements Steppable {
 			}
 			updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
 		}
+	}
+	
+	private void updateKnowledge() {
+		// gather information about networks
+	}
+	
+	private void planActivities() {
+		// get available activities
+		// determine which activitiy should be scheduled next
+		// determine where it should be executed
+		// determine how long the activity shall be executed
+	}
+	
+	private void executeActivitiy() {
+		
+	}
+	
+	private void updateMemory() {
+		// TODO: update actual need time split
 	}
 	
 	/**
@@ -287,6 +334,7 @@ public class Individual implements Steppable {
 		Node currentNode = getCurrentNode(environment);
 		Node targetNode = getNode(environment, closestPathToBuilding);
 		initPath(currentNode, targetNode);
+		colorPathToTarget();
 	}
 
 //	private void initPathToPath(Environment environment, MasonGeometry targetPath) {
@@ -318,6 +366,29 @@ public class Individual implements Steppable {
 	
 	public ArrayList<GeomPlanarGraphDirectedEdge> findPath(Node startNode, Node targetNode) {
 		return GraphUtility.astarPath(startNode, targetNode);
+	}
+	
+	public void colorPathToTarget() {
+		GeomVectorField field = m_environment.getPathsGeomVectorField();
+		List<Coordinate> coordinatesOfPath = getPathToNextTarget()
+				.stream()
+				.map(path -> path.getCoordinate())
+				.collect(Collectors.toList());
+		for (Coordinate coordinate : coordinatesOfPath) {
+			ArrayList<MasonGeometry> coveringObjects = GeometryUtility
+					.getCoveringObjects(new MasonGeometry(Environment.GEO_FACTORY.createPoint(coordinate)), field);
+			coveringObjects.forEach(mg -> {
+				mg.setUserData(
+						new CircledPortrayal2D(
+								new GeomPortrayal(
+										ISimulationSettings.COLOR_OF_PATH_SELECTED,
+										ISimulationSettings.SIZE_OF_PATH
+										),
+								ISimulationSettings.COLOR_OF_PATH_SELECTED,
+								true
+								));
+			});
+		}
 	}
 
 	/**
@@ -359,11 +430,19 @@ public class Individual implements Steppable {
 		return environment.m_pathNetworkGeomVectorField.findNode(coordinateOfPath);
 	}
 
-	public NeedTimeSplit getNeedTimeSplit() {
-		return m_needTimeSplit;
+	public NeedTimeSplit getTargetNeedTimeSplit() {
+		return m_targetNeedTimeSplit;
 	}
 	
 	public ArrayList<GeomPlanarGraphDirectedEdge> getPathToNextTarget() {
 		return m_pathToNextTarget;
+	}
+	
+	public void updateActualNeedTimeSplit(Need need, BigDecimal timeSpentSatisfyingNeed) {
+		m_actualNeedTimeSplit.updateNeedTimeSplit(need, timeSpentSatisfyingNeed);
+	}
+	
+	public ActualNeedTimeSplit getActualNeedTimeSplit() {
+		return m_actualNeedTimeSplit;
 	}
 }
