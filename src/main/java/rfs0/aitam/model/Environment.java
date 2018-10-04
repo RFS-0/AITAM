@@ -19,8 +19,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.planargraph.Node;
 
 import activities.Activity;
-import activities.ActivityBuilder;
+import activities.ActivityInitializer;
 import activities.WeekDay;
+import individuals.Individual;
 import rfs0.aitam.commons.IDevSettings;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;
@@ -37,7 +38,6 @@ public class Environment extends SimState {
 
 	private static final long serialVersionUID = 1L;
 	
-	public static final String MASON_GEOMETRY_OF_CLOSEST_PATH = "masonGeometryOfClosestPath"; // TODO: check if this is really necessary
 	public static final GeometryFactory GEO_FACTORY = new GeometryFactory();
 	public static HashMap<MasonGeometry, MasonGeometry> BUILDING_TO_CLOSEST_PATH_MAP = new HashMap<>();
 	
@@ -89,6 +89,7 @@ public class Environment extends SimState {
 	// Individuals
 	public GeomVectorField m_individualsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
 	public ArrayList<Individual> m_individuals = new ArrayList<>();
+	public ArrayList<Integer> m_individualsNotInitialized = IntStream.range(0, ISimulationSettings.NUMBER_OF_INDIVIDUALS).boxed().collect(Collectors.toCollection(ArrayList::new));
 	
 	public Environment(long seed) {
 		super(seed);
@@ -201,53 +202,53 @@ public class Environment extends SimState {
 	}
 
 	private void initWorkActivities() {
-		ACTIVITY_WORK_AT_HOME_ALONE = ActivityBuilder.initWorkAtHomeAloneActivity();
-		ACTIVITY_WORK_AT_WORK_LOCATION_ALONE = ActivityBuilder.initWorkAtWorkLocationAloneActivity();
-		ACTIVITY_WORK_AT_WORK_LOCATION_WITH_COWORKERS = ActivityBuilder.initWorkAtWorkLocationWithCoworkers();
-		ACTIVITY_WORK_AT_THIRD_WORK_LOCATION_ALONE = ActivityBuilder.initWorkAtThirdWorkLocationAloneActivity();
-		ACTIVITY_WORK_AT_THIRD_WORK_LOCATION_WITH_COWORKERS = ActivityBuilder.initWortAtThirdWorkLocationWithCoworkers();
-		ACTIVITY_WORK_DURING_TRAVEL_ALONE = ActivityBuilder.initWorkDuringTravelAloneActivity();
-		ACTIVITY_WORK_DURING_TRAVEL_WITH_COWORKERS = ActivityBuilder.initWorkDuringTravelWithCoworkers();
+		ACTIVITY_WORK_AT_HOME_ALONE = ActivityInitializer.initWorkAtHomeAloneActivity();
+		ACTIVITY_WORK_AT_WORK_LOCATION_ALONE = ActivityInitializer.initWorkAtWorkLocationAloneActivity();
+		ACTIVITY_WORK_AT_WORK_LOCATION_WITH_COWORKERS = ActivityInitializer.initWorkAtWorkLocationWithCoworkers();
+		ACTIVITY_WORK_AT_THIRD_WORK_LOCATION_ALONE = ActivityInitializer.initWorkAtThirdWorkLocationAloneActivity();
+		ACTIVITY_WORK_AT_THIRD_WORK_LOCATION_WITH_COWORKERS = ActivityInitializer.initWortAtThirdWorkLocationWithCoworkers();
+		ACTIVITY_WORK_DURING_TRAVEL_ALONE = ActivityInitializer.initWorkDuringTravelAloneActivity();
+		ACTIVITY_WORK_DURING_TRAVEL_WITH_COWORKERS = ActivityInitializer.initWorkDuringTravelWithCoworkers();
 	}
 
 	private void initLeisureActivities() {
-		ACTIVITY_LEISURE_AT_HOME_ALONE = ActivityBuilder.initLeisureAtHomeAloneActivity();
-		ACTIVITY_LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initLeisureAtHomeWithHouseholdMembersActivity();
-		ACTIVITY_LEISURE_AT_HOME_WITH_FRIENDS = ActivityBuilder.initLeisureAtHomeWithFriendsActivity();
-		ACTIVITY_LEISURE_AT_THIRD_PLACE_ALONE = ActivityBuilder.initLeisureAtThirdPlaceAloneActivity();
-		ACTIVITY_LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initLeisureAtThirdPlaceWithHouseholdMembersActivity();
-		ACTIVITY_LEISURE_AT_THIRD_PLACE_WITH_FRIENDS = ActivityBuilder.initLeisureAtThirdPlaceWithFriendsActivity();
+		ACTIVITY_LEISURE_AT_HOME_ALONE = ActivityInitializer.initLeisureAtHomeAloneActivity();
+		ACTIVITY_LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = ActivityInitializer.initLeisureAtHomeWithHouseholdMembersActivity();
+		ACTIVITY_LEISURE_AT_HOME_WITH_FRIENDS = ActivityInitializer.initLeisureAtHomeWithFriendsActivity();
+		ACTIVITY_LEISURE_AT_THIRD_PLACE_ALONE = ActivityInitializer.initLeisureAtThirdPlaceAloneActivity();
+		ACTIVITY_LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = ActivityInitializer.initLeisureAtThirdPlaceWithHouseholdMembersActivity();
+		ACTIVITY_LEISURE_AT_THIRD_PLACE_WITH_FRIENDS = ActivityInitializer.initLeisureAtThirdPlaceWithFriendsActivity();
 	}
 	
 	private void initPersonalCareActivities() {
-		ACTIVITY_PERSONAL_CARE_AT_HOME_ALONE = ActivityBuilder.initPersonalCareAtHomeAloneActivity();
-		ACTIVITY_PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initPersonalCareAtHomeWithHouseholdMembersActivity();
-		ACTIVITY_PERSONAL_CARE_AT_HOME_WITH_FRIENDS = ActivityBuilder.initPersonalCareAtHomeWithFriendsActivity();
-		ACTIVITY_PERSONAL_CARE_AT_WORK_ALONE = ActivityBuilder.initPersonalCareAtWorkAloneActivity();
-		ACTIVITY_PERSONAL_CARE_AT_WORK_WITH_COWORKERS = ActivityBuilder.initPersonalCareAtWorkWithCoworkersActivity();
-		ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_ALONE = ActivityBuilder.initPersonalCareAtThirdPlaceAloneActivity();
-		ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initPersonalCareAtThirdPlaceWithHouseholdMembersActivity();
-		ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS = ActivityBuilder.initPersonalCareAtThirdPlaceWithFriendsActivity();
+		ACTIVITY_PERSONAL_CARE_AT_HOME_ALONE = ActivityInitializer.initPersonalCareAtHomeAloneActivity();
+		ACTIVITY_PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = ActivityInitializer.initPersonalCareAtHomeWithHouseholdMembersActivity();
+		ACTIVITY_PERSONAL_CARE_AT_HOME_WITH_FRIENDS = ActivityInitializer.initPersonalCareAtHomeWithFriendsActivity();
+		ACTIVITY_PERSONAL_CARE_AT_WORK_ALONE = ActivityInitializer.initPersonalCareAtWorkAloneActivity();
+		ACTIVITY_PERSONAL_CARE_AT_WORK_WITH_COWORKERS = ActivityInitializer.initPersonalCareAtWorkWithCoworkersActivity();
+		ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_ALONE = ActivityInitializer.initPersonalCareAtThirdPlaceAloneActivity();
+		ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = ActivityInitializer.initPersonalCareAtThirdPlaceWithHouseholdMembersActivity();
+		ACTIVITY_PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS = ActivityInitializer.initPersonalCareAtThirdPlaceWithFriendsActivity();
 	}
 	
 	private void initHouseholdCareActivities() {
-		ACTIVITY_HOUSEHOLD_CARE_AT_HOME_ALONE = ActivityBuilder.initHouseholdCareAtHomeAloneActivity();
-		ACTIVITY_HOUSEHOLD_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initHouseholdCareAtHomeWithHousholdMembersActivty();
-		ACTIVITY_HOUSEHOLD_CARE_AT_THIRD_PLACE_ALONE = ActivityBuilder.initHouseholdCareAtThirdPlaceAloneActivity();
-		ACTIVITY_HOUSEHOLD_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = ActivityBuilder.initHouseholdCareAtThirdPlaceWithHouseholdMembers();
+		ACTIVITY_HOUSEHOLD_CARE_AT_HOME_ALONE = ActivityInitializer.initHouseholdAndFamilyCareAtHomeAloneActivity();
+		ACTIVITY_HOUSEHOLD_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = ActivityInitializer.initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty();
+		ACTIVITY_HOUSEHOLD_CARE_AT_THIRD_PLACE_ALONE = ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceAloneActivity();
+		ACTIVITY_HOUSEHOLD_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers();
 	}
 	
 	private void initTravelActivities() {
-		ACTIVITY_TRAVEL = ActivityBuilder.initTravelActivity();
+		ACTIVITY_TRAVEL = ActivityInitializer.initTravelActivity();
 	}
 	
 	private void initIndividuals() {
-		Individual.Builder individualBuilder = new Individual.Builder(this);
+		Individual.Builder individualBuilder = new Individual.Builder().withEnvironment(this);
 		Activity.Builder activityBuilder = new Activity.Builder();
 		
 		// setup test individual 1
 		Individual individual1 = individualBuilder
-				.withHomeLocation(IDevSettings.DEV_BUILDINGS.get(IDevSettings.INDEX_OF_HOME_BUILDING_1)) 
+				.withHomeBuilding(IDevSettings.DEV_BUILDINGS.get(IDevSettings.INDEX_OF_HOME_BUILDING_1)) 
 				.withTargetLocation(IDevSettings.DEV_BUILDINGS.get(IDevSettings.INDEX_OF_INDIVIDUAL_ACTIVITY_BUILDING_1))
 				.withIndividualActivity(activityBuilder
 						.build())
@@ -260,7 +261,7 @@ public class Environment extends SimState {
 		
 		// setup test individual 2
 		Individual individual2 = individualBuilder
-				.withHomeLocation(IDevSettings.DEV_BUILDINGS.get(1)) // index of HOME_BUILDING_2
+				.withHomeBuilding(IDevSettings.DEV_BUILDINGS.get(1)) // index of HOME_BUILDING_2
 				.withTargetLocation(IDevSettings.DEV_BUILDINGS.get(3)) // index of INDIVIDUAL_ACTIVITY_BUILDING_2
 				.build();
 		m_individuals.add(individual2);
@@ -284,7 +285,7 @@ public class Environment extends SimState {
 		MasonGeometry closestPathToHome = getClosestPath(initBuilding);
 		closestPathToHome.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH_SELECTED, ISimulationSettings.SIZE_OF_PATH));
 		BUILDING_TO_CLOSEST_PATH_MAP.put(initBuilding, closestPathToHome);
-		initBuilding.addAttribute(MASON_GEOMETRY_OF_CLOSEST_PATH, closestPathToHome);
+		initBuilding.addAttribute(ISimulationSettings.ATTRIBUTE_MASON_GEOMETRY_OF_CLOSEST_PATH, closestPathToHome);
 		m_buildingsNotInitialized.remove(building);
 	}
 
@@ -317,5 +318,9 @@ public class Environment extends SimState {
 	
 	public GeomPlanarGraph getPathNetworkGeomVectorField() {
 		return m_pathNetworkGeomVectorField;
+	}
+	
+	public ArrayList<Integer> getIndividualsNotInitialized() {
+		return m_individualsNotInitialized;
 	}
 }

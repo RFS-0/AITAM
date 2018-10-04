@@ -9,7 +9,7 @@ import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.utilities.CalculationUtility;
 
-public class ActivityBuilder {
+public class ActivityInitializer {
 	
 	public static final Activity.Builder ACTIVITY_BUILDER = new Activity.Builder();
 	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder();
@@ -31,7 +31,7 @@ public class ActivityBuilder {
 		.withExamples("Paid work")
 		.withAvailabilityIntervalAtDays(8, 0, 18, 0, WORK_WEEK)
 		.withIsJointActivity(false)
-		.withActivityLocation(ActivityLocation.HOME_LOCATION)
+		.withActivityLocation(ActivityLocation.HOME)
 		.build();
 	}
 	
@@ -48,7 +48,7 @@ public class ActivityBuilder {
 				.withExamples("Paid work")
 				.withAvailabilityIntervalAtDays(8, 0, 18, 0, WORK_WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.WORK_PLACE_LOCATION)
+				.withActivityLocation(ActivityLocation.WORK)
 				.build();
 	}
 	
@@ -67,7 +67,7 @@ public class ActivityBuilder {
 				.withExamples("Paid work")
 				.withAvailabilityIntervalAtDays(8, 0, 18, 0, WORK_WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.WORK_PLACE_LOCATION)
+				.withActivityLocation(ActivityLocation.WORK)
 				.build();
 	}
 	
@@ -84,7 +84,7 @@ public class ActivityBuilder {
 				.withExamples("Paid work")
 				.withAvailabilityIntervalAtDays(8, 0, 18, 0, WORK_WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.THIRD_WORK_PLACE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
 				.build();
 	}
 	
@@ -103,7 +103,7 @@ public class ActivityBuilder {
 				.withExamples("Paid work")
 				.withAvailabilityIntervalAtDays(8, 0, 18, 0, WORK_WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_WORK_PLACE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
 				.build();
 	}
 	
@@ -155,9 +155,9 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Sports and recreation, hobbies, reading, TV viewing, phone calls")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.HOME_LOCATION)
+				.withActivityLocation(ActivityLocation.HOME)
 				.build();
 	}
 	
@@ -175,16 +175,16 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
 				.withExamples("Sports and recreation, hobbies, reading, TV viewing")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.HOME_LOCATION)
+				.withActivityLocation(ActivityLocation.HOME)
 				.build();
 	}
 	
 	public static Activity initLeisureAtHomeWithFriendsActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at home alone")
+				.withActivityDescription("Leisure at home with friends")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
@@ -195,16 +195,16 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
 				.withExamples("Sports, TV, reading, video games")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.HOME_LOCATION)
+				.withActivityLocation(ActivityLocation.HOME)
 				.build();
 	}
 	
 	public static Activity initLeisureAtThirdPlaceAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at home alone")
+				.withActivityDescription("Leisure at 3rd place alone")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
@@ -213,16 +213,16 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Sports and recreation, culture and amusement events, hobbies, shopping, having meals")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.LEISURE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
 				.build();
 	}
 	
 	public static Activity initLeisureAtThirdPlaceWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at home alone")
+				.withActivityDescription("Leisure at third place with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
@@ -233,16 +233,16 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
 				.withExamples("Sports and recreation, culture and amusement events, hobbies, shopping, having meals")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.LEISURE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
 				.build();
 	}
 	
 	public static Activity initLeisureAtThirdPlaceWithFriendsActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at home alone")
+				.withActivityDescription("Leisure at third place with friends")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
@@ -253,9 +253,9 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
 				.withExamples("Sports and recreation, culture and amusement events, hobbies, shopping, having meals")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.LEISURE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
 				.build();
 	}
 	
@@ -269,9 +269,9 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE))
 						.build())
 				.withExamples("Personal hygiene, dressing up, sports")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.HOME_LOCATION)
+				.withActivityLocation(ActivityLocation.HOME)
 				.build();
 	}
 	
@@ -286,10 +286,10 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
-				.withExamples("Sports")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withExamples("Cooking, having meals, talking, cleaning")
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.HOME_LOCATION)
+				.withActivityLocation(ActivityLocation.HOME)
 				.build();
 	}
 	
@@ -304,10 +304,10 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
-				.withExamples("Sports")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withExamples("Cooking, having meals, talking")
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.HOME_LOCATION)
+				.withActivityLocation(ActivityLocation.HOME)
 				.build();
 	}
 	
@@ -321,9 +321,9 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE))
 						.build())
 				.withExamples("Having meals")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.WORK_PLACE_LOCATION)
+				.withActivityLocation(ActivityLocation.WORK)
 				.build();
 	}
 	
@@ -339,9 +339,9 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Having meals")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.WORK_PLACE_LOCATION)
+				.withActivityLocation(ActivityLocation.WORK)
 				.build();
 	}
 	
@@ -355,9 +355,9 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE))
 						.build())
 				.withExamples("Sports")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.THIRD_LEISURE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.build();
 	}
 	
@@ -373,9 +373,9 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Sports")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_LEISURE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.build();
 	}
 	
@@ -391,15 +391,15 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Sports")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_LEISURE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.build();
 	}
 	
-	public static Activity initHouseholdCareAtHomeAloneActivity() {
+	public static Activity initHouseholdAndFamilyCareAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.HOUSEHOLD_CARE)
+				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
 				.withActivityDescription("Household/family care at home alone")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SEVEN))
@@ -407,15 +407,15 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.SEVEN))
 						.build())
 				.withExamples("Housework, Shopping, family business, services and civic matters")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.HOME_LOCATION)
+				.withActivityLocation(ActivityLocation.HOME)
 				.build();
 	}
 	
-	public static Activity initHouseholdCareAtHomeWithHousholdMembersActivty() {
+	public static Activity initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty() {
 		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.HOUSEHOLD_CARE)
+				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
 				.withActivityDescription("Household/family care at home with household member(s)")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.ELEVEN))
@@ -424,32 +424,32 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.ELEVEN))
 						.build())
 				.withExamples("Housework, Shopping, family business, services and civic matters")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.HOME_LOCATION)
+				.withActivityLocation(ActivityLocation.HOME)
 				.build();
 	}
 
-	public static Activity initHouseholdCareAtThirdPlaceAloneActivity() {
+	public static Activity initHouseholdAndFamilyCareAtThirdPlaceAloneActivity() {
 		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.HOUSEHOLD_CARE)
-				.withActivityDescription("Shopping, family business, services and civic matters")
+				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
+				.withActivityDescription("Household/family care at 3rd place alone")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SEVEN))
 						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.SEVEN))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.SEVEN))
 						.build())
 				.withExamples("Shopping, family business, services and civic matters")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_HOUSEHOLD_CARE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.build();
 	}
 	
-	public static Activity initHouseholdCareAtThirdPlaceWithHouseholdMembers() {
+	public static Activity initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers() {
 		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.HOUSEHOLD_CARE)
-				.withActivityDescription("Shopping, family business, services and civic matters")
+				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
+				.withActivityDescription("Household/family care at 3rd place with household member(s)")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.ELEVEN))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.ELEVEN))
@@ -457,9 +457,9 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.ELEVEN))
 						.build())
 				.withExamples("Shopping, family business, services and civic matters")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_HOUSEHOLD_CARE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.build();
 	}
 	
@@ -471,7 +471,7 @@ public class ActivityBuilder {
 						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
 						.build())
 				.withExamples("Travel with any mode of transport")
-				.withAvailabilityIntervalAtDays(0,0,24,0, WEEK)
+				.withAvailabilityIntervalAtDays(0,0,23,59, WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.TRAVEL)
 				.build();

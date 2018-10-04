@@ -11,7 +11,6 @@ public interface ISimulationSettings {
 	public static final int ENVIRONMENT_WIDTH = 1000;
 	public static final String BUILDINGS_FILE = "\\data\\environment\\buildings\\buildings.shp";
 	public static final String PATHS_FILE = "\\data\\environment\\paths\\paths.shp";
-	public static final int NUMBER_OF_AGENTS = 2;
 	public static final double MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT = 0.04; // assuming reaction time of 1.8 s and average velocity of 50 km/h
 	public static final double MAX_VELOCITY = 13.9; // max velocity in m/s (equivalent to 50 km/h)
 	public static final double MAX_SLOW_DOWN_FACTOR = 0.2;
@@ -33,10 +32,33 @@ public interface ISimulationSettings {
 	public static final Color COLOR_OF_TARGET = new Color(255, 100, 160);
 	
 	/**
-	 * Constants used to for simulating time
+	 * Constants used for simulating time
 	 */
 	public static final int BASE_YEAR = 2018;
 	public static final int BASE_MONTH = 1;
 	public static final int BASE_DAY = 1;
 	
+	/**
+	 * Constants used for simulating individuals
+	 */
+	public static final int NUMBER_OF_INDIVIDUALS = 30;
+	public static final int MIN_NUMBER_OF_HOUSEHOLD_MEMBERS = 1;
+	public static final int MAX_NUMBER_OF_HOUSEHOLD_MEMBERS = 4;
+	public static final int MIN_NUMBER_OF_WORK_COLLEGUES = 1;
+	public static final int MAX_NUMBER_OF_WORK_COLLEGUES = 4;
+	public static final int MIN_NUMBER_OF_FRIENDS = 1;
+	public static final int MAX_NUMBER_OF_FRIENDS = 4;
+	
+	/**
+	 * Attributes of buildings
+	 */
+	public static final String ATTRIBUTE_MASON_GEOMETRY_OF_CLOSEST_PATH = "MASON_GEOMETRY_OF_CLOSEST_PATH";
+	public static final String ATTRIBUTE_ACTIVITY_CATEGORY = "ACTIVITY_CATEGORY";
+	
+	/**
+	 * Max distances to related activity locations
+	 */
+	public static final double MAX_DISTANCE_TO_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE = 100;
+	public static final double MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK = 100;
+	public static final double MAX_DISTANCE_TO_THIRD_PLACE_FOR_LEISURE = 100;
 }

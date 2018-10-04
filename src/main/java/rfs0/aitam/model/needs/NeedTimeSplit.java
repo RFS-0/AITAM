@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import rfs0.aitam.model.Individual;
 import rfs0.aitam.utilities.CalculationUtility;
 
 public class NeedTimeSplit {
@@ -46,8 +45,12 @@ public class NeedTimeSplit {
 			else if (sum.compareTo(BigDecimal.ONE) == -1) {
 				difference = BigDecimal.ONE.subtract(fraction);
 			}
+			// no difference
+			if (difference.compareTo(BigDecimal.ZERO) == 0) {
+				return;
+			}
 			// handle difference bigger than what can be attributed to rounding behavior
-			if (difference.compareTo(BigDecimal.valueOf(0.00001)) > 0) {
+			else if (difference.compareTo(BigDecimal.valueOf(0.00001)) > 0) {
 				Logger.getLogger(NeedTimeSplit.class.getName()).log(Level.WARNING, "Check creation of need time split. Detected deviation from correct time allocation of 1.0 taking rounding issues into account: " + difference);
 				targetNeedTimeSplitToBuild.m_needTimeSplit.put(Need.NOT_DEFINED, difference);
 			}

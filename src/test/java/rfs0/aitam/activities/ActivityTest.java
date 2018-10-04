@@ -1,4 +1,4 @@
-package rfs0.aitam.model;
+package rfs0.aitam.activities;
 
 import static org.junit.Assert.assertEquals;
 
@@ -62,7 +62,7 @@ public class ActivityTest {
 		s_testEndHourOfDay = 18;
 		s_testEndMinuteOfDay = 59;
 		s_testIsJointActivity = true;
-		s_testActivityLocation = ActivityLocation.THIRD_WORK_PLACE_LOCATION;
+		s_testActivityLocation = ActivityLocation.THIRD_PLACE_FOR_WORK;
 
 		s_testActivity = ACTIVITY_BUILDER.withActivityCategory(ActivityCategory.WORK)
 				.withActivityDescription(s_testActivityDescription)
@@ -71,7 +71,7 @@ public class ActivityTest {
 				.withAvailabilityIntervalAtDays(s_testStartHourOfDay, s_testStartMinuteOfDay, s_testEndHourOfDay,
 						s_testEndMinuteOfDay, WORK_WEEK)
 				.withIsJointActivity(s_testIsJointActivity)
-				.withActivityLocation(ActivityLocation.THIRD_WORK_PLACE_LOCATION)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
 				.build();
 	}
 
