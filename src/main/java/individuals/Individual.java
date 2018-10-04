@@ -43,11 +43,11 @@ public class Individual implements Steppable {
 	 * Networks related activities
 	 */
 	private Network m_householdMembersNetwork = new Network(false);
-	private int m_householdMembersNetworkId;
+	private int m_householdMembersNetworkId = -1;
 	private Network m_workColleguesNetwork = new Network(false);
-	private int m_workColleguesNetworkId;
+	private int m_workColleguesNetworkId = -1;
 	private Network m_friendsNetwork = new Network(false);
-	private int m_friendsNetworkId;
+	private int m_friendsNetworkId = -1;
 
 	/**
 	 * Needs related activities
@@ -299,7 +299,6 @@ public class Individual implements Steppable {
 		}
 		
 		public Individual build() {
-			individualToBuild.initPathToBuilding(individualToBuild.m_targetLocationGeometry);
 			Individual builtIndividual = individualToBuild;
 			individualToBuild = new Individual();
 			return builtIndividual;
@@ -601,7 +600,7 @@ public class Individual implements Steppable {
 		return m_friendsNetworkId;
 	}
 	
-	public MasonGeometry geHomeBuilding() {
+	public MasonGeometry getHomeBuilding() {
 		return m_homeBuilding;
 	}
 	

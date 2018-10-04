@@ -11,34 +11,33 @@ import sim.field.network.Network;
 import sim.util.Bag;
 import sim.util.geo.MasonGeometry;
 
-public class IndividualInitializer {
+public final class IndividualInitializer {
 	
 	public static final Individual.Builder INDIVIDUAL_BUILDER = new Individual.Builder();
-	public static final ArrayList<Individual> ALL_INDIVIDUALS = initEmptyIndividuals();
+	public static ArrayList<Individual> ALL_INDIVIDUALS = new ArrayList<>();
 
 	public IndividualInitializer() {}
 	
-	public ArrayList<Individual> initIndividuals(Environment environment) {
+	public static ArrayList<Individual> initIndividuals(Environment environment) {
+		initEmptyIndividuals();
 		initHouseholdAndFamilyRelatedAspects(environment);
 		initWorkRelatedAspects(environment);
 		initLeisureRelatedAspects(environment);
 		return ALL_INDIVIDUALS;
 	}
 	
-	public static ArrayList<Individual> initEmptyIndividuals() {
-		ArrayList<Individual> allIndividuals = new ArrayList<>();
+	private static void initEmptyIndividuals() {
 		for (int i = 0; i < ISimulationSettings.NUMBER_OF_INDIVIDUALS; i++) {
 			ALL_INDIVIDUALS.add(INDIVIDUAL_BUILDER.withId(i).build());
 		}
-		return allIndividuals;
 	}
 	
-	private void initHouseholdAndFamilyRelatedAspects(Environment environment) {
+	private static void initHouseholdAndFamilyRelatedAspects(Environment environment) {
 		ArrayList<Integer> initRange = geRangeOfIndividualsToInitialize();
 		int networkId = 0;
 		ArrayList<MasonGeometry> availableBuildings = getAvailableBuildings(environment);
 		while (initRange.size() > 0) {
-			ArrayList<Integer> householdMembersIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MAX_NUMBER_OF_HOUSEHOLD_MEMBERS);
+			ArrayList<Integer> householdMembersIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MIN_NUMBER_OF_HOUSEHOLD_MEMBERS , ISimulationSettings.MAX_NUMBER_OF_HOUSEHOLD_MEMBERS);
 			Network householdNetwork = createNetworkForMemberIndices(householdMembersIndices);
 			MasonGeometry homeBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
 			MasonGeometry thirdPlaceForHouseholdAndFamilyCare = determineBuildingForCategoryWithinDistance(environment, availableBuildings, homeBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
@@ -55,12 +54,12 @@ public class IndividualInitializer {
 		}
 	}
 	
-	private void initWorkRelatedAspects(Environment environment) {
+	private static void initWorkRelatedAspects(Environment environment) {
 		ArrayList<Integer> initRange = geRangeOfIndividualsToInitialize();
 		int networkId = 0;
 		ArrayList<MasonGeometry> availableBuildings = getAvailableBuildings(environment);
 		while (initRange.size() > 0) {
-			ArrayList<Integer> workColleguesIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MAX_NUMBER_OF_WORK_COLLEGUES);
+			ArrayList<Integer> workColleguesIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MIN_NUMBER_OF_WORK_COLLEGUES , ISimulationSettings.MAX_NUMBER_OF_WORK_COLLEGUES);
 			Network workColleguesNetwork = createNetworkForMemberIndices(workColleguesIndices);
 			MasonGeometry workBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.WORK);
 			MasonGeometry thirdPlaceForWork = determineBuildingForCategoryWithinDistance(environment, availableBuildings, workBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK, ActivityCategory.WORK);
@@ -77,12 +76,12 @@ public class IndividualInitializer {
 		}
 	}
 	
-	private void initLeisureRelatedAspects(Environment environment) {
+	private static void initLeisureRelatedAspects(Environment environment) {
 		ArrayList<Integer> initRange = geRangeOfIndividualsToInitialize();
 		int networkId = 0;
 		ArrayList<MasonGeometry> availableBuildings = getAvailableBuildings(environment);
 		while (initRange.size() > 0) {
-			ArrayList<Integer> friendsIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MAX_NUMBER_OF_FRIENDS);
+			ArrayList<Integer> friendsIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MIN_NUMBER_OF_FRIENDS, ISimulationSettings.MAX_NUMBER_OF_FRIENDS);
 			Network friendsNetwork = createNetworkForMemberIndices(friendsIndices);
 			MasonGeometry leisureBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.LEISURE);
 			MasonGeometry thirdPlaceForLeisure = determineBuildingForCategoryWithinDistance(environment, availableBuildings, leisureBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK, ActivityCategory.LEISURE);
@@ -99,7 +98,7 @@ public class IndividualInitializer {
 		}
 	}
 	
-	private Network createNetworkForMemberIndices(ArrayList<Integer> membersIndices) {
+	private static Network createNetworkForMemberIndices(ArrayList<Integer> membersIndices) {
 		Network network = new Network();
 		for (Integer memberIndex: membersIndices) {
 			network.addNode(IndividualInitializer.ALL_INDIVIDUALS.get(memberIndex));
@@ -107,31 +106,31 @@ public class IndividualInitializer {
 		return network;
 	}
 	
-	private ArrayList<Integer> determineNetworkMembers(Environment environment, ArrayList<Integer> remainingInitRange, int maxNumberOfNetworkMembers) {
-		ArrayList<Integer> householdMembers = new ArrayList<>();
-		int numberOfHouseholdMembers = environment.random.nextInt(maxNumberOfNetworkMembers) + 1;
+	private static ArrayList<Integer> determineNetworkMembers(Environment environment, ArrayList<Integer> remainingInitRange, int minNumberOfNetworkMembers, int maxNumberOfNetworkMembers) {
+		ArrayList<Integer> networkMembers = new ArrayList<>();
+		int numberOfHouseholdMembers = minNumberOfNetworkMembers + environment.random.nextInt(maxNumberOfNetworkMembers);
 		if (numberOfHouseholdMembers > remainingInitRange.size()) {
 			numberOfHouseholdMembers = remainingInitRange.size();
 		}
 		for (int i = 0; i < numberOfHouseholdMembers; i++) {
 			int indexOfNextIndividual = environment.random.nextInt(remainingInitRange.size());
-			householdMembers.add(remainingInitRange.remove(indexOfNextIndividual));
+			networkMembers.add(remainingInitRange.remove(indexOfNextIndividual));
 		}
-		return householdMembers;
+		return networkMembers;
 	}
 	
-	private ArrayList<Integer> geRangeOfIndividualsToInitialize() {
+	private static ArrayList<Integer> geRangeOfIndividualsToInitialize() {
 		return IntStream.range(0, ISimulationSettings.NUMBER_OF_INDIVIDUALS).boxed().collect(Collectors.toCollection(ArrayList::new));
 	}
 	
-	private MasonGeometry determineLocationForCategory(Environment environment, ArrayList<MasonGeometry> availableBuildings, ActivityCategory activityCategory) {
+	private static MasonGeometry determineLocationForCategory(Environment environment, ArrayList<MasonGeometry> availableBuildings, ActivityCategory activityCategory) {
 		int indexOfChoosenLocation = environment.random.nextInt(availableBuildings.size());
 		MasonGeometry choosenLocation = availableBuildings.remove(indexOfChoosenLocation);
 		choosenLocation.addAttribute(ISimulationSettings.ATTRIBUTE_ACTIVITY_CATEGORY, activityCategory);
 		return choosenLocation;
 	}
 	
-	private MasonGeometry determineBuildingForCategoryWithinDistance(Environment environment, ArrayList<MasonGeometry> availableBuildings, MasonGeometry building, double distance, ActivityCategory activityCategory) {
+	private static MasonGeometry determineBuildingForCategoryWithinDistance(Environment environment, ArrayList<MasonGeometry> availableBuildings, MasonGeometry building, double distance, ActivityCategory activityCategory) {
 		Bag buildingsWithinDistance = environment.m_buildingsGeomVectorField.getObjectsWithinDistance(building, distance);
 		int indexOfChoosenLocation = environment.random.nextInt(buildingsWithinDistance.size());
 		MasonGeometry choosenLocation = availableBuildings.remove(indexOfChoosenLocation);
@@ -139,7 +138,7 @@ public class IndividualInitializer {
 		return choosenLocation;
 	}
 	
-	public ArrayList<MasonGeometry> getAvailableBuildings(Environment environment) {
+	public static ArrayList<MasonGeometry> getAvailableBuildings(Environment environment) {
 		ArrayList<MasonGeometry> availableBuildings = new ArrayList<>();  
 		for (Object geometry: environment.m_buildingsGeomVectorField.getGeometries()) {
 			  if (geometry instanceof MasonGeometry) {

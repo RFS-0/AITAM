@@ -22,13 +22,11 @@ import activities.Activity;
 import activities.ActivityInitializer;
 import activities.WeekDay;
 import individuals.Individual;
-import rfs0.aitam.commons.IDevSettings;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;
 import sim.field.geo.GeomVectorField;
 import sim.io.geo.ShapeFileImporter;
-import sim.portrayal.geo.GeomPortrayal;
 import sim.util.Bag;
 import sim.util.geo.GeomPlanarGraph;
 import sim.util.geo.GeomPlanarGraphEdge;
@@ -243,50 +241,18 @@ public class Environment extends SimState {
 	}
 	
 	private void initIndividuals() {
-		Individual.Builder individualBuilder = new Individual.Builder().withEnvironment(this);
-		Activity.Builder activityBuilder = new Activity.Builder();
-		
-		// setup test individual 1
-		Individual individual1 = individualBuilder
-				.withHomeBuilding(IDevSettings.DEV_BUILDINGS.get(IDevSettings.INDEX_OF_HOME_BUILDING_1)) 
-				.withTargetLocation(IDevSettings.DEV_BUILDINGS.get(IDevSettings.INDEX_OF_INDIVIDUAL_ACTIVITY_BUILDING_1))
-				.withIndividualActivity(activityBuilder
-						.build())
-				.withIndividualActivity(activityBuilder
-						.build())
-				.build();
-		m_individuals.add(individual1);
-		m_individualsGeomVectorField.addGeometry(individual1.getCurrentLocation());
-		schedule.scheduleRepeating(individual1);
-		
-		// setup test individual 2
-		Individual individual2 = individualBuilder
-				.withHomeBuilding(IDevSettings.DEV_BUILDINGS.get(1)) // index of HOME_BUILDING_2
-				.withTargetLocation(IDevSettings.DEV_BUILDINGS.get(3)) // index of INDIVIDUAL_ACTIVITY_BUILDING_2
-				.build();
-		m_individuals.add(individual2);
-		m_individualsGeomVectorField.addGeometry(individual2.getCurrentLocation());
-		schedule.scheduleRepeating(individual2);
 	}
 	
 	private void initBuildings() {
-		initDevBuilding(IDevSettings.HOME_BUILDING_1);
-		initDevBuilding(IDevSettings.HOME_BUILDING_2);
-		initDevBuilding(IDevSettings.INDIVIDUAL_ACTIVITY_BUILDING_1);
-		initDevBuilding(IDevSettings.INDIVIDUAL_ACTIVITY_BUILDING_2);
-		initDevBuilding(IDevSettings.GENERAL_ACTIVITY_BUILDING_1);
-		initDevBuilding(IDevSettings.GENERAL_ACTIVITY_BUILDING_2);
+		initBuildingToClosestPathMap();
 	}
-
-	private void initDevBuilding(int building) {
-		MasonGeometry initBuilding = (MasonGeometry) m_buildingsGeomVectorField.getGeometries().get(building);
-		IDevSettings.DEV_BUILDINGS.add(initBuilding);
-		initBuilding.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_BUILDING_SELECTED, ISimulationSettings.SIZE_OF_BUILDING));
-		MasonGeometry closestPathToHome = getClosestPath(initBuilding);
-		closestPathToHome.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH_SELECTED, ISimulationSettings.SIZE_OF_PATH));
-		BUILDING_TO_CLOSEST_PATH_MAP.put(initBuilding, closestPathToHome);
-		initBuilding.addAttribute(ISimulationSettings.ATTRIBUTE_MASON_GEOMETRY_OF_CLOSEST_PATH, closestPathToHome);
-		m_buildingsNotInitialized.remove(building);
+	
+	private void initBuildingToClosestPathMap() {
+		for (Object buildingObject: m_buildingsGeomVectorField.getGeometries()) {
+			MasonGeometry building = (MasonGeometry) buildingObject;
+			MasonGeometry pathClosestToBuilding = getClosestPath(building);
+			BUILDING_TO_CLOSEST_PATH_MAP.put(building, pathClosestToBuilding);
+		}
 	}
 
 	public MasonGeometry getClosestPath(MasonGeometry geometry) {
