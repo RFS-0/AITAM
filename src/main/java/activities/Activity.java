@@ -18,11 +18,16 @@ public class Activity {
 	private String m_activityDescription;
 	private ActivityLocation m_activityLocation;
 	private boolean m_isJointActivity;
-	private HashMap<WeekDay, ArrayList<Interval>> m_availability = new HashMap<>();
+	private HashMap<Integer, ArrayList<Interval>> m_availability = new HashMap<>();
 	private NeedTimeSplit m_needTimeSplit;
 	private String m_examples;
 
 	private Activity() {}
+	
+	@Override
+	public String toString() {
+		return m_activityDescription;
+	}
 
 	public static class Builder {
 
@@ -52,7 +57,7 @@ public class Activity {
 			return this;
 		}
 		
-		public Builder withAvailabilityInterval(WeekDay weekDay, int startHourOfDay, int startMinuteOfDay, int endHourOfDay, int endMinuteOfDay) {
+		public Builder withAvailabilityInterval(int weekDay, int startHourOfDay, int startMinuteOfDay, int endHourOfDay, int endMinuteOfDay) {
 			if (startHourOfDay >= endHourOfDay) {
 				Logger.getLogger(Activity.class.getName()).log(Level.SEVERE, "Interval is invalid: start is after end. The built activity may be unusable!");
 			}
@@ -65,13 +70,13 @@ public class Activity {
 			return this;
 		}
 
-		public Builder withAvailabilityIntervalAtDays(int startHourOfDay, int startMinuteOfDay, int endHourOfDay, int endMinuteOfDay, WeekDay ...weekDays) {
+		public Builder withAvailabilityIntervalAtDays(int startHourOfDay, int startMinuteOfDay, int endHourOfDay, int endMinuteOfDay, int ...weekDays) {
 			if (startHourOfDay >= endHourOfDay) {
 				Logger.getLogger(Activity.class.getName()).log(Level.SEVERE, "Interval is invalid: start is after end. The built activity may be unusable!");
 			}
 			DateTime startOfInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, startHourOfDay, startMinuteOfDay);
 			DateTime endOfInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, endHourOfDay, endMinuteOfDay);
-			for (WeekDay day: weekDays) {
+			for (int day: weekDays) {
 				if (activityToBuild.m_availability.get(day) == null) {
 					activityToBuild.m_availability.put(day, new ArrayList<>());
 				}
@@ -80,13 +85,13 @@ public class Activity {
 			return this;
 		}
 		
-		public Builder withAvailabilityIntervalAtDays(int startHourOfDay, int startMinuteOfDay, int endHourOfDay, int endMinuteOfDay, ArrayList<WeekDay> weekDays) {
+		public Builder withAvailabilityIntervalAtDays(int startHourOfDay, int startMinuteOfDay, int endHourOfDay, int endMinuteOfDay, ArrayList<Integer> weekDays) {
 			if (startHourOfDay >= endHourOfDay) {
 				Logger.getLogger(Activity.class.getName()).log(Level.SEVERE, "Interval is invalid: start is after end. The built activity may be unusable!");
 			}
 			DateTime startOfInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, startHourOfDay, startMinuteOfDay);
 			DateTime endOfInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, endHourOfDay, endMinuteOfDay);
-			for (WeekDay day: weekDays) {
+			for (Integer day: weekDays) {
 				if (activityToBuild.m_availability.get(day) == null) {
 					activityToBuild.m_availability.put(day, new ArrayList<>());
 				}
@@ -95,7 +100,7 @@ public class Activity {
 			return this;
 		}
 		
-		public Builder withAvailability(HashMap<WeekDay, ArrayList<Interval>> availability) {
+		public Builder withAvailability(HashMap<Integer, ArrayList<Interval>> availability) {
 			activityToBuild.m_availability = availability;
 			return this;
 		}
@@ -165,16 +170,21 @@ public class Activity {
 		return m_activityLocation == activitiyLocation;
 	}
 
-	public HashMap<WeekDay, ArrayList<Interval>> getAvailability() {
+	public HashMap<Integer, ArrayList<Interval>> getAvailability() {
 		return m_availability;
 	}
 	
-	public boolean isAvailableAt(WeekDay weekDay, Interval interval) {
+	public boolean isAvailableAt(int weekDay, Interval interval) {
 		if (m_availability.get(weekDay) == null) {
 			return false;
 		}
 		Predicate<Interval> contains = i -> i.contains(interval);
 		return m_availability.get(weekDay).stream().anyMatch(contains);
+	}
+	
+	public boolean isAvailableAt(int weekDay, DateTime currentTime) {
+		Interval currentTimeAsInterval = new Interval(currentTime);
+		return isAvailableAt(weekDay, currentTimeAsInterval);
 	}
 	
 	public NeedTimeSplit getNeedTimeSplit() {

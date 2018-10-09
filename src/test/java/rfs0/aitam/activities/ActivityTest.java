@@ -3,12 +3,12 @@ package rfs0.aitam.activities;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.Interval;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,7 +16,6 @@ import org.junit.Test;
 import activities.Activity;
 import activities.ActivityCategory;
 import activities.ActivityLocation;
-import activities.WeekDay;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
@@ -26,9 +25,6 @@ public class ActivityTest {
 
 	public static final Activity.Builder ACTIVITY_BUILDER = new Activity.Builder();
 	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder();
-	public static final ArrayList<WeekDay> WORK_WEEK = Stream
-			.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY)
-			.collect(Collectors.toCollection(ArrayList::new));
 	public static ActivityCategory s_testActivityCategory;
 	public static String s_testActivityDescription;
 	public static NeedTimeSplit s_testNeedTimeSplit;
@@ -39,7 +35,6 @@ public class ActivityTest {
 	public static int s_testStartMinuteOfDay;
 	public static int s_testEndHourOfDay;
 	public static int s_testEndMinuteOfDay;
-	public static ArrayList<WeekDay> s_weekDays = WORK_WEEK;
 	public static boolean s_testIsJointActivity;
 	public static ActivityLocation s_testActivityLocation;
 	public static Activity s_testActivity;
@@ -69,7 +64,7 @@ public class ActivityTest {
 				.withNeedTimeSplit(s_testNeedTimeSplit)
 				.withExamples(s_testExamples)
 				.withAvailabilityIntervalAtDays(s_testStartHourOfDay, s_testStartMinuteOfDay, s_testEndHourOfDay,
-						s_testEndMinuteOfDay, WORK_WEEK)
+						s_testEndMinuteOfDay, ISimulationSettings.WORK_WEEK)
 				.withIsJointActivity(s_testIsJointActivity)
 				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
 				.build();
@@ -113,11 +108,11 @@ public class ActivityTest {
 		Interval notAvailable = new Interval(notAvailableStartTime, notAvailableEndTime);
 		Interval notAvailableStart = new Interval(notAvailableStartTime, availableEndTime);
 		Interval notAvailableEnd = new Interval(availableStartTime, notAvailableEndTime);
-		assertEquals(true, s_testActivity.isAvailableAt(WeekDay.MONDAY, available));
-		assertEquals(false, s_testActivity.isAvailableAt(WeekDay.SATURDAY, available));
-		assertEquals(false, s_testActivity.isAvailableAt(WeekDay.MONDAY, notAvailable));
-		assertEquals(false, s_testActivity.isAvailableAt(WeekDay.MONDAY, notAvailableStart));
-		assertEquals(false, s_testActivity.isAvailableAt(WeekDay.MONDAY, notAvailableEnd));
+		assertEquals(true, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
+		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.SATURDAY, available));
+		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, notAvailable));
+		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, notAvailableStart));
+		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, notAvailableEnd));
 	}
 	
 	@Test
