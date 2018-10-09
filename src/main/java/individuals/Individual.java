@@ -7,6 +7,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
@@ -14,13 +17,16 @@ import com.vividsolutions.jts.linearref.LengthIndexedLine;
 import com.vividsolutions.jts.planargraph.Node;
 
 import activities.Activity;
+import activities.ActivityPlan;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.needs.ActualNeedTimeSplit;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.utilities.CalculationUtility;
 import rfs0.aitam.utilities.GeometryUtility;
 import rfs0.aitam.utilities.GraphUtility;
+import rfs0.aitam.utilities.TimeUtility;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.geo.GeomVectorField;
@@ -58,7 +64,7 @@ public class Individual implements Steppable {
 	/**
 	 * Activity related variables
 	 */
-	private ArrayList<Activity> m_individualActivities = new ArrayList<>();
+	private ActivityPlan m_activityPlan = new ActivityPlan();
 
 	/**
 	 * GIS related variables
@@ -238,16 +244,6 @@ public class Individual implements Steppable {
 			return this;
 		}
 		
-		public Builder withIndividualActivities(ArrayList<Activity> individualActivities) {
-			individualToBuild.m_individualActivities = individualActivities;
-			return this;
-		}
-		
-		public Builder withIndividualActivity(Activity individualActivity) {
-			individualToBuild.m_individualActivities.add(individualActivity);
-			return this;
-		}
-		
 		public Builder withHousholdMembersNetworkId(int householdMembersNetworkId) {
 			individualToBuild.m_householdMembersNetworkId = householdMembersNetworkId;
 			return this;
@@ -307,42 +303,133 @@ public class Individual implements Steppable {
 
 	@Override
 	public void step(SimState state) {
-		updateKnowledge();
-		planActivities();
+		Environment environment = (Environment) state;
+		if (isPlanningNecessary(environment)) {
+			planActivities(environment);
+		}
 		executeActivitiy();
 		updateMemory();
-		if (m_segment == null) {
-			// TODO: make sure we are on some edge of the path network & handle case where
-			// we are not (maybe reset to last building visited or home location)
-			System.out.println("Agent is not on any edge anymore. This should never occur. Handle this case!");
+		// TODO: extract to method
+//		if (m_segment == null) {
+//			// TODO: make sure we are on some edge of the path network & handle case where
+//			// we are not (maybe reset to last building visited or home location)
+//			System.out.println("Agent is not on any edge anymore. This should never occur. Handle this case!");
+//		}
+//		if (m_hasFinishedActivity) {
+//			// TODO: if it finished its activity it replans the rest of the day
+//		}
+//		if (!m_hasReachedTarget) {
+//			double travellingDistance = calculateTravellingDistance();
+//			m_currentIndexOnLineOfEdge += travellingDistance;
+//			if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
+//				// positive movement
+//				moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
+//
+//			} else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
+//				// negative movement
+//				moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
+//			}
+//			updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
+//		}
+	}
+	/**
+	 * Replan after each activity
+	 * @param environment
+	 * @return
+	 */
+	private boolean isPlanningNecessary(Environment environment) {
+		if (m_activityPlan.getLastPlannedInterval() == null || m_activityPlan.getIntervals().isEmpty()) { // nothing planned yet
+			return true;
 		}
-		if (m_hasFinishedActivity) {
-			// TODO: if it finished its activity it replans the rest of the day
+		else if (m_activityPlan.getIntervals().stream().anyMatch(interval -> interval.getEnd().equals(environment.getSimulationTime().getCurrentTime()))) { // we have reached the end of an activity
+			return true;
+		} 
+		else { // we have not reached the end of an activity
+			return true;
 		}
-		if (!m_hasReachedTarget) {
-			double travellingDistance = calculateTravellingDistance();
-			m_currentIndexOnLineOfEdge += travellingDistance;
-			if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
-				// positive movement
-				moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
-
-			} else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
-				// negative movement
-				moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
+	}
+	
+	private void planActivities(Environment environment) {
+		m_activityPlan.clearPlan();
+		m_activityPlan.clearLocations();
+		DateTime endOfCurrentDay = TimeUtility.getStartOfNextDay(environment.getSimulationTime().getCurrentTime()).minusMinutes(1);
+		DateTime startOfUnplannedTime;
+		DateTime endOfUnplannedTime;
+		Activity randomActivity;
+		MasonGeometry activityLocation;
+		ArrayList<ActivityPlan> randomlyGeneratedPlans = new ArrayList<>();
+		for (int i = 0; i < ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE; i++) {
+			ActivityPlan randomPlan = new ActivityPlan();
+			while (randomPlan.getLastPlannedInterval() == null || !randomPlan.getLastPlannedInterval().getEnd().equals(endOfCurrentDay)) { // add activities until the whole day is planned
+				BigDecimal duration = ISimulationSettings.ACTIVITY_DURATIONS.get(environment.random.nextInt(ISimulationSettings.ACTIVITY_DURATIONS.size()));
+				if (randomPlan.getLastPlannedInterval() == null) { // plan rest of day (includes planning of the whole day)
+					startOfUnplannedTime = environment.getSimulationTime().getCurrentTime();
+				} 
+				else {
+					startOfUnplannedTime = randomPlan.getLastPlannedInterval().getEnd();
+				}
+				endOfUnplannedTime = startOfUnplannedTime.plusMinutes(duration.intValue());
+				if (endOfUnplannedTime.isAfter(endOfCurrentDay)) { // make sure plan ends at 23:59
+					endOfUnplannedTime = endOfCurrentDay;
+				}
+				Interval intervalOfInterest = new Interval(startOfUnplannedTime, endOfUnplannedTime);
+				ArrayList<Activity> availableActivities = environment.getAllActivities().stream()
+						.filter(act -> act.isAvailableAt(environment.getSimulationTime().getCurrentWeekDay(), intervalOfInterest))
+						.collect(Collectors.toCollection(ArrayList::new));
+				if (availableActivities.size() == 0) {
+					Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Make sure there is always at least one activity available!", intervalOfInterest));	
+				}
+				randomActivity = availableActivities.get(environment.random.nextInt(availableActivities.size()));
+				activityLocation = chooseActivityLocation(randomActivity);
+				randomPlan.addActivityForInterval(intervalOfInterest, randomActivity);
+				randomPlan.addLocationForInterval(intervalOfInterest, activityLocation);
+				for (Need needSatisfiedByRandomActivity: randomActivity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
+					BigDecimal fractionForNeed = randomActivity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity);
+					BigDecimal timeSpentSatisfyingNeed = fractionForNeed.multiply(duration);
+					randomPlan.getActualNeedTimeSplit().updateNeedTimeSplit(needSatisfiedByRandomActivity, timeSpentSatisfyingNeed);
+				}
 			}
-			updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
+			randomlyGeneratedPlans.add(randomPlan);
 		}
+		chooseBestPlan(randomlyGeneratedPlans);
 	}
 	
-	private void updateKnowledge() {
-		// gather information about networks
+	/**
+	 * Use MSE for evaluation of best plan
+	 */
+	private void chooseBestPlan(ArrayList<ActivityPlan> randomlyGeneratedPlans) {
+		ActivityPlan bestPlan = null;
+		BigDecimal minimumSquaredMeanError = new BigDecimal(Integer.MAX_VALUE);
+		for (int i = 0; i < randomlyGeneratedPlans.size(); i++) {
+			BigDecimal meanSquaredError = CalculationUtility.calculateMeanSquaredError(randomlyGeneratedPlans.get(i), m_targetNeedTimeSplit);
+			if (meanSquaredError.compareTo(minimumSquaredMeanError) < 0) {
+				minimumSquaredMeanError = meanSquaredError;
+				bestPlan = randomlyGeneratedPlans.get(i);
+			}
+		}
+		m_activityPlan = bestPlan;
 	}
 	
-	private void planActivities() {
-		// get available activities
-		// determine which activitiy should be scheduled next
-		// determine where it should be executed
-		// determine how long the activity shall be executed
+	private MasonGeometry chooseActivityLocation(Activity activity) {
+		switch (activity.getActivityLocation()) {
+		case HOME:
+			return m_homeBuilding;
+		case THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE:
+			return m_thirdPlaceForHouseholdAndFamilyCareBuilding;
+		case LEISURE:
+			return m_leisureBuilding;
+		case THIRD_PLACE_FOR_LEISURE:
+			return m_thirdPlaceForLeisureBuilding;
+		case THIRD_PLACE_FOR_WORK:
+			return m_thirdPlaceForWorkBuilding;
+		case WORK:
+			return m_thirdPlaceForWorkBuilding;
+		case TRAVEL:
+			return m_targetLocationGeometry;
+		default:
+			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, "Could not choose activty location!");
+			return null;
+		}
 	}
 	
 	private void executeActivitiy() {
@@ -642,5 +729,9 @@ public class Individual implements Steppable {
 	
 	public MasonGeometry getThirdPlaceForLeisurePoint() {
 		return m_thirdPlaceForLeisurePoint;
+	}
+	
+	public ActivityPlan getActivityPlan() {
+		return m_activityPlan;
 	}
 }
