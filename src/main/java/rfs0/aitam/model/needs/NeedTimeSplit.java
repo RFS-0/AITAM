@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 
 public class NeedTimeSplit {
@@ -50,7 +51,7 @@ public class NeedTimeSplit {
 				return;
 			}
 			// handle difference bigger than what can be attributed to rounding behavior
-			else if (difference.compareTo(BigDecimal.valueOf(0.00001)) > 0) {
+			else if (difference.abs().compareTo(ISimulationSettings.TOLERATED_ROUNDING_ERROR) > 0) {
 				Logger.getLogger(NeedTimeSplit.class.getName()).log(Level.WARNING, "Check creation of need time split. Detected deviation from correct time allocation of 1.0 taking rounding issues into account: " + difference);
 				targetNeedTimeSplitToBuild.m_needTimeSplit.put(Need.NOT_DEFINED, difference);
 			}
@@ -58,9 +59,9 @@ public class NeedTimeSplit {
 				/**
 				 *
 				 * Unless fractions add up to one we will always get a difference of 0.00001. This is due to the avoidance of non-terminating decimal expansion in the divide method of {@link CalculationUtility}.
-				 * We handle this by adding the rounding difference to the first Need returned by <code>keySet()</code>
+				 * We handle this by adding the rounding difference to Need <code>NOT_DEFINED</code>.
 				 */
-				targetNeedTimeSplitToBuild.m_needTimeSplit.put(targetNeedTimeSplitToBuild.m_needTimeSplit.keySet().iterator().next() , difference);
+				targetNeedTimeSplitToBuild.m_needTimeSplit.put(Need.NOT_DEFINED , targetNeedTimeSplitToBuild.getFractionForNeed(Need.NOT_DEFINED).add(difference));
 			}
 		}
 	}
