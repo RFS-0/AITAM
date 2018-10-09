@@ -1,10 +1,11 @@
 package rfs0.aitam.activities;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.Interval;
 import org.junit.Test;
 
@@ -12,7 +13,6 @@ import activities.Activity;
 import activities.ActivityCategory;
 import activities.ActivityInitializer;
 import activities.ActivityLocation;
-import activities.WeekDay;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.utilities.CalculationUtility;
@@ -29,14 +29,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, workAtHomeAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, workAtHomeAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, workAtHomeAloneActivity.isJointActivity());
 		assertEquals(workAtHomeAloneActivity.getActivityLocation(), ActivityLocation.HOME);
 	}
 	
 	@Test
 	public void testInitWorkAtWorkLocationAloneActivity() {
-		Activity workAtWorkLocationAloneActivity = ActivityInitializer.initWorkAtWorkLocationAloneActivity();
+		Activity workAtWorkLocationAloneActivity = ActivityInitializer.initWorkAtWorkPlaceAloneActivity();
 		assertEquals(ActivityCategory.WORK, workAtWorkLocationAloneActivity.getActivityCategory());
 		assertEquals("Work at work location alone", workAtWorkLocationAloneActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX), workAtWorkLocationAloneActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -44,14 +44,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, workAtWorkLocationAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, workAtWorkLocationAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, workAtWorkLocationAloneActivity.isJointActivity());
 		assertEquals(ActivityLocation.WORK, workAtWorkLocationAloneActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitWorkAtWorkLocationWithCoworkers() {
-		Activity workAtWorkLocationWithCoworkers = ActivityInitializer.initWorkAtWorkLocationWithCoworkers();
+		Activity workAtWorkLocationWithCoworkers = ActivityInitializer.initWorkAtWorkPlaceWithCoworkers();
 		assertEquals(ActivityCategory.WORK, workAtWorkLocationWithCoworkers.getActivityCategory());
 		assertEquals("Work at work location with coworkers", workAtWorkLocationWithCoworkers.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE), workAtWorkLocationWithCoworkers.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -59,7 +59,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, workAtWorkLocationWithCoworkers.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, workAtWorkLocationWithCoworkers.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, workAtWorkLocationWithCoworkers.isJointActivity());
 		assertEquals(ActivityLocation.WORK, workAtWorkLocationWithCoworkers.getActivityLocation());
 	}
@@ -74,7 +74,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, workDuringTravelAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, workDuringTravelAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, workDuringTravelAloneActivity.isJointActivity());
 		assertEquals(ActivityLocation.TRAVEL, workDuringTravelAloneActivity.getActivityLocation());
 	}
@@ -89,7 +89,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, workDuringTravelWithCoworkers.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, workDuringTravelWithCoworkers.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, workDuringTravelWithCoworkers.isJointActivity());
 		assertEquals(ActivityLocation.TRAVEL, workDuringTravelWithCoworkers.getActivityLocation());
 	}
@@ -104,7 +104,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, leisureAtHomeAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, leisureAtHomeAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, leisureAtHomeAloneActivity.isJointActivity());
 		assertEquals(ActivityLocation.HOME, leisureAtHomeAloneActivity.getActivityLocation());
 	}
@@ -119,7 +119,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, leisureAtHomeWithHouseholdMembersActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, leisureAtHomeWithHouseholdMembersActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, leisureAtHomeWithHouseholdMembersActivity.isJointActivity());
 		assertEquals(ActivityLocation.HOME, leisureAtHomeWithHouseholdMembersActivity.getActivityLocation());
 	}
@@ -134,14 +134,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, leisureAtHomeWithFriendsActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, leisureAtHomeWithFriendsActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, leisureAtHomeWithFriendsActivity.isJointActivity());
 		assertEquals(ActivityLocation.HOME, leisureAtHomeWithFriendsActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitLeisureAtThirdPlaceAloneActivity() {
-		Activity leisureAtThirdPlaceAloneActivity = ActivityInitializer.initLeisureAtThirdPlaceAloneActivity();
+		Activity leisureAtThirdPlaceAloneActivity = ActivityInitializer.initLeisureAtThirdPlaceForLeisureAloneActivity();
 		assertEquals(ActivityCategory.LEISURE, leisureAtThirdPlaceAloneActivity.getActivityCategory());
 		assertEquals("Leisure at 3rd place alone", leisureAtThirdPlaceAloneActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT), leisureAtThirdPlaceAloneActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -149,14 +149,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, leisureAtThirdPlaceAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, leisureAtThirdPlaceAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, leisureAtThirdPlaceAloneActivity.isJointActivity());
 		assertEquals(ActivityLocation.THIRD_PLACE_FOR_LEISURE, leisureAtThirdPlaceAloneActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitLeisureAtThirdPlaceWithHouseholdMembersActivity() {
-		Activity leisureAtThirdPlaceWithHouseholdMembersActivity = ActivityInitializer.initLeisureAtThirdPlaceWithHouseholdMembersActivity();
+		Activity leisureAtThirdPlaceWithHouseholdMembersActivity = ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity();
 		assertEquals(ActivityCategory.LEISURE, leisureAtThirdPlaceWithHouseholdMembersActivity.getActivityCategory());
 		assertEquals("Leisure at third place with household members", leisureAtThirdPlaceWithHouseholdMembersActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE), leisureAtThirdPlaceWithHouseholdMembersActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -164,14 +164,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, leisureAtThirdPlaceWithHouseholdMembersActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, leisureAtThirdPlaceWithHouseholdMembersActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, leisureAtThirdPlaceWithHouseholdMembersActivity.isJointActivity());
 		assertEquals(ActivityLocation.THIRD_PLACE_FOR_LEISURE, leisureAtThirdPlaceWithHouseholdMembersActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitLeisureAtThirdPlaceWithFriendsActivity() {
-		Activity initLeisureAtThirdPlaceWithFriendsActivity = ActivityInitializer.initLeisureAtThirdPlaceWithFriendsActivity();
+		Activity initLeisureAtThirdPlaceWithFriendsActivity = ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithFriendsActivity();
 		assertEquals(ActivityCategory.LEISURE, initLeisureAtThirdPlaceWithFriendsActivity.getActivityCategory());
 		assertEquals("Leisure at third place with friends", initLeisureAtThirdPlaceWithFriendsActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE), initLeisureAtThirdPlaceWithFriendsActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -179,7 +179,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initLeisureAtThirdPlaceWithFriendsActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initLeisureAtThirdPlaceWithFriendsActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, initLeisureAtThirdPlaceWithFriendsActivity.isJointActivity());
 		assertEquals(ActivityLocation.THIRD_PLACE_FOR_LEISURE, initLeisureAtThirdPlaceWithFriendsActivity.getActivityLocation());
 	}
@@ -194,7 +194,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initPersonalCareAtHomeAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initPersonalCareAtHomeAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, initPersonalCareAtHomeAloneActivity.isJointActivity());
 		assertEquals(ActivityLocation.HOME, initPersonalCareAtHomeAloneActivity.getActivityLocation());
 	}
@@ -209,7 +209,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initPersonalCareAtHomeWithHouseholdMembersActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initPersonalCareAtHomeWithHouseholdMembersActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, initPersonalCareAtHomeWithHouseholdMembersActivity.isJointActivity());
 		assertEquals(ActivityLocation.HOME, initPersonalCareAtHomeWithHouseholdMembersActivity.getActivityLocation());
 	}
@@ -224,14 +224,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initPersonalCareAtHomeWithFriendsActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initPersonalCareAtHomeWithFriendsActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, initPersonalCareAtHomeWithFriendsActivity.isJointActivity());
 		assertEquals(ActivityLocation.HOME, initPersonalCareAtHomeWithFriendsActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitPersonalCareAtWorkAloneActivity() {
-		Activity initPersonalCareAtWorkAloneActivity = ActivityInitializer.initPersonalCareAtWorkAloneActivity();
+		Activity initPersonalCareAtWorkAloneActivity = ActivityInitializer.initPersonalCareAtWorkPlaceAloneActivity();
 		assertEquals(ActivityCategory.PERSONAL_CARE, initPersonalCareAtWorkAloneActivity.getActivityCategory());
 		assertEquals("Personal care at work alone", initPersonalCareAtWorkAloneActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE), initPersonalCareAtWorkAloneActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -239,14 +239,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initPersonalCareAtWorkAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initPersonalCareAtWorkAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, initPersonalCareAtWorkAloneActivity.isJointActivity());
 		assertEquals(ActivityLocation.WORK, initPersonalCareAtWorkAloneActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitPersonalCareAtWorkWithCoworkersActivity() {
-		Activity initPersonalCareAtWorkWithCoworkersActivity = ActivityInitializer.initPersonalCareAtWorkWithCoworkersActivity();
+		Activity initPersonalCareAtWorkWithCoworkersActivity = ActivityInitializer.initPersonalCareAtWorkPlaceWithCoworkersActivity();
 		assertEquals(ActivityCategory.PERSONAL_CARE, initPersonalCareAtWorkWithCoworkersActivity.getActivityCategory());
 		assertEquals("Personal care at work with coworkers", initPersonalCareAtWorkWithCoworkersActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR), initPersonalCareAtWorkWithCoworkersActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -254,14 +254,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initPersonalCareAtWorkWithCoworkersActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initPersonalCareAtWorkWithCoworkersActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, initPersonalCareAtWorkWithCoworkersActivity.isJointActivity());
 		assertEquals(ActivityLocation.WORK, initPersonalCareAtWorkWithCoworkersActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitPersonalCareAtThirdPlaceAloneActivity() {
-		Activity initPersonalCareAtThirdPlaceAloneActivity = ActivityInitializer.initPersonalCareAtThirdPlaceAloneActivity();
+		Activity initPersonalCareAtThirdPlaceAloneActivity = ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareAloneActivity();
 		assertEquals(ActivityCategory.PERSONAL_CARE, initPersonalCareAtThirdPlaceAloneActivity.getActivityCategory());
 		assertEquals("Personal care at 3rd place alone", initPersonalCareAtThirdPlaceAloneActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE), initPersonalCareAtThirdPlaceAloneActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -269,14 +269,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initPersonalCareAtThirdPlaceAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initPersonalCareAtThirdPlaceAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, initPersonalCareAtThirdPlaceAloneActivity.isJointActivity());
 		assertEquals(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, initPersonalCareAtThirdPlaceAloneActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitPersonalCareAtThirdPlaceWithHouseholdMembersActivity() {
-		Activity initPersonalCareAtThirdPlaceWithHouseholdMembersActivity = ActivityInitializer.initPersonalCareAtThirdPlaceWithHouseholdMembersActivity();
+		Activity initPersonalCareAtThirdPlaceWithHouseholdMembersActivity = ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity();
 		assertEquals(ActivityCategory.PERSONAL_CARE, initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.getActivityCategory());
 		assertEquals("Personal care at 3rd place with household member(s)", initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR), initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -284,14 +284,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.isJointActivity());
 		assertEquals(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitPersonalCareAtThirdPlaceWithFriendsActivity() {
-		Activity initPersonalCareAtThirdPlaceWithFriendsActivity = ActivityInitializer.initPersonalCareAtThirdPlaceWithFriendsActivity();
+		Activity initPersonalCareAtThirdPlaceWithFriendsActivity = ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity();
 		assertEquals(ActivityCategory.PERSONAL_CARE, initPersonalCareAtThirdPlaceWithFriendsActivity.getActivityCategory());
 		assertEquals("Personal care at 3rd place with friend(s)", initPersonalCareAtThirdPlaceWithFriendsActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR), initPersonalCareAtThirdPlaceWithFriendsActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -299,7 +299,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initPersonalCareAtThirdPlaceWithFriendsActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initPersonalCareAtThirdPlaceWithFriendsActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, initPersonalCareAtThirdPlaceWithFriendsActivity.isJointActivity());
 		assertEquals(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, initPersonalCareAtThirdPlaceWithFriendsActivity.getActivityLocation());
 	}
@@ -314,7 +314,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initHouseholdAndFamilyCareAtHomeAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initHouseholdAndFamilyCareAtHomeAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, initHouseholdAndFamilyCareAtHomeAloneActivity.isJointActivity());
 		assertEquals(ActivityLocation.HOME, initHouseholdAndFamilyCareAtHomeAloneActivity.getActivityLocation());
 	}
@@ -329,14 +329,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty.isJointActivity());
 		assertEquals(ActivityLocation.HOME, initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitHouseholdAndFamilyCareAtThirdPlaceAloneActivity() {
-		Activity initHouseholdAndFamilyCareAtThirdPlaceAloneActivity = ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceAloneActivity();
+		Activity initHouseholdAndFamilyCareAtThirdPlaceAloneActivity = ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity();
 		assertEquals(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, initHouseholdAndFamilyCareAtThirdPlaceAloneActivity.getActivityCategory());
 		assertEquals("Household/family care at 3rd place alone", initHouseholdAndFamilyCareAtThirdPlaceAloneActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SEVEN), initHouseholdAndFamilyCareAtThirdPlaceAloneActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -344,14 +344,14 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initHouseholdAndFamilyCareAtThirdPlaceAloneActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initHouseholdAndFamilyCareAtThirdPlaceAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, initHouseholdAndFamilyCareAtThirdPlaceAloneActivity.isJointActivity());
 		assertEquals(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, initHouseholdAndFamilyCareAtThirdPlaceAloneActivity.getActivityLocation());
 	}
 	
 	@Test
 	public void testInitHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers() {
-		Activity initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers = ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers();
+		Activity initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers = ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers();
 		assertEquals(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.getActivityCategory());
 		assertEquals("Household/family care at 3rd place with household member(s)", initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.ELEVEN), initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
@@ -359,7 +359,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(true, initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.isJointActivity());
 		assertEquals(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.getActivityLocation());
 	}
@@ -374,7 +374,7 @@ public class ActivityInitializerTest {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0);
 		Interval available = new Interval(availableStartTime, availableEndTime);
-		assertEquals(true, initTravelActivity.isAvailableAt(WeekDay.MONDAY, available));
+		assertEquals(true, initTravelActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, initTravelActivity.isJointActivity());
 		assertEquals(ActivityLocation.TRAVEL, initTravelActivity.getActivityLocation());
 	}
