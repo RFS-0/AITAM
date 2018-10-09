@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
+
+import rfs0.aitam.commons.ISimulationSettings;
 
 public final class TimeUtility {
 	
@@ -20,5 +23,13 @@ public final class TimeUtility {
 			}
 		};
 		return unsortedTimeIntervals.stream().sorted(compareStartOfIntervals).collect(Collectors.toCollection(ArrayList::new));
+	}
+	
+	public static DateTime getStartOfCurrentDay(DateTime currentDay) {
+		return currentDay.withHourOfDay(ISimulationSettings.BASE_HOUR).withMinuteOfHour(ISimulationSettings.BASE_MINUTE);
+	}
+	
+	public static DateTime getStartOfNextDay(DateTime day) {
+		return day.plusDays(1).withHourOfDay(ISimulationSettings.BASE_HOUR).withMinuteOfHour(ISimulationSettings.BASE_MINUTE);
 	}
 }
