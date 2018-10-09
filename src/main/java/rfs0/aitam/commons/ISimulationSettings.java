@@ -1,6 +1,13 @@
 package rfs0.aitam.commons;
 
 import java.awt.Color;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.joda.time.DateTimeConstants;
 
 public interface ISimulationSettings {
 	
@@ -14,6 +21,11 @@ public interface ISimulationSettings {
 	public static final double MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT = 0.04; // assuming reaction time of 1.8 s and average velocity of 50 km/h
 	public static final double MAX_VELOCITY = 13.9; // max velocity in m/s (equivalent to 50 km/h)
 	public static final double MAX_SLOW_DOWN_FACTOR = 0.2;
+	public static final ArrayList<Integer> WEEK = Stream.of(DateTimeConstants.MONDAY, DateTimeConstants.TUESDAY, DateTimeConstants.WEDNESDAY, DateTimeConstants.THURSDAY, DateTimeConstants.FRIDAY, DateTimeConstants.SATURDAY, DateTimeConstants.SUNDAY).collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<Integer> WORK_WEEK = Stream.of(DateTimeConstants.MONDAY, DateTimeConstants.TUESDAY, DateTimeConstants.WEDNESDAY, DateTimeConstants.THURSDAY, DateTimeConstants.FRIDAY).collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<Integer> WEEKEND = Stream.of(DateTimeConstants.SATURDAY, DateTimeConstants.SUNDAY).collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<BigDecimal> ACTIVITY_DURATIONS = Stream.of(BigDecimal.valueOf(60), BigDecimal.valueOf(90), BigDecimal.valueOf(120)).collect(Collectors.toCollection(ArrayList::new));
+	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
 	
 	/**
 	 * Constants used to configure UI of environment
@@ -37,6 +49,16 @@ public interface ISimulationSettings {
 	public static final int BASE_YEAR = 2018;
 	public static final int BASE_MONTH = 1;
 	public static final int BASE_DAY = 1;
+	public static final int BASE_HOUR = 0;
+	public static final int BASE_MINUTE = 0;
+	
+	/**
+	 * Constants used for handling numbers & calculations
+	 */
+	public static final int PRECISION_USED_FOR_BIG_DECIMAL = 6;
+	public static final int SCALE_USED_FOR_BIG_DECIMAL = 6;
+	public static final RoundingMode ROUNDING_MODE_USED_FOR_BIG_DECIMAL = RoundingMode.HALF_UP;
+	public static final BigDecimal TOLERATED_ROUNDING_ERROR = BigDecimal.valueOf(0.00001);
 	
 	/**
 	 * Constants used for simulating individuals
