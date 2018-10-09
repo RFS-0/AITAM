@@ -5,7 +5,7 @@ import java.math.MathContext;
 import java.util.Collection;
 import java.util.HashMap;
 
-import activities.ActivityPlan;
+import activities.ActivityAgenda;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
@@ -38,12 +38,12 @@ public final class CalculationUtility {
 		return bigDecimal;
 	}
 	
-	public static BigDecimal sum(Collection<BigDecimal> values) {
-		BigDecimal result = createBigDecimal(0);
-		for (BigDecimal value : values) {
-			result = result.add(value, MATH_CONTEXT);
-		}
-		return result;
+	public static BigDecimal add(BigDecimal value, BigDecimal addend) {
+		return value.add(addend, MATH_CONTEXT);
+	}
+	
+	public static BigDecimal substract(BigDecimal minuend, BigDecimal substrahend) {
+		return minuend.subtract(substrahend, MATH_CONTEXT);
 	}
 	
 	public static BigDecimal divide(BigDecimal dividend, BigDecimal divisor) {
@@ -54,13 +54,26 @@ public final class CalculationUtility {
 		return multiplicand.multiply(multiplier, MATH_CONTEXT);
 	}
 	
-	public static BigDecimal calculateMeanSquaredError(ActivityPlan activityPlan, NeedTimeSplit targetNeedTimeSplit) {
+	public static BigDecimal power(BigDecimal value, int power) {
+		return value.pow(power, MATH_CONTEXT);
+	}
+	
+	public static BigDecimal sum(Collection<BigDecimal> values) {
+		BigDecimal result = createBigDecimal(0);
+		for (BigDecimal value : values) {
+			result = result.add(value, MATH_CONTEXT);
+		}
+		return result;
+	}
+	
+	public static BigDecimal calculateMeanSquaredError(ActivityAgenda activityAgenda, NeedTimeSplit targetNeedTimeSplit) {
 		BigDecimal meanSquaredError = BigDecimal.ZERO;
-		HashMap<Need,BigDecimal> actualRelativeNeedTimeSplit = activityPlan.getActualNeedTimeSplit().getRelativeNeedTimeSplit();
+		HashMap<Need,BigDecimal> actualRelativeNeedTimeSplit = activityAgenda.getActualNeedTimeSplit().getRelativeNeedTimeSplit();
 		for (Need need: actualRelativeNeedTimeSplit.keySet()) {
 			BigDecimal targetFractionForNeed = targetNeedTimeSplit.getFractionForNeed(need);
 			BigDecimal actualFractionForNeed = actualRelativeNeedTimeSplit.get(need);
-			meanSquaredError = meanSquaredError.add(actualFractionForNeed.subtract(targetFractionForNeed).pow(2));
+			
+			meanSquaredError = CalculationUtility.add(meanSquaredError, CalculationUtility.power(CalculationUtility.substract(actualFractionForNeed, targetFractionForNeed), 2));
 		}
 		meanSquaredError = CalculationUtility.divide(meanSquaredError, BigDecimal.valueOf(actualRelativeNeedTimeSplit.size()));
 		return meanSquaredError;

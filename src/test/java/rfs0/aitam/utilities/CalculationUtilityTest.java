@@ -10,9 +10,10 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
-import activities.ActivityPlan;
+import activities.ActivityAgenda;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 
 public class CalculationUtilityTest {
 	
@@ -53,11 +54,18 @@ public class CalculationUtilityTest {
 		assertEquals(CalculationUtility.createBigDecimal(1.5).setScale(ISimulationSettings.SCALE_USED_FOR_BIG_DECIMAL - 1), CalculationUtility.multiply(CalculationUtility.createBigDecimal(0.75), CalculationUtility.createBigDecimal(2))); // issue with precision of 6 is that scale will be less than 6 once we deal with numbers >= 1
 	}
 	
-//	@Test
-//	public void testCalculateMeanSquaredError() {
-//		ActivityPlan activityPlan = new ActivityPlan();
-//		HashMap<Need,BigDecimal> relativeNeedTimeSplit = activityPlan.getActualNeedTimeSplit().getRelativeNeedTimeSplit();
-//		
-//		
-//	}
+	@Test
+	public void testCalculateMeanSquaredError() {
+		ActivityAgenda activityAgenda = new ActivityAgenda();
+		HashMap<Need,BigDecimal> relativeNeedTimeSplit = activityAgenda.getActualNeedTimeSplit().getRelativeNeedTimeSplit();
+		relativeNeedTimeSplit.put(Need.AFFECTION, CalculationUtility.createBigDecimal(0.15));
+		relativeNeedTimeSplit.put(Need.CREATION, CalculationUtility.createBigDecimal(0.05));
+		relativeNeedTimeSplit.put(Need.FREEDOM, CalculationUtility.createBigDecimal(0.25));
+		NeedTimeSplit targetNeedTimeSplit = new NeedTimeSplit.Builder()
+				.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.createBigDecimal(0.10))
+				.withNeedTimeSplit(Need.CREATION, CalculationUtility.createBigDecimal(0.10))
+				.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.createBigDecimal(0.10))
+				.build();
+		assertEquals(BigDecimal.valueOf(0.00916667).setScale(8), CalculationUtility.calculateMeanSquaredError(activityAgenda, targetNeedTimeSplit));
+	}
 }
