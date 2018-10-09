@@ -7,9 +7,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.Interval;
 import org.junit.Test;
 
+import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.utilities.TimeUtility;
 
 public class TimeUtilityTest {
@@ -33,5 +35,32 @@ public class TimeUtilityTest {
 		assertEquals(startOfFirstInterval, sortedTimeIntervals.get(0).getStart());
 		assertEquals(startOfSecondInterval, sortedTimeIntervals.get(1).getStart());
 		assertEquals(startOfThirdInterval, sortedTimeIntervals.get(2).getStart());
+	}
+	
+	@Test
+	public void testGetNextDay() {
+		int firstDayOfMonth = 1;
+		int secondDayOfMonth = 2;
+		DateTime firstMondayAfterNoon = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 59);
+		assertEquals(DateTimeConstants.MONDAY, firstMondayAfterNoon.getDayOfWeek());
+		
+		DateTime startOfFirstTuesday = TimeUtility.getStartOfNextDay(firstMondayAfterNoon);
+		assertEquals(DateTimeConstants.TUESDAY, startOfFirstTuesday.getDayOfWeek());
+		assertEquals(ISimulationSettings.BASE_YEAR, startOfFirstTuesday.getYear());
+		assertEquals(ISimulationSettings.BASE_MONTH, startOfFirstTuesday.getMonthOfYear());
+		assertEquals(secondDayOfMonth, startOfFirstTuesday.getDayOfMonth());
+		assertEquals(ISimulationSettings.BASE_HOUR, startOfFirstTuesday.getHourOfDay());
+		assertEquals(ISimulationSettings.BASE_MINUTE, startOfFirstTuesday.getMinuteOfDay());
+		
+		DateTime lastDayOfJanuary = firstMondayAfterNoon.dayOfMonth().withMaximumValue();
+		assertEquals(DateTimeConstants.WEDNESDAY, lastDayOfJanuary.getDayOfWeek());
+		
+		DateTime firstDayOfFebruary = TimeUtility.getStartOfNextDay(lastDayOfJanuary);
+		assertEquals(ISimulationSettings.BASE_YEAR, firstDayOfFebruary.getYear());
+		assertEquals(DateTimeConstants.FEBRUARY, firstDayOfFebruary.getMonthOfYear());
+		assertEquals(firstDayOfMonth, firstDayOfFebruary.getDayOfMonth());
+		assertEquals(DateTimeConstants.THURSDAY, firstDayOfFebruary.getDayOfWeek());
+		assertEquals(ISimulationSettings.BASE_HOUR, firstDayOfFebruary.getHourOfDay());
+		assertEquals(ISimulationSettings.BASE_MINUTE, firstDayOfFebruary.getMinuteOfDay());
 	}
 }
