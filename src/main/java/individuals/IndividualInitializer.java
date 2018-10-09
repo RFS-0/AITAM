@@ -1,5 +1,6 @@
 package individuals;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -7,6 +8,9 @@ import java.util.stream.IntStream;
 import activities.ActivityCategory;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.Environment;
+import rfs0.aitam.model.needs.Need;
+import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.utilities.CalculationUtility;
 import sim.field.network.Network;
 import sim.util.Bag;
 import sim.util.geo.MasonGeometry;
@@ -14,6 +18,7 @@ import sim.util.geo.MasonGeometry;
 public final class IndividualInitializer {
 	
 	public static final Individual.Builder INDIVIDUAL_BUILDER = new Individual.Builder();
+	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder(); 
 	public static ArrayList<Individual> ALL_INDIVIDUALS = new ArrayList<>();
 
 	public IndividualInitializer() {}
@@ -23,6 +28,7 @@ public final class IndividualInitializer {
 		initHouseholdAndFamilyRelatedAspects(environment);
 		initWorkRelatedAspects(environment);
 		initLeisureRelatedAspects(environment);
+		initTargetNeedTimeSplits();
 		return ALL_INDIVIDUALS;
 	}
 	
@@ -42,7 +48,7 @@ public final class IndividualInitializer {
 			MasonGeometry homeBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
 			MasonGeometry thirdPlaceForHouseholdAndFamilyCare = determineBuildingForCategoryWithinDistance(environment, availableBuildings, homeBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
 			for (Integer houseHoldMemberIndex: householdMembersIndices) {
-				IndividualInitializer.INDIVIDUAL_BUILDER
+				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(houseHoldMemberIndex))
 					.withHomeBuilding(homeBuilding)
 					.withHousholdMembersNetworkId(networkId)
@@ -64,7 +70,7 @@ public final class IndividualInitializer {
 			MasonGeometry workBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.WORK);
 			MasonGeometry thirdPlaceForWork = determineBuildingForCategoryWithinDistance(environment, availableBuildings, workBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK, ActivityCategory.WORK);
 			for (Integer workCollegueIndex: workColleguesIndices) {
-				IndividualInitializer.INDIVIDUAL_BUILDER
+				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(workCollegueIndex))
 					.withWorkPlaceBuilding(workBuilding)
 					.withWorkColleguesNetworkId(networkId)
@@ -86,7 +92,7 @@ public final class IndividualInitializer {
 			MasonGeometry leisureBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.LEISURE);
 			MasonGeometry thirdPlaceForLeisure = determineBuildingForCategoryWithinDistance(environment, availableBuildings, leisureBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK, ActivityCategory.LEISURE);
 			for (Integer friendIndex: friendsIndices) {
-				IndividualInitializer.INDIVIDUAL_BUILDER
+				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(friendIndex))
 					.withLeisureBuilding(leisureBuilding)
 					.withFriendsNetworkId(networkId)
@@ -95,6 +101,24 @@ public final class IndividualInitializer {
 					.build();
 			}
 			networkId++;
+		}
+	}
+	
+	private static void initTargetNeedTimeSplits() {
+		for (Individual individual: ALL_INDIVIDUALS) {
+			INDIVIDUAL_BUILDER.adjust(individual)
+					.withTargetNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+							.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.IDENTITY, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.PROTECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.build())
+					.build();
 		}
 	}
 	
