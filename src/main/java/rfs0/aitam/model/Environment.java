@@ -21,6 +21,7 @@ import activities.Activity;
 import activities.ActivityInitializer;
 import individuals.Individual;
 import individuals.IndividualInitializer;
+import individuals.IndividualResetter;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;
@@ -82,9 +83,10 @@ public class Environment extends SimState {
 	public Set<Integer> m_buildingsNotInitialized = IntStream.range(0, m_buildingsGeomVectorField.getGeometries().size()).boxed().collect(Collectors.toSet());
 
 	// Individuals
-	public GeomVectorField m_individualsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
-	public ArrayList<Individual> m_individuals = new ArrayList<>();
-	public ArrayList<Integer> m_individualsNotInitialized = IntStream.range(0, ISimulationSettings.NUMBER_OF_INDIVIDUALS).boxed().collect(Collectors.toCollection(ArrayList::new));
+	private GeomVectorField m_individualsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
+	private ArrayList<Individual> m_individuals = new ArrayList<>();
+	private ArrayList<Integer> m_individualsNotInitialized = IntStream.range(0, ISimulationSettings.NUMBER_OF_INDIVIDUALS).boxed().collect(Collectors.toCollection(ArrayList::new));
+	private IndividualResetter m_individualResetter = new IndividualResetter();
 	
 	public Environment(long seed) {
 		super(seed);
@@ -104,6 +106,7 @@ public class Environment extends SimState {
 		}
 		schedule.scheduleRepeating(m_individualsGeomVectorField.scheduleSpatialIndexUpdater(), Integer.MAX_VALUE, 1.0);
 		schedule.scheduleRepeating(0.0, 2, m_simulationTime); // update clock after indivdual have executed their step
+		schedule.scheduleRepeating(0.0, 3, m_individualResetter); // reset daily variables of individual for next day
 	}
 	
 	public static void main(String[] args) {
@@ -330,5 +333,9 @@ public class Environment extends SimState {
 
 	public ArrayList<Activity> getAllActivities() {
 		return m_allActivities;
+	}
+
+	public GeomVectorField getIndividualsGeomVectorField() {
+		return m_individualsGeomVectorField;
 	}
 }
