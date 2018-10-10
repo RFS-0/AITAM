@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
 public interface ISimulationSettings {
@@ -21,10 +22,76 @@ public interface ISimulationSettings {
 	public static final double MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT = 0.04; // assuming reaction time of 1.8 s and average velocity of 50 km/h
 	public static final double MAX_VELOCITY = 13.9; // max velocity in m/s (equivalent to 50 km/h)
 	public static final double MAX_SLOW_DOWN_FACTOR = 0.2;
-	public static final ArrayList<Integer> WEEK = Stream.of(DateTimeConstants.MONDAY, DateTimeConstants.TUESDAY, DateTimeConstants.WEDNESDAY, DateTimeConstants.THURSDAY, DateTimeConstants.FRIDAY, DateTimeConstants.SATURDAY, DateTimeConstants.SUNDAY).collect(Collectors.toCollection(ArrayList::new));
-	public static final ArrayList<Integer> WORK_WEEK = Stream.of(DateTimeConstants.MONDAY, DateTimeConstants.TUESDAY, DateTimeConstants.WEDNESDAY, DateTimeConstants.THURSDAY, DateTimeConstants.FRIDAY).collect(Collectors.toCollection(ArrayList::new));
-	public static final ArrayList<Integer> WEEKEND = Stream.of(DateTimeConstants.SATURDAY, DateTimeConstants.SUNDAY).collect(Collectors.toCollection(ArrayList::new));
-	public static final ArrayList<BigDecimal> ACTIVITY_DURATIONS = Stream.of(BigDecimal.valueOf(60), BigDecimal.valueOf(90), BigDecimal.valueOf(120)).collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<Integer> WEEK = Stream.of(
+			DateTimeConstants.MONDAY, 
+			DateTimeConstants.TUESDAY, 
+			DateTimeConstants.WEDNESDAY, 
+			DateTimeConstants.THURSDAY, 
+			DateTimeConstants.FRIDAY, 
+			DateTimeConstants.SATURDAY, 
+			DateTimeConstants.SUNDAY)
+			.collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<Integer> WORK_WEEK = Stream.of(
+			DateTimeConstants.MONDAY, 
+			DateTimeConstants.TUESDAY, 
+			DateTimeConstants.WEDNESDAY, 
+			DateTimeConstants.THURSDAY, 
+			DateTimeConstants.FRIDAY)
+			.collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<Integer> WEEKEND = Stream.of(
+			DateTimeConstants.SATURDAY, 
+			DateTimeConstants.SUNDAY)
+			.collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES = Stream.of(
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
+			.collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES = Stream.of(
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
+			.collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES = Stream.of(
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
+			.collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<BigDecimal> ACTIVITY_DURATIONS_IN_MINUTES = Stream.of(BigDecimal.valueOf(60), BigDecimal.valueOf(90), BigDecimal.valueOf(120)).collect(Collectors.toCollection(ArrayList::new));
+	public static final int MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY = 10;
 	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
 	
 	/**
@@ -66,10 +133,19 @@ public interface ISimulationSettings {
 	public static final int NUMBER_OF_INDIVIDUALS = 30;
 	public static final int MIN_NUMBER_OF_HOUSEHOLD_MEMBERS = 1;
 	public static final int MAX_NUMBER_OF_HOUSEHOLD_MEMBERS = 4;
+	// TODO: maybe used different probability for planning and accepting a request? -> also justify probablilities
+	public static final double PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY = 0.8;
+	public static final int MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY = 3;
 	public static final int MIN_NUMBER_OF_WORK_COLLEGUES = 1;
 	public static final int MAX_NUMBER_OF_WORK_COLLEGUES = 4;
+	public static final int MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY = 1;
+	// TODO: maybe used different probability for planning and accepting a request?
+	public static final double PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY = 0.25;
 	public static final int MIN_NUMBER_OF_FRIENDS = 1;
 	public static final int MAX_NUMBER_OF_FRIENDS = 4;
+	public static final int MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY = 1;
+	// TODO: maybe used different probability for planning and accepting a request?
+	public static final double PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY = 0.5;
 	
 	/**
 	 * Attributes of buildings
