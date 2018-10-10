@@ -29,6 +29,10 @@ public final class TimeUtility {
 		return currentDay.withHourOfDay(ISimulationSettings.BASE_HOUR).withMinuteOfHour(ISimulationSettings.BASE_MINUTE);
 	}
 	
+	public static DateTime getEndOfCurrentDay(DateTime currentDay) {
+		return currentDay.withHourOfDay(23).withMinuteOfHour(59);
+	}
+	
 	public static DateTime getStartOfNextDay(DateTime day) {
 		return day.plusDays(1).withHourOfDay(ISimulationSettings.BASE_HOUR).withMinuteOfHour(ISimulationSettings.BASE_MINUTE);
 	}
