@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import individuals.NetworkType;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.NeedTimeSplit;
 
@@ -21,6 +22,7 @@ public class Activity {
 	private HashMap<Integer, ArrayList<Interval>> m_availability = new HashMap<>();
 	private NeedTimeSplit m_needTimeSplit;
 	private String m_examples;
+	private NetworkType m_networkType;
 
 	private Activity() {}
 	
@@ -115,6 +117,11 @@ public class Activity {
 			return this;
 		}
 		
+		public Builder withNetworkType(NetworkType networkType) {
+			activityToBuild.m_networkType = networkType;
+			return this;
+		}
+		
 		private String checkIfAnyFieldIsNull() {
 			if (activityToBuild.m_activityCategory == null) {
 				return "m_activityCategory";
@@ -142,7 +149,7 @@ public class Activity {
 		
 		public Activity build() {
 			if (checkIfAnyFieldIsNull() != null) {
-				Logger.getLogger(Activity.class.getName()).log(Level.SEVERE, String.format("%s is null i.e. not set!The built activity may be unusable!", checkIfAnyFieldIsNull()));
+				Logger.getLogger(Activity.class.getName()).log(Level.SEVERE, String.format("%s is null i.e. not set! The built activity may be unusable!", checkIfAnyFieldIsNull()));
 			}
 			Activity builtActivityType = activityToBuild;
 			activityToBuild = new Activity();
@@ -193,5 +200,9 @@ public class Activity {
 	
 	public String getExamples() {
 		return m_examples;
+	}
+
+	public NetworkType getNetworkType() {
+		return m_networkType;
 	}
 }
