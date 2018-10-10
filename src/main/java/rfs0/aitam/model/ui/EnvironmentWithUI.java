@@ -80,7 +80,7 @@ public class EnvironmentWithUI extends GUIState {
 	}
 
 	private void setupPortrayalForAgents(Environment environment) {
-		m_agentPortrayal.setField(environment.m_individualsGeomVectorField);
+		m_agentPortrayal.setField(environment.getIndividualsGeomVectorField());
 		m_agentPortrayal.setPortrayalForAll(
 				new CircledPortrayal2D(
 						new GeomPortrayal(ISimulationSettings.COLOR_OF_AGENT, ISimulationSettings.SIZE_OF_AGENT, true),
