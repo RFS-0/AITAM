@@ -69,13 +69,16 @@ public final class CalculationUtility {
 	public static BigDecimal calculateMeanSquaredError(ActivityAgenda activityAgenda, NeedTimeSplit targetNeedTimeSplit) {
 		BigDecimal meanSquaredError = BigDecimal.ZERO;
 		HashMap<Need,BigDecimal> actualRelativeNeedTimeSplit = activityAgenda.getActualNeedTimeSplit().getRelativeNeedTimeSplit();
-		for (Need need: actualRelativeNeedTimeSplit.keySet()) {
-			BigDecimal targetFractionForNeed = targetNeedTimeSplit.getFractionForNeed(need);
-			BigDecimal actualFractionForNeed = actualRelativeNeedTimeSplit.get(need);
-			
-			meanSquaredError = CalculationUtility.add(meanSquaredError, CalculationUtility.power(CalculationUtility.substract(actualFractionForNeed, targetFractionForNeed), 2));
+		for (Need need: targetNeedTimeSplit.getNeedTimeSplit().keySet()) {
+			if (need != Need.NOT_DEFINED) {
+				BigDecimal targetFractionForNeed = targetNeedTimeSplit.getFractionForNeed(need);
+				BigDecimal actualFractionForNeed = actualRelativeNeedTimeSplit.get(need);
+				if (actualFractionForNeed == null) {
+					actualFractionForNeed = BigDecimal.ZERO;
+				}
+				meanSquaredError = CalculationUtility.add(meanSquaredError, CalculationUtility.power(CalculationUtility.substract(actualFractionForNeed, targetFractionForNeed), 2));
+			}
 		}
-		meanSquaredError = CalculationUtility.divide(meanSquaredError, BigDecimal.valueOf(actualRelativeNeedTimeSplit.size()));
 		return meanSquaredError;
 	}
 }
