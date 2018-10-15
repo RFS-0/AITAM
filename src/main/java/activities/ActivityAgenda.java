@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import rfs0.aitam.model.needs.ActualNeedTimeSplit;
@@ -33,22 +34,8 @@ public class ActivityAgenda implements Cloneable {
 		return new ActivityAgenda(activtyAgenda.getAgenda(), activtyAgenda.getLocations());
 	}
 	
-	public boolean addActivityForInterval(Interval activityInterval, Activity activity) {
-		if (getLastPlannedActivityInterval() != null && !activityInterval.abuts(getLastPlannedActivityInterval())) {
-			Logger.getLogger(ActivityAgenda.class.getName()).log(Level.SEVERE, "New interval does not abut last planned activity. Can not add activity with this interval to agenda, since this would result in an invalid agenda!");
-			return false;
-		}
+	public void addActivityForInterval(Interval activityInterval, Activity activity) {
 		m_agenda.put(activityInterval, activity);
-		return true;
-	}
-	
-	public boolean addJointActivityForInterval(Interval activityInterval, Activity activity) {
-		if (activityInterval == null || activity == null) {
-			Logger.getLogger(ActivityAgenda.class.getName()).log(Level.SEVERE, String.format("At least one argument is invalid: activityInterval=%s;  activity=%s. Can not add this, since this would result in an invalid agenda.", Objects.toString(activityInterval), Objects.toString(activity)));
-			return false;
-		}
-		m_agenda.put(activityInterval, activity);
-		return true;
 	}
 	
 	public Activity getActivityForInterval(Interval interval) {
@@ -60,26 +47,20 @@ public class ActivityAgenda implements Cloneable {
 		return null;
 	}
 	
-	public boolean addLocationForInterval(Interval activityInterval, MasonGeometry targetBuilding) {
-		if (activityInterval == null || targetBuilding == null) {
-			Logger.getLogger(ActivityAgenda.class.getName()).log(Level.SEVERE, String.format("At least one argument is invalid: activityInterval=%s;  targetBuilding=%s. Can not add this, since this would result in an invalid agenda.", Objects.toString(activityInterval), Objects.toString(targetBuilding)));
-			return false;
+	public Activity getActivityForDateTime(DateTime time) {
+		for (Interval key: m_agenda.keySet()) {
+			if (key.contains(time)) {
+				return m_agenda.get(key);
+			}
 		}
-		if (getLastPlannedLocationInterval() != null && !activityInterval.abuts(getLastPlannedLocationInterval())) {
-			Logger.getLogger(ActivityAgenda.class.getName()).log(Level.SEVERE, String.format("New interval %s does not abut last planned interval %s. Can not add location with this interval to agenda, since this would result in an invalid agenda!", String.valueOf(activityInterval), String.valueOf(getLastPlannedLocationInterval())));
-			return false;
-		}
-		m_locations.put(activityInterval, targetBuilding);
-		return true;
+		return null;
 	}
 	
-	public boolean addJointLocationFOrInterval(Interval activityInterval, MasonGeometry targetBuilding) {
+	public void addLocationForInterval(Interval activityInterval, MasonGeometry targetBuilding) {
 		if (activityInterval == null || targetBuilding == null) {
 			Logger.getLogger(ActivityAgenda.class.getName()).log(Level.SEVERE, String.format("At least one argument is invalid: activityInterval=%s;  targetBuilding=%s. Can not add this, since this would result in an invalid agenda.", Objects.toString(activityInterval), Objects.toString(targetBuilding)));
-			return false;
 		}
 		m_locations.put(activityInterval, targetBuilding);
-		return true;
 	}
 	
 	public MasonGeometry getLocationForInterval(Interval interval) {
