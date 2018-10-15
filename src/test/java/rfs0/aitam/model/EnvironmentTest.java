@@ -15,6 +15,6 @@ public class EnvironmentTest {
 		environment.start();
 		assertEquals(true, environment.schedule.step(environment));
 		DateTime timeAfterFirstStep = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, ISimulationSettings.BASE_HOUR, 1);
-		assertEquals(environment.getSimulationTime().getCurrentTime(), timeAfterFirstStep);
+		assertEquals(environment.getSimulationTime().getCurrentDateTime(), timeAfterFirstStep);
 	}
 }
