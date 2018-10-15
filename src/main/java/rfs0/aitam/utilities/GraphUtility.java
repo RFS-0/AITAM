@@ -14,7 +14,7 @@ public class GraphUtility {
 	public static ArrayList<GeomPlanarGraphDirectedEdge> astarPath(Node start, Node goal) {
 		// initial check
 		if (start == null || goal == null) {
-			System.out.println("Error: invalid node provided to AStar");
+			System.err.println("Error: invalid node provided to AStar");
 		}
 
 		// set up the containers for the result
