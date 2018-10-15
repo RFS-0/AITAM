@@ -90,9 +90,26 @@ public interface ISimulationSettings {
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
-	public static final ArrayList<BigDecimal> ACTIVITY_DURATIONS_IN_MINUTES = Stream.of(BigDecimal.valueOf(60), BigDecimal.valueOf(90), BigDecimal.valueOf(120)).collect(Collectors.toCollection(ArrayList::new));
-	public static final int MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY = 10;
-	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
+	public static final ArrayList<DateTime> AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_JOINT_ACTIVITIES = Stream.of(
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30))
+			.collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<DateTime> AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_INDIVIDUAL_ACTIVITIES = Stream.of(
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30))
+			.collect(Collectors.toCollection(ArrayList::new));
+	public static final ArrayList<BigDecimal> ACTIVITY_DURATIONS_IN_MINUTES = Stream.of(
+			BigDecimal.valueOf(60), 
+			BigDecimal.valueOf(90), 
+			BigDecimal.valueOf(120))
+			.collect(Collectors.toCollection(ArrayList::new));
+	public static final int MIN_DURATION = 30;
+	public static final int MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY = 3;
+	public static final int NUMBER_OF_PLANS_TO_GENERATE = 10;
 	
 	/**
 	 * Constants used to configure UI of environment
