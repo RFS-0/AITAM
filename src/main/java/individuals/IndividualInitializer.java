@@ -24,7 +24,7 @@ public final class IndividualInitializer {
 	public IndividualInitializer() {}
 	
 	public static ArrayList<Individual> initIndividuals(Environment environment) {
-		initEmptyIndividuals();
+		initEmptyIndividuals(environment);
 		initHouseholdAndFamilyRelatedAspects(environment);
 		initWorkRelatedAspects(environment);
 		initLeisureRelatedAspects(environment);
@@ -32,9 +32,12 @@ public final class IndividualInitializer {
 		return ALL_INDIVIDUALS;
 	}
 	
-	private static void initEmptyIndividuals() {
+	private static void initEmptyIndividuals(Environment environment) {
 		for (int i = 0; i < ISimulationSettings.NUMBER_OF_INDIVIDUALS; i++) {
-			ALL_INDIVIDUALS.add(INDIVIDUAL_BUILDER.withId(i).build());
+			ALL_INDIVIDUALS.add(INDIVIDUAL_BUILDER
+					.withEnvironment(environment)
+					.withId(i)
+					.build());
 		}
 	}
 	
