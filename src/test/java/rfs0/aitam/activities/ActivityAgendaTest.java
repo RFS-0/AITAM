@@ -65,34 +65,6 @@ public class ActivityAgendaTest {
 	}
 	
 	@Test
-	public void testAddActivityForInterval() {
-		DateTime startOfThirdInterval = s_endOfSecondInterval;
-		DateTime endOfThirdInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, 1, 4, 0);
-		Interval validThirdInterval = new Interval(startOfThirdInterval, endOfThirdInterval);
-		Interval doesNotAbut = new Interval(endOfThirdInterval.plusMinutes(1), endOfThirdInterval.plusMinutes(60));
-		Interval overlapsExsisting = new Interval(endOfThirdInterval.minusMinutes(1), endOfThirdInterval.plusMinutes(60));
-		Activity someActivity = ACTIVITY_BUILDER.build();
-		
-		assertEquals(true, s_plan.addActivityForInterval(validThirdInterval, s_thirdActivity));
-		assertEquals(false, s_plan.addActivityForInterval(doesNotAbut, someActivity));
-		assertEquals(false, s_plan.addActivityForInterval(overlapsExsisting, someActivity));
-	}
-	
-	@Test
-	public void testAddLocationForInterval() {
-		DateTime startOfThirdInterval = s_endOfSecondInterval;
-		DateTime endOfThirdInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, 1, 4, 0);
-		Interval validThirdInterval = new Interval(startOfThirdInterval, endOfThirdInterval);
-		Interval doesNotAbut = new Interval(endOfThirdInterval.plusMinutes(1), endOfThirdInterval.plusMinutes(60));
-		Interval overlapsExsisting = new Interval(endOfThirdInterval.minusMinutes(1), endOfThirdInterval.plusMinutes(60));
-		MasonGeometry someLocation = new MasonGeometry();
-		
-		assertEquals(true, s_plan.addLocationForInterval(validThirdInterval, s_thirdLocation));
-		assertEquals(false, s_plan.addLocationForInterval(doesNotAbut, someLocation));
-		assertEquals(false, s_plan.addLocationForInterval(overlapsExsisting, someLocation));
-	}
-	
-	@Test
 	public void testGetLocationForInterval() {
 		Interval invalidInterval = new Interval(s_startOfFirstInterval, s_endOfSecondInterval);
 		assertEquals(s_firstLocation, s_plan.getLocationForInterval(s_firstInterval));
