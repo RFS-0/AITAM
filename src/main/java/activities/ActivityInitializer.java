@@ -2,6 +2,7 @@ package activities;
 
 import java.math.BigDecimal;
 
+import individuals.NetworkType;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
@@ -11,132 +12,6 @@ public final class ActivityInitializer {
 	
 	public static final Activity.Builder ACTIVITY_BUILDER = new Activity.Builder();
 	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder();
-	
-	
-	public static Activity initWorkAtHomeAloneActivity() {
-		return ACTIVITY_BUILDER
-		.withActivityCategory(ActivityCategory.WORK)
-		.withActivityDescription("Work at home alone")
-		.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-				.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-				.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-				.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-				.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-				.build())
-		.withExamples("Paid work")
-		.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
-		.withIsJointActivity(false)
-		.withActivityLocation(ActivityLocation.HOME)
-		.build();
-	}
-	
-	public static Activity initWorkAtWorkPlaceAloneActivity() {
-		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at work location alone")
-				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.build())
-				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.WORK)
-				.build();
-	}
-	
-	public static Activity initWorkAtWorkPlaceWithCoworkers() {
-		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at work location with coworkers")
-				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.build())
-				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.WORK)
-				.build();
-	}
-	
-	public static Activity initWorkAtThirdPlaceForWorkAloneActivity() {
-		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at work location alone")
-				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.build())
-				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
-				.build();
-	}
-	
-	public static Activity initWortAtThirdPlaceForWorkWithCoworkers() {
-		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at work location with coworkers")
-				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.build())
-				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
-				.build();
-	}
-	
-	public static Activity initWorkDuringTravelAloneActivity() {
-		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work during travel alone")
-				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.build())
-				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.TRAVEL)
-				.build();
-	}
-	
-	public static Activity initWorkDuringTravelWithCoworkers() {
-		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work during travel with coworkers")
-				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.build())
-				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.TRAVEL)
-				.build();
-	}
 	
 	public static Activity initLeisureAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
@@ -153,13 +28,14 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.HOME)
+				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
 	
 	public static Activity initLeisureAtHomeWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at home alone")
+				.withActivityDescription("Leisure at home with household member(s)")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
@@ -173,6 +49,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
+				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
 	
@@ -193,6 +70,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
+				.withNetworkType(NetworkType.FRIENDS_NETWORK)
 				.build();
 	}
 	
@@ -211,6 +89,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
+				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
 	
@@ -231,6 +110,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
+				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
 	
@@ -251,6 +131,139 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
+				.withNetworkType(NetworkType.FRIENDS_NETWORK)
+				.build();
+	}
+	
+	public static Activity initWorkAtHomeAloneActivity() {
+		return ACTIVITY_BUILDER
+		.withActivityCategory(ActivityCategory.WORK)
+		.withActivityDescription("Work at home alone")
+		.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+				.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+				.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
+				.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
+				.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+				.build())
+		.withExamples("Paid work")
+		.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
+		.withIsJointActivity(false)
+		.withActivityLocation(ActivityLocation.HOME)
+		.withNetworkType(NetworkType.NONE)
+		.build();
+	}
+	
+	public static Activity initWorkAtWorkPlaceAloneActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.WORK)
+				.withActivityDescription("Work at work location alone")
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
+						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
+						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.build())
+				.withExamples("Paid work")
+				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.WORK)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
+	public static Activity initWorkAtWorkPlaceWithCoworkers() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.WORK)
+				.withActivityDescription("Work at work location with coworkers")
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+						.build())
+				.withExamples("Paid work")
+				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
+				.withIsJointActivity(true)
+				.withActivityLocation(ActivityLocation.WORK)
+				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
+				.build();
+	}
+	
+	public static Activity initWorkAtThirdPlaceForWorkAloneActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.WORK)
+				.withActivityDescription("Work at work location alone")
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
+						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
+						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.build())
+				.withExamples("Paid work")
+				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
+	public static Activity initWortAtThirdPlaceForWorkWithCoworkers() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.WORK)
+				.withActivityDescription("Work at work location with coworkers")
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+						.build())
+				.withExamples("Paid work")
+				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
+				.withIsJointActivity(true)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
+				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
+				.build();
+	}
+	
+	public static Activity initWorkDuringTravelAloneActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.WORK)
+				.withActivityDescription("Work during travel alone")
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
+						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
+						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.build())
+				.withExamples("Paid work")
+				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.TRAVEL)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
+	public static Activity initWorkDuringTravelWithCoworkers() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.WORK)
+				.withActivityDescription("Work during travel with coworkers")
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
+						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+						.build())
+				.withExamples("Paid work")
+				.withAvailabilityIntervalAtDays(8, 0, 18, 0, ISimulationSettings.WORK_WEEK)
+				.withIsJointActivity(true)
+				.withActivityLocation(ActivityLocation.TRAVEL)
+				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
 				.build();
 	}
 	
@@ -267,6 +280,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.HOME)
+				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
 	
@@ -285,6 +299,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
+				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
 	
@@ -303,6 +318,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
+				.withNetworkType(NetworkType.FRIENDS_NETWORK)
 				.build();
 	}
 	
@@ -319,6 +335,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.WORK)
+				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
 	
@@ -337,6 +354,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.WORK)
+				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
 				.build();
 	}
 	
@@ -353,6 +371,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
 	
@@ -371,6 +390,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
 	
@@ -389,6 +409,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withNetworkType(NetworkType.FRIENDS_NETWORK)
 				.build();
 	}
 	
@@ -405,6 +426,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.HOME)
+				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
 	
@@ -422,6 +444,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
+				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
 
@@ -438,6 +461,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
 	
@@ -455,6 +479,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
 	
@@ -469,6 +494,7 @@ public final class ActivityInitializer {
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.TRAVEL)
+				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
 }
