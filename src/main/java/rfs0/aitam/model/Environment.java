@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,17 +13,15 @@ import java.util.stream.Stream;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.planargraph.Node;
 
 import activities.Activity;
 import activities.ActivityInitializer;
 import individuals.Individual;
 import individuals.IndividualInitializer;
-import individuals.IndividualResetter;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;
+import sim.engine.Steppable;
 import sim.field.geo.GeomVectorField;
 import sim.io.geo.ShapeFileImporter;
 import sim.util.Bag;
@@ -76,7 +73,6 @@ public class Environment extends SimState {
 	public GeomVectorField m_buildingsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of buildings
 	public GeomVectorField m_pathsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of paths
 	public GeomPlanarGraph m_pathNetworkGeomVectorField = new GeomPlanarGraph(); // represents graph all paths
-	public GeomVectorField m_pathIntersectionsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // TODO: check if necessary at all (represents all crossings)
 	public HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> m_edgeTrafficMap = new HashMap<>(); // used to capture the
 	
 	// Buildings
@@ -86,7 +82,6 @@ public class Environment extends SimState {
 	private GeomVectorField m_individualsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
 	private ArrayList<Individual> m_individuals = new ArrayList<>();
 	private ArrayList<Integer> m_individualsNotInitialized = IntStream.range(0, ISimulationSettings.NUMBER_OF_INDIVIDUALS).boxed().collect(Collectors.toCollection(ArrayList::new));
-	private IndividualResetter m_individualResetter = new IndividualResetter();
 	
 	public Environment(long seed) {
 		super(seed);
@@ -101,12 +96,52 @@ public class Environment extends SimState {
 		super.start();
 		m_individualsGeomVectorField.clear();
 		m_individualsGeomVectorField.setMBR(m_buildingsGeomVectorField.getMBR());
+		// schedule the individual via anonymus classes
 		for (Individual individual: m_individuals) {
-			schedule.scheduleRepeating(individual);
+			schedule.scheduleRepeating(0.0, 0, new Steppable() {			
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void step(SimState state) {
+					Environment environment = (Environment) state;
+					if (individual.isPlanningPossible(environment, ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_JOINT_ACTIVITIES)) {
+						individual.planJointActivities(environment);
+					}
+				}
+			});
+			schedule.scheduleRepeating(0.0, 1, new Steppable() {			
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void step(SimState state) {
+					individual.carryOverJointActivities((Environment) state);
+				}
+			});
+			schedule.scheduleRepeating(0.0, 2, new Steppable() {			
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void step(SimState state) {
+					Environment environment = (Environment) state;
+					if (individual.isPlanningPossible(environment, ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_INDIVIDUAL_ACTIVITIES)) {
+						individual.planIndividualActivities(environment);
+					}
+				}
+			});
+			schedule.scheduleRepeating(0.0, 3, new Steppable() {			
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void step(SimState state) {
+					individual.chooseBestAgenda();
+				}
+			});
+			schedule.scheduleRepeating(0.0, 4, new Steppable() {			
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void step(SimState state) {
+					individual.executeActivity((Environment) state);
+				}
+			});
 		}
-		schedule.scheduleRepeating(m_individualsGeomVectorField.scheduleSpatialIndexUpdater(), Integer.MAX_VALUE, 1.0);
-		schedule.scheduleRepeating(0.0, 2, m_simulationTime); // update clock after indivdual have executed their step
-		schedule.scheduleRepeating(0.0, 3, m_individualResetter); // reset daily variables of individual for next day
+		schedule.scheduleRepeating(0.0, 5, m_simulationTime); // update clock after indivdual have executed their step
+		schedule.scheduleRepeating(0.0, 6, m_individualsGeomVectorField.scheduleSpatialIndexUpdater());
 	}
 	
 	public static void main(String[] args) {
@@ -114,13 +149,11 @@ public class Environment extends SimState {
 		System.exit(0);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void initEnvironment() {
 		Envelope globalMBR = m_buildingsGeomVectorField.getMBR();
 		readShapeFiles(globalMBR);
 		synchronizeMinimumBoundingRectangles(globalMBR);
 		m_pathNetworkGeomVectorField.createFromGeomField(m_pathsGeomVectorField);
-		addIntersectionNodes(m_pathNetworkGeomVectorField.nodeIterator());
 	}
 	
 	private void readShapeFiles(Envelope globalMBR) {
@@ -185,14 +218,6 @@ public class Environment extends SimState {
 	private void synchronizeMinimumBoundingRectangles(Envelope minimumBoundingRectangle) {
 		m_buildingsGeomVectorField.setMBR(minimumBoundingRectangle);
 		m_pathsGeomVectorField.setMBR(minimumBoundingRectangle);
-	}
-	
-	// TODO: check if necessary at all
-	private void addIntersectionNodes(Iterator<Node> nodeIterator) {
-		nodeIterator.forEachRemaining(node -> {
-			Point point = GEO_FACTORY.createPoint(node.getCoordinate());
-			m_pathIntersectionsGeomVectorField.addGeometry(new MasonGeometry(point));
-		});
 	}
 	
 	private void initActivities() {
@@ -309,10 +334,6 @@ public class Environment extends SimState {
 	
 	public GeomVectorField getBuildingsGeomVectorField() {
 		return m_buildingsGeomVectorField;
-	}
-	
-	public GeomVectorField getPathIntersectionsGeomVectorField() {
-		return m_pathIntersectionsGeomVectorField;
 	}
 	
 	public GeomPlanarGraph getPathNetworkGeomVectorField() {
