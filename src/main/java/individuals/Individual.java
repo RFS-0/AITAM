@@ -17,7 +17,9 @@ import com.vividsolutions.jts.linearref.LengthIndexedLine;
 import com.vividsolutions.jts.planargraph.Node;
 
 import activities.Activity;
-import activities.ActivityPlan;
+import activities.ActivityAgenda;
+import activities.ActivityCategory;
+import activities.ActivityLocation;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.needs.ActualNeedTimeSplit;
@@ -27,8 +29,6 @@ import rfs0.aitam.utilities.CalculationUtility;
 import rfs0.aitam.utilities.GeometryUtility;
 import rfs0.aitam.utilities.GraphUtility;
 import rfs0.aitam.utilities.TimeUtility;
-import sim.engine.SimState;
-import sim.engine.Steppable;
 import sim.field.geo.GeomVectorField;
 import sim.field.network.Network;
 import sim.portrayal.geo.GeomPortrayal;
@@ -38,9 +38,7 @@ import sim.util.geo.GeomPlanarGraphEdge;
 import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
 
-public class Individual implements Steppable {
-
-	private static final long serialVersionUID = 1L;
+public class Individual {
 
 	Environment m_environment;
 	private int m_id;
@@ -50,10 +48,13 @@ public class Individual implements Steppable {
 	 */
 	private Network m_householdMembersNetwork = new Network(false);
 	private int m_householdMembersNetworkId = -1;
+	private int m_numberOfHouseholdNetworkActivitiesPlanned = 0;
 	private Network m_workColleguesNetwork = new Network(false);
 	private int m_workColleguesNetworkId = -1;
+	private int m_numberOfWorkColleguesNetworkActivitiesPlanned = 0;
 	private Network m_friendsNetwork = new Network(false);
 	private int m_friendsNetworkId = -1;
+	private int m_numberOfFriendsNetworkActivitiesPlanned = 0;
 
 	/**
 	 * Needs related activities
@@ -64,7 +65,9 @@ public class Individual implements Steppable {
 	/**
 	 * Activity related variables
 	 */
-	private ActivityPlan m_activityPlan = new ActivityPlan();
+	private ActivityAgenda m_activityAgenda = new ActivityAgenda();
+	private ActivityAgenda m_jointActivityAgenda = new ActivityAgenda();
+	private ArrayList<ActivityAgenda> m_allDayPlans = new ArrayList<>();
 
 	/**
 	 * GIS related variables
@@ -94,9 +97,9 @@ public class Individual implements Steppable {
 	private ArrayList<GeomPlanarGraphDirectedEdge> m_pathToNextTarget = new ArrayList<GeomPlanarGraphDirectedEdge>();
 	private GeomPlanarGraphEdge m_currentEdge = null;
 	private int m_edgeDirection = 1;
-	private boolean m_hasReachedTarget = false;
 	private int m_currentIndexOnPathToNextTarget = 0;
-	private boolean m_hasFinishedActivity = false;
+	private Node m_currentNode;
+	private Node m_targetNode;
 
 	private Individual() {}
 
@@ -125,7 +128,7 @@ public class Individual implements Steppable {
 
 		/**
 		 * Sets the {@link MasonGeometry} that represents the building in which this
-		 * {@link Individual} lives in. <b>Note:<b> Use BUILDING_TO_CLOSEST_PATH_MAP in
+		 * {@link Individual} lives in. <b>Note:</b> Use BUILDING_TO_CLOSEST_PATH_MAP in
 		 * {@link Environment} to get the {@link MasonGeometry} that represents the path
 		 * which is closest to the individuals home location.
 		 * 
@@ -141,6 +144,8 @@ public class Individual implements Steppable {
 			validate(pointOfClosestPath, warningMessage);
 			individualToBuild.m_currentLocationPoint = new MasonGeometry(pointOfClosestPath);
 			individualToBuild.m_currentLocationPoint.isMovable = true;
+			individualToBuild.m_currentNode = individualToBuild.getCurrentNode();
+			validate(individualToBuild.m_currentNode, warningMessage);
 			return this;
 		}
 		
@@ -221,8 +226,6 @@ public class Individual implements Steppable {
 		 *                     this individual wants to go to
 		 * @return {@link Builder}
 		 */
-		// TODO: it is unlikely that 3 members are necessary to store this information
-		// -> clean up once it is clear what actually is necessary (or create data type)
 		public Builder withTargetLocation(MasonGeometry targetLocation) {
 			if (targetLocation == null || !(targetLocation instanceof MasonGeometry)) {
 				Logger.getLogger(Individual.class.getName())
@@ -238,8 +241,7 @@ public class Individual implements Steppable {
 			individualToBuild.m_targetLocationPoint.isMovable = true;
 			Node targetNode = individualToBuild.getNode(individualToBuild.m_targetLocationPoint);
 			if (targetNode == null) {
-				Logger.getLogger(Individual.class.getName())
-						.log(Level.SEVERE, "Target node is invalid. The built individual may be unusable!");
+				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, "Target node is invalid. The built individual may be unusable!");
 			}
 			return this;
 		}
@@ -301,116 +303,233 @@ public class Individual implements Steppable {
 		}
 	}
 
-	@Override
-	public void step(SimState state) {
-		Environment environment = (Environment) state;
-		if (isPlanningNecessary(environment)) {
-			planActivities(environment);
+	public void executeActivity(Environment environment) {
+		Activity currentActivity = getActivityAgenda().getActivityForDateTime(environment.getSimulationTime().getCurrentTime());
+		MasonGeometry currentLocation = getCurrentLocation();
+		MasonGeometry activityLocation = getActivityLocation(currentActivity);
+		if (!currentLocation.equals(activityLocation)) {
+			if (m_pathToNextTarget.isEmpty()) {
+				initPathToTarget(activityLocation);
+			}
+			if (!hasReachedTarget()) {
+				moveTowardsTarget();
+			}
 		}
-		executeActivitiy();
-		updateMemory();
-		// TODO: extract to method
-//		if (m_segment == null) {
-//			// TODO: make sure we are on some edge of the path network & handle case where
-//			// we are not (maybe reset to last building visited or home location)
-//			System.out.println("Agent is not on any edge anymore. This should never occur. Handle this case!");
-//		}
-//		if (m_hasFinishedActivity) {
-//			// TODO: if it finished its activity it replans the rest of the day
-//		}
-//		if (!m_hasReachedTarget) {
-//			double travellingDistance = calculateTravellingDistance();
-//			m_currentIndexOnLineOfEdge += travellingDistance;
-//			if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
-//				// positive movement
-//				moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
-//
-//			} else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
-//				// negative movement
-//				moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
-//			}
-//			updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
-//		}
-	}
-	/**
-	 * Replan after each activity
-	 * @param environment
-	 * @return
-	 */
-	private boolean isPlanningNecessary(Environment environment) {
-		if (m_activityPlan.getLastPlannedInterval() == null || m_activityPlan.getIntervals().isEmpty()) { // nothing planned yet
-			return true;
-		}
-		else if (m_activityPlan.getIntervals().stream().anyMatch(interval -> interval.getEnd().equals(environment.getSimulationTime().getCurrentTime()))) { // we have reached the end of an activity
-			return true;
-		} 
-		else { // we have not reached the end of an activity
-			return true;
+		if (hasReachedTarget()) {
+			if (!currentActivity.isJointActivity()) {
+				updateActualNeedTimeSplit(currentActivity);
+			}
+			else { // joint activity
+				// TODO: how to handle case where individual is the only one currently at target location
+				updateActualNeedTimeSplit(currentActivity);
+			}
 		}
 	}
 	
-	private void planActivities(Environment environment) {
-		m_activityPlan.clearPlan();
-		m_activityPlan.clearLocations();
-		DateTime endOfCurrentDay = TimeUtility.getStartOfNextDay(environment.getSimulationTime().getCurrentTime()).minusMinutes(1);
-		DateTime startOfUnplannedTime;
-		DateTime endOfUnplannedTime;
-		Activity randomActivity;
-		MasonGeometry activityLocation;
-		ArrayList<ActivityPlan> randomlyGeneratedPlans = new ArrayList<>();
+	private void updateActualNeedTimeSplit(Activity activity) {
+		for (Need needSatisfiedByRandomActivity: activity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
+			m_actualNeedTimeSplit.updateNeedTimeSplit(needSatisfiedByRandomActivity, activity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity));
+		}
+	}
+	
+	private void moveTowardsTarget() {
+		m_currentIndexOnLineOfEdge += calculateTravellingDistance();
+		if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
+			// positive movement
+			moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
+
+		} else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
+			// negative movement
+			moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
+		}
+		updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
+	}
+	
+	public boolean isPlanningPossible(Environment environment, ArrayList<DateTime> availableTimePoints) {
+		return availableTimePoints.stream().anyMatch(timePoint -> timePoint.equals(environment.getSimulationTime().getCurrentTime()));
+	}
+	
+	public void carryOverJointActivities(Environment environment) {
+		m_activityAgenda.clearAgenda();
+		for (Interval interval: m_jointActivityAgenda.getIntervals()) {
+			m_activityAgenda.addActivityForInterval(interval, m_jointActivityAgenda.getActivityForInterval(interval));
+			m_activityAgenda.addLocationForInterval(interval, m_jointActivityAgenda.getLocationForInterval(interval));
+		}
+	}
+	
+	public void planJointActivities(Environment environment) {
+		if (isOpenForNetworkActivities(environment, ISimulationSettings.MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY, ISimulationSettings.PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY)) {
+			planActivityForNetwork(environment, m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK , ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
+		}
+		if (isOpenForNetworkActivities(environment, ISimulationSettings.MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY, ISimulationSettings.PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY)) {
+			planActivityForNetwork(environment, m_workColleguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES);
+		}
+		if (isOpenForNetworkActivities(environment, ISimulationSettings.MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY, ISimulationSettings.PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY)) {
+			planActivityForNetwork(environment, m_friendsNetwork, NetworkType.FRIENDS_NETWORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES);
+		}
+	}
+	
+	private void planActivityForNetwork(Environment environment, Network network, NetworkType type, ArrayList<DateTime> availableStartTimes) {
+		ArrayList<Individual> networkMemberParticipating = determineParticipatingNetworkMembers(environment, network, type);
+		if (networkMemberParticipating.size() > 1) {
+			
+		}
+		Interval intervalOfJointActivity = determineIntervalOfJointActivity(environment, networkMemberParticipating, availableStartTimes);
+		if (intervalOfJointActivity != null) {
+			ArrayList<Activity> availableActivities = environment.getAllActivities().stream()
+					.filter(activity -> activity.isJointActivity())
+					.filter(activity -> activity.getActivityCategory() == ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
+					.filter(activity -> activity.isAvailableAt(environment.getSimulationTime().getCurrentWeekDay(), intervalOfJointActivity))
+					.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
+					.collect(Collectors.toCollection(ArrayList::new));
+			if (availableActivities.size() == 0) {
+				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Make sure there is always at least one activity available!", String.valueOf(intervalOfJointActivity)));	
+			}
+			// setup activity for all participating network members
+			Activity jointActivity = availableActivities.get(environment.random.nextInt(availableActivities.size()));
+			MasonGeometry jointActivityLocation = getActivityLocation(jointActivity);
+			for (Individual individual: networkMemberParticipating) {
+				individual.getJointActivityAgenda().addActivityForInterval(intervalOfJointActivity, jointActivity);
+				individual.getJointActivityAgenda().addLocationForInterval(intervalOfJointActivity, jointActivityLocation);
+				individual.incrementNumberOfHouseholdNetworkActivitiesPlanned();	
+			}
+		}
+	}
+	
+	private ArrayList<Individual> determineParticipatingNetworkMembers(Environment environment, Network network, NetworkType type) {
+		ArrayList<Individual> networkMemberParticipating = new ArrayList<>();
+		networkMemberParticipating.add(this);
+		for (Object individualObj: network.getAllNodes()) {
+			Individual individual = (Individual) individualObj;
+			switch (type) {
+			case HOUSEHOLD_NETWORK:
+				if (individual.isOpenForNetworkActivities(environment, ISimulationSettings.MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY, ISimulationSettings.PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY)) {
+					networkMemberParticipating.add(individual);
+				}
+				break;
+			case WORK_COLLEGUES_NETWORK:
+				if (individual.isOpenForNetworkActivities(environment, ISimulationSettings.MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY, ISimulationSettings.PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY)) {
+					networkMemberParticipating.add(individual);
+				}
+				break;
+			case FRIENDS_NETWORK:
+				if (individual.isOpenForNetworkActivities(environment, ISimulationSettings.MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY, ISimulationSettings.PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY)) {
+					networkMemberParticipating.add(individual);
+				}
+				break;
+			default:
+				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not plan activity for this type!", String.valueOf(type)));
+				break;
+			}
+		}
+		return networkMemberParticipating;
+	}
+	
+	private Interval determineIntervalOfJointActivity(Environment environment, ArrayList<Individual> networkMemberParticipating, ArrayList<DateTime> availableStartTimes) {
+		Interval intervalOfInterest;
+		int numberOfTrials = 0;
+		do {
+			DateTime startOfJointActivity = availableStartTimes.get(environment.random.nextInt(availableStartTimes.size()));
+			BigDecimal duration = ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.get(environment.random.nextInt(ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.size()));
+			DateTime endOfJointActivity = startOfJointActivity.plusMinutes(duration.intValue());
+			intervalOfInterest = new Interval(startOfJointActivity, endOfJointActivity);
+			numberOfTrials++;
+		} 
+		while (TimeUtility.isIntervalOverlappingAnyAgenda(networkMemberParticipating, intervalOfInterest) && numberOfTrials < ISimulationSettings.MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY);
+		if (numberOfTrials < ISimulationSettings.MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY) {
+			return intervalOfInterest;
+		} 
+		else {
+			return null;
+		}
+	}
+	
+	public void planIndividualActivities(Environment environment) {
+		m_allDayPlans.clear();
+		DateTime endOfCurrentDay = TimeUtility.getStartOfNextDay(environment.getSimulationTime().getCurrentDateTime()).minusMinutes(1);
 		for (int i = 0; i < ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE; i++) {
-			ActivityPlan randomPlan = new ActivityPlan();
-			while (randomPlan.getLastPlannedInterval() == null || !randomPlan.getLastPlannedInterval().getEnd().equals(endOfCurrentDay)) { // add activities until the whole day is planned
-				BigDecimal duration = ISimulationSettings.ACTIVITY_DURATIONS.get(environment.random.nextInt(ISimulationSettings.ACTIVITY_DURATIONS.size()));
-				if (randomPlan.getLastPlannedInterval() == null) { // plan rest of day (includes planning of the whole day)
-					startOfUnplannedTime = environment.getSimulationTime().getCurrentTime();
-				} 
-				else {
-					startOfUnplannedTime = randomPlan.getLastPlannedInterval().getEnd();
-				}
-				endOfUnplannedTime = startOfUnplannedTime.plusMinutes(duration.intValue());
-				if (endOfUnplannedTime.isAfter(endOfCurrentDay)) { // make sure plan ends at 23:59
-					endOfUnplannedTime = endOfCurrentDay;
-				}
-				Interval intervalOfInterest = new Interval(startOfUnplannedTime, endOfUnplannedTime);
-				ArrayList<Activity> availableActivities = environment.getAllActivities().stream()
-						.filter(act -> act.isAvailableAt(environment.getSimulationTime().getCurrentWeekDay(), intervalOfInterest))
-						.collect(Collectors.toCollection(ArrayList::new));
-				if (availableActivities.size() == 0) {
-					Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Make sure there is always at least one activity available!", intervalOfInterest));	
-				}
-				randomActivity = availableActivities.get(environment.random.nextInt(availableActivities.size()));
-				activityLocation = chooseActivityLocation(randomActivity);
-				randomPlan.addActivityForInterval(intervalOfInterest, randomActivity);
-				randomPlan.addLocationForInterval(intervalOfInterest, activityLocation);
-				for (Need needSatisfiedByRandomActivity: randomActivity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
-					BigDecimal fractionForNeed = randomActivity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity);
+			ActivityAgenda randomPlan = ActivityAgenda.newInstance(m_jointActivityAgenda);
+			while (!TimeUtility.isDayFullyPlanned(environment, randomPlan)) {
+				Interval availableInterval = TimeUtility.getFirstAvailableInterval(environment, randomPlan);
+				int maxDurationInMinutes = (int) availableInterval.toDuration().getStandardMinutes();
+				BigDecimal duration = determineDuration(environment, maxDurationInMinutes);
+				Interval activityInterval = determineActivityInterval(availableInterval, duration.intValue(), endOfCurrentDay);
+				Activity activity = determineActivity(environment, randomPlan, activityInterval);
+				MasonGeometry activityLocation = getActivityLocation(activity);
+				randomPlan.addActivityForInterval(activityInterval, activity);
+				randomPlan.addLocationForInterval(activityInterval, activityLocation);
+				for (Need needSatisfiedByRandomActivity: activity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
+					BigDecimal fractionForNeed = activity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity);
 					BigDecimal timeSpentSatisfyingNeed = fractionForNeed.multiply(duration);
 					randomPlan.getActualNeedTimeSplit().updateNeedTimeSplit(needSatisfiedByRandomActivity, timeSpentSatisfyingNeed);
 				}
 			}
-			randomlyGeneratedPlans.add(randomPlan);
+			m_allDayPlans.add(randomPlan);
 		}
-		chooseBestPlan(randomlyGeneratedPlans);
 	}
+	
+	private BigDecimal determineDuration(Environment environment, int maxDurationInMinutes) {
+		List<BigDecimal> availableDurations = ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.stream()
+				.filter(minutes -> minutes.compareTo(CalculationUtility.createBigDecimal(maxDurationInMinutes)) <= 0)
+				.collect(Collectors.toList());
+		if (availableDurations.size() == 0) {
+			return CalculationUtility.createBigDecimal(ISimulationSettings.MIN_DURATION);
+		}
+		else {
+			return availableDurations.get(environment.random.nextInt(availableDurations.size()));
+		}
+	}
+	
+	private Interval determineActivityInterval(Interval availableInterval, int duration, DateTime endOfCurrentDay) {
+		DateTime end = availableInterval.getStart().plusMinutes(duration);
+		if (end.isAfter(endOfCurrentDay)) { // make sure plan ends at 23:59 of current day
+			end = endOfCurrentDay;
+		}
+		return new Interval(availableInterval.getStart(), end);
+	}
+	
+	private Activity determineActivity(Environment environment, ActivityAgenda randomAgenda, Interval activityInterval) {
+		ArrayList<Activity> availableActivities;
+		if ((int) activityInterval.toDuration().getStandardMinutes() == ISimulationSettings.MIN_DURATION) {
+			ActivityLocation currentLocation = randomAgenda.getActivityForDateTime(activityInterval.getStart().minusMinutes(1)).getActivityLocation();
+			availableActivities = environment.getAllActivities().stream()
+				.filter(activity -> activity.isAvailableAt(environment.getSimulationTime().getCurrentWeekDay(), activityInterval))
+				.filter(activity -> activity.getActivityLocation() == currentLocation)
+				.filter(activity -> !activity.isJointActivity())
+				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
+				.collect(Collectors.toCollection(ArrayList::new));
+		}
+		else {
+			availableActivities = environment.getAllActivities().stream()
+				.filter(activity -> activity.isAvailableAt(environment.getSimulationTime().getCurrentWeekDay(), activityInterval))
+				.filter(activity -> !activity.isJointActivity())
+				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
+				.collect(Collectors.toCollection(ArrayList::new));
+		}
+		if (availableActivities.size() == 0) {
+			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Make sure there is always at least one activity available!", String.valueOf(activityInterval)));	
+		}
+		return availableActivities.get(environment.random.nextInt(availableActivities.size()));
+	}
+
 	
 	/**
 	 * Use MSE for evaluation of best plan
 	 */
-	private void chooseBestPlan(ArrayList<ActivityPlan> randomlyGeneratedPlans) {
-		ActivityPlan bestPlan = null;
+	public void chooseBestAgenda() {
+		ActivityAgenda bestAgenda = null;
 		BigDecimal minimumSquaredMeanError = new BigDecimal(Integer.MAX_VALUE);
-		for (int i = 0; i < randomlyGeneratedPlans.size(); i++) {
-			BigDecimal meanSquaredError = CalculationUtility.calculateMeanSquaredError(randomlyGeneratedPlans.get(i), m_targetNeedTimeSplit);
+		for (int i = 0; i < m_allDayPlans.size(); i++) {
+			BigDecimal meanSquaredError = CalculationUtility.calculateMeanSquaredError(m_allDayPlans.get(i), m_targetNeedTimeSplit);
 			if (meanSquaredError.compareTo(minimumSquaredMeanError) < 0) {
 				minimumSquaredMeanError = meanSquaredError;
-				bestPlan = randomlyGeneratedPlans.get(i);
+				bestAgenda = m_allDayPlans.get(i);
 			}
 		}
-		m_activityPlan = bestPlan;
+		m_activityAgenda = bestAgenda;
 	}
 	
-	private MasonGeometry chooseActivityLocation(Activity activity) {
+	private MasonGeometry getActivityLocation(Activity activity) {
 		switch (activity.getActivityLocation()) {
 		case HOME:
 			return m_homeBuilding;
@@ -424,21 +543,12 @@ public class Individual implements Steppable {
 			return m_thirdPlaceForWorkBuilding;
 		case WORK:
 			return m_thirdPlaceForWorkBuilding;
-		case TRAVEL:
-			return m_targetLocationGeometry;
 		default:
 			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, "Could not choose activty location!");
 			return null;
 		}
 	}
 	
-	private void executeActivitiy() {
-		
-	}
-	
-	private void updateMemory() {
-		// TODO: update actual need time split
-	}
 	
 	/**
 	 * 
@@ -469,7 +579,7 @@ public class Individual implements Steppable {
 		if (hasReachedTarget()) {
 			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
 			m_currentIndexOnPathToNextTarget = 0;
-			m_pathToNextTarget = null;
+			m_pathToNextTarget.clear();
 			m_targetLocationGeometry = null;
 			m_targetLocationPoint = null;
 			return;
@@ -494,14 +604,16 @@ public class Individual implements Steppable {
 	 */
 	private void updatePosition(Coordinate c) {
 		m_pointMoveTo.setCoordinate(c);
-		m_environment.m_individualsGeomVectorField.setGeometryLocation(m_currentLocationPoint, m_pointMoveTo);
+		m_environment.getIndividualsGeomVectorField().setGeometryLocation(m_currentLocationPoint, m_pointMoveTo);
 	}
 	
 	private boolean hasReachedTarget() {
-		if (m_pathToNextTarget == null) {
-			return false;
+		if (m_pathToNextTarget.isEmpty()) { // current location is target location
+			return true;
 		}
-		return m_currentIndexOnPathToNextTarget >= m_pathToNextTarget.size();
+		else {
+			return m_currentIndexOnPathToNextTarget >= m_pathToNextTarget.size();
+		}
 	}
 	
 	/**
@@ -511,8 +623,7 @@ public class Individual implements Steppable {
 	 * @param nextEdge - the GeomPlanarGraphEdge to traverse next
 	 */
 	private void setupNextEdge() {
-		GeomPlanarGraphEdge nextEdge = (GeomPlanarGraphEdge) m_pathToNextTarget.get(m_currentIndexOnPathToNextTarget)
-				.getEdge();
+		GeomPlanarGraphEdge nextEdge = (GeomPlanarGraphEdge) m_pathToNextTarget.get(m_currentIndexOnPathToNextTarget).getEdge();
 		updateEdgeTraffic(nextEdge);
 		m_currentEdge = nextEdge;
 		LineString lineOfNextEdge = nextEdge.getLine();
@@ -542,43 +653,23 @@ public class Individual implements Steppable {
 		m_environment.m_edgeTrafficMap.get(nextEdge).add(this);
 	}
 
-	public void initPathToBuilding(MasonGeometry targetBuilding) {
+	private void initPathToTarget(MasonGeometry targetBuilding) {
 		MasonGeometry closestPathToBuilding = Environment.BUILDING_TO_CLOSEST_PATH_MAP.get(targetBuilding);
-		Node currentNode = getCurrentNode();
+		Node currentNode = m_currentNode;
 		Node targetNode = getNode(closestPathToBuilding);
-		initPath(currentNode, targetNode);
-		colorPathToTarget();
-	}
-
-//	private void initPathToPath(Environment environment, MasonGeometry targetPath) {
-//		Node currentNode = getCurrentNode(environment);
-//		Node targetNode = getNode(environment, targetPath);
-//		initPath(currentNode, targetNode);
-//	}
-
-	public void initPath(Node startNode, Node targetNode) {
-		try {
-			if (startNode == null || targetNode == null) {
-				throw new Exception("Invalid nodes. Can not find path...");
-			}
-		} catch (Exception e) {
-			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, e.getMessage(), e);
+		if (currentNode == null || targetNode == null) {
+			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, String.format("Can not initialize path to target building. Got values currentNode=%s; targetNode=%s.", String.valueOf(currentNode), String.valueOf(targetNode)));
 		}
-		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = findPath(startNode, targetNode);
-		if (pathToTarget != null && pathToTarget.size() > 0) {
+		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(currentNode, targetNode);
+		if (!pathToTarget.isEmpty()) {
 			m_pathToNextTarget = pathToTarget;
 			m_currentEdge = (GeomPlanarGraphEdge) pathToTarget.get(0).getEdge();
 			setupNextEdge();
 			updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
-		} else {
-			Logger.getLogger(Individual.class.getName())
-					.log(Level.WARNING, String.format("AStar can not find path between the following nodes: %s and %s",
-							startNode.toString(), targetNode.toString()));
+			colorPathToTarget();
+		} 
+		else { // already at the target location
 		}
-	}
-	
-	public ArrayList<GeomPlanarGraphDirectedEdge> findPath(Node startNode, Node targetNode) {
-		return GraphUtility.astarPath(startNode, targetNode);
 	}
 	
 	public void colorPathToTarget() {
@@ -731,7 +822,68 @@ public class Individual implements Steppable {
 		return m_thirdPlaceForLeisurePoint;
 	}
 	
-	public ActivityPlan getActivityPlan() {
-		return m_activityPlan;
+	public ActivityAgenda getActivityAgenda() {
+		return m_activityAgenda;
+	}
+	
+	public ActivityAgenda getJointActivityAgenda() {
+		return m_jointActivityAgenda;
+	}
+	
+	public boolean isOpenForNetworkActivities(Environment environment, int maxNumberOfActivitiesForNetworkType, double probabilityOfPlaningActivityForNetworkType) {
+		if (!TimeUtility.isDayFullyPlanned(environment, m_jointActivityAgenda)
+				&& m_numberOfHouseholdNetworkActivitiesPlanned < maxNumberOfActivitiesForNetworkType
+				&& environment.random.nextDouble(true, true) <= probabilityOfPlaningActivityForNetworkType) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public int getNumberOfHouseholdNetworkActivitiesPlanned() {
+		return m_numberOfHouseholdNetworkActivitiesPlanned;
+	}
+	
+	public void incrementNumberOfHouseholdNetworkActivitiesPlanned() {
+		m_numberOfHouseholdNetworkActivitiesPlanned++;
+	}
+	
+	public void setNumberOfHouseholdNetworkActivitiesPlanned(int numberOfHouseholdNetworkActivitiesPlanned) {
+		m_numberOfHouseholdNetworkActivitiesPlanned = numberOfHouseholdNetworkActivitiesPlanned;
+	}
+	
+	public int getNumberOfWorkColleguesNetworkActivitiesPlanned() {
+		return m_numberOfWorkColleguesNetworkActivitiesPlanned;
+	}
+	
+	public void incrementNumberOfWorkColleguesNetworkActivitiesPlanned() {
+		m_numberOfWorkColleguesNetworkActivitiesPlanned++;
+	}
+	
+	public void setNumberOfWorkColleguesNetworkActivitiesPlanned(int numberOfWorkColleguesNetworkActivitiesPlanned) {
+		m_numberOfWorkColleguesNetworkActivitiesPlanned = numberOfWorkColleguesNetworkActivitiesPlanned;
+	}
+	
+	public int getNumberOfFriendsNetworkActivitiesPlanned() {
+		return m_numberOfFriendsNetworkActivitiesPlanned;
+	}
+	
+	public void incrementNumberOfFriendsNetworkActivitiesPlanned() {
+		m_numberOfFriendsNetworkActivitiesPlanned++;
+	}
+	
+	public void setNumberOfFriendsNetworkActivitiesPlanned(int numberOfFriendsNetworkActivitiesPlanned) {
+		m_numberOfFriendsNetworkActivitiesPlanned = numberOfFriendsNetworkActivitiesPlanned;
+	}
+	
+	public void initNewDay() {
+		getActivityAgenda().clearAgenda();
+		getActivityAgenda().clearLocations();
+		getJointActivityAgenda().clearAgenda();
+		getJointActivityAgenda().clearLocations();
+		setNumberOfFriendsNetworkActivitiesPlanned(0);
+		setNumberOfHouseholdNetworkActivitiesPlanned(0);
+		setNumberOfWorkColleguesNetworkActivitiesPlanned(0);
 	}
 }
