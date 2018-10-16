@@ -154,13 +154,13 @@ public class Environment extends SimState {
 		try {
 			System.out.println("Reading building layer...");
 			Bag attributesOfBuildings = initAttributesOfBuildings();
-			readShapeFile(ISimulationSettings.BUILDINGS_FILE, getBuildingsField(), globalMBR, attributesOfBuildings);
+			readShapeFile(ISimulationSettings.BUILDINGS_FILE, m_buildingsField, globalMBR, attributesOfBuildings);
 
 			System.out.println("Reading the path layer...");
 			Bag attributesOfPaths = initializeAttributesOfPaths();
-			readShapeFile(ISimulationSettings.PATHS_FILE, getPathField(), globalMBR, attributesOfPaths);
+			readShapeFile(ISimulationSettings.PATHS_FILE, m_pathField, globalMBR, attributesOfPaths);
 		} catch (Exception e) {
-			Logger.getLogger(Environment.class.getName()).log(Level.SEVERE, "Failed to construct simulation", e);
+			Logger.getLogger(Environment.class.getName()).log(Level.SEVERE, "Failed to read shape files", e);
 		}
 	}
 	
@@ -196,8 +196,7 @@ public class Environment extends SimState {
 		return attributesOfPaths;
 	}
 
-	private void readShapeFile(String relativePathToFile, GeomVectorField geometry, Envelope minimumBoundingRectangle,
-			Bag attributes) {
+	private void readShapeFile(String relativePathToFile, GeomVectorField geometry, Envelope minimumBoundingRectangle, Bag attributes) {
 		try {
 			URL url = new File(System.getProperty("user.dir") + relativePathToFile).toURI().toURL();
 			ShapeFileImporter.read(url, geometry, attributes);
