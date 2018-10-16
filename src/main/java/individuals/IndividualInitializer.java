@@ -109,7 +109,8 @@ public final class IndividualInitializer {
 	
 	private static void initTargetNeedTimeSplits() {
 		for (Individual individual: ALL_INDIVIDUALS) {
-			INDIVIDUAL_BUILDER.adjust(individual)
+			INDIVIDUAL_BUILDER
+					.adjust(individual)
 					.withTargetNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 							.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 							.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))

@@ -10,8 +10,9 @@ import java.util.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import com.vividsolutions.jts.planargraph.Node;
+
 import rfs0.aitam.model.needs.ActualNeedTimeSplit;
-import sim.util.geo.MasonGeometry;
 
 public class ActivityAgenda implements Cloneable {
 	
@@ -20,18 +21,18 @@ public class ActivityAgenda implements Cloneable {
 	 * The implementation for adding new key-value pairs guarantees this
 	 */
 	private TreeMap<Interval, Activity> m_agenda = new TreeMap<>(new IntervalComparator());
-	private TreeMap<Interval, MasonGeometry> m_locations = new TreeMap<>(new IntervalComparator());
+	private TreeMap<Interval, Node> m_locations = new TreeMap<>(new IntervalComparator());
 	private ActualNeedTimeSplit m_actualNeedTimeSplit = new ActualNeedTimeSplit();
 	
 	public ActivityAgenda() {}
 	
-	private ActivityAgenda(TreeMap<Interval, Activity> agenda, TreeMap<Interval, MasonGeometry> locations) {
+	private ActivityAgenda(TreeMap<Interval, Activity> agenda, TreeMap<Interval, Node> locations) {
 		m_agenda = agenda;
 		m_locations = locations;
 	}
 	
 	public static ActivityAgenda newInstance(ActivityAgenda activtyAgenda) {
-		return new ActivityAgenda(activtyAgenda.getAgenda(), activtyAgenda.getLocations());
+		return new ActivityAgenda(activtyAgenda.getAgenda(), activtyAgenda.getNodes());
 	}
 	
 	public void addActivityForInterval(Interval activityInterval, Activity activity) {
@@ -56,14 +57,14 @@ public class ActivityAgenda implements Cloneable {
 		return null;
 	}
 	
-	public void addLocationForInterval(Interval activityInterval, MasonGeometry targetBuilding) {
-		if (activityInterval == null || targetBuilding == null) {
-			Logger.getLogger(ActivityAgenda.class.getName()).log(Level.SEVERE, String.format("At least one argument is invalid: activityInterval=%s;  targetBuilding=%s. Can not add this, since this would result in an invalid agenda.", Objects.toString(activityInterval), Objects.toString(targetBuilding)));
+	public void addNodeForInterval(Interval activityInterval, Node targetNode) {
+		if (activityInterval == null || targetNode == null) {
+			Logger.getLogger(ActivityAgenda.class.getName()).log(Level.SEVERE, String.format("At least one argument is invalid: activityInterval=%s;  targetNode=%s. Can not add this, since this would result in an invalid agenda.", Objects.toString(activityInterval), Objects.toString(targetNode)));
 		}
-		m_locations.put(activityInterval, targetBuilding);
+		m_locations.put(activityInterval, targetNode);
 	}
 	
-	public MasonGeometry getLocationForInterval(Interval interval) {
+	public Node getNodeForInterval(Interval interval) {
 		for (Interval key: m_locations.keySet()) {
 			if (key.contains(interval)) {
 				return m_locations.get(key);
@@ -112,7 +113,7 @@ public class ActivityAgenda implements Cloneable {
 		m_agenda = new TreeMap<>(new IntervalComparator());
 	}
 	
-	public TreeMap<Interval, MasonGeometry> getLocations() {
+	public TreeMap<Interval, Node> getNodes() {
 		return m_locations;
 	}
 	

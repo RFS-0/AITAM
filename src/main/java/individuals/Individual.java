@@ -12,7 +12,6 @@ import org.joda.time.Interval;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.linearref.LengthIndexedLine;
 import com.vividsolutions.jts.planargraph.Node;
 
@@ -73,22 +72,15 @@ public class Individual {
 	 * GIS related variables
 	 */
 	// buildings for activities
-	private MasonGeometry m_homeBuilding;
-	private MasonGeometry m_thirdPlaceForHouseholdAndFamilyCareBuilding;
-	private MasonGeometry m_thirdPlaceForHouseholdAndFamilyCarePoint;
-	private MasonGeometry m_workPlaceBuilding;
-	private MasonGeometry m_workPlacePoint;
-	private MasonGeometry m_thirdPlaceForWorkBuilding;
-	private MasonGeometry m_thirdPlaceForWorkPoint;
-	private MasonGeometry m_leisureBuilding;
-	private MasonGeometry m_leisurePoint;
-	private MasonGeometry m_thirdPlaceForLeisureBuilding;
-	private MasonGeometry m_thirdPlaceForLeisurePoint;
+	private Node m_homeNode;
+	private Node m_thirdPlaceForHouseholdAndFamilyCareNode;
+	private Node m_workPlaceNode;
+	private Node m_thirdPlaceForWorkNode;
+	private Node m_leisureNode;
+	private Node m_thirdPlaceForLeisureNode;
 	
 	// dynamic locations
-	private MasonGeometry m_currentLocationPoint;
-	private MasonGeometry m_targetLocationGeometry; // actual target building
-	private MasonGeometry m_targetLocationPoint;
+	private MasonGeometry m_currentLocationPoint; // point that represents the agent
 	private LengthIndexedLine m_segment = null; // Used by individual to walk along line segment
 	private double m_endIndexOfCurrentEdge = 0.0;
 	private double m_startIndexOfCurrentEdge = 0.0;
@@ -99,7 +91,6 @@ public class Individual {
 	private int m_edgeDirection = 1;
 	private int m_currentIndexOnPathToNextTarget = 0;
 	private Node m_currentNode;
-	private Node m_targetNode;
 
 	private Individual() {}
 
@@ -117,12 +108,12 @@ public class Individual {
 		}
 		
 		public Builder withId(int id) {
-			individualToBuild.m_id = id;
+			individualToBuild.setId(id);
 			return this;
 		}
 
 		public Builder withTargetNeedTimeSplit(NeedTimeSplit needTimeSplit) {
-			individualToBuild.m_targetNeedTimeSplit = needTimeSplit;
+			individualToBuild.setTargetNeedTimeSplit(needTimeSplit);
 			return this;
 		}
 
@@ -138,69 +129,58 @@ public class Individual {
 		 */
 		public Builder withHomeBuilding(MasonGeometry homeBuilding) {
 			String warningMessage = "Home location is invalid. The built individual may be unusable!";
-			validate(homeBuilding, warningMessage);
-			individualToBuild.m_homeBuilding = homeBuilding;
-			Point pointOfClosestPath = getPointForPath(homeBuilding);
-			validate(pointOfClosestPath, warningMessage);
-			individualToBuild.m_currentLocationPoint = new MasonGeometry(pointOfClosestPath);
-			individualToBuild.m_currentLocationPoint.isMovable = true;
-			individualToBuild.m_currentNode = individualToBuild.getCurrentNode();
-			validate(individualToBuild.m_currentNode, warningMessage);
+			validate(homeBuilding.getGeometry().getCoordinate(), warningMessage);
+			individualToBuild.setCurrentLocationPoint(new MasonGeometry(Environment.GEO_FACTORY.createPoint(homeBuilding.getGeometry().getCoordinate())));
+			individualToBuild.getCurrentLocationPoint().isMovable = true;
+			Node homeNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(homeBuilding);
+			validate(homeNode, warningMessage);
+			individualToBuild.setCurrentNode(homeNode);
+			individualToBuild.setHomeNode(homeNode);
 			return this;
 		}
 		
 		public Builder withThirdPlaceForHouseholdAndFamilyCareBuilding(MasonGeometry thirdPlaceForHouseholdAndFamilyCareBuilding) {
 			String warningMessage = "Third place for household and family care is invalid. The built individual may be unusable!";
-			validate(thirdPlaceForHouseholdAndFamilyCareBuilding, warningMessage);
-			individualToBuild.m_thirdPlaceForHouseholdAndFamilyCareBuilding = thirdPlaceForHouseholdAndFamilyCareBuilding;
-			Point pointOfClosestPath = getPointForPath(thirdPlaceForHouseholdAndFamilyCareBuilding);
-			validate(pointOfClosestPath, warningMessage);
-			individualToBuild.m_thirdPlaceForHouseholdAndFamilyCarePoint = new MasonGeometry(pointOfClosestPath);
-			individualToBuild.m_thirdPlaceForHouseholdAndFamilyCarePoint.isMovable = false;
+			validate(thirdPlaceForHouseholdAndFamilyCareBuilding.getGeometry().getCoordinate(), warningMessage);
+			Node thirdPlaceForHouseholdAndFamilyCareNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(thirdPlaceForHouseholdAndFamilyCareBuilding);
+			validate(thirdPlaceForHouseholdAndFamilyCareNode, warningMessage);
+			individualToBuild.setThirdPlaceForHouseholdAndFamilyCareNode(thirdPlaceForHouseholdAndFamilyCareNode);
 			return this;
 		}
 		
 		public Builder withWorkPlaceBuilding(MasonGeometry workPlaceBuilding) {
 			String warningMessage = "The work place building is invalid. The built individual may be unusable!";
-			validate(workPlaceBuilding, warningMessage);
-			individualToBuild.m_workPlaceBuilding = workPlaceBuilding;
-			Point pointOfClosestPath = getPointForPath(workPlaceBuilding);
-			validate(pointOfClosestPath, warningMessage);
-			individualToBuild.m_workPlacePoint = new MasonGeometry(pointOfClosestPath);
-			individualToBuild.m_workPlacePoint.isMovable = false;
+			validate(workPlaceBuilding.getGeometry().getCoordinate(), warningMessage);
+			Node workPlaceNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(workPlaceBuilding);
+			validate(workPlaceNode, warningMessage);
+			individualToBuild.setWorkPlaceNode(workPlaceNode);
 			return this;
 		}
 		
 		public Builder withThirdPlaceForWorkBuilding(MasonGeometry thirdPlaceForWorkBuilding) {
 			String warningMessage = "The third place for work is invalid. The built individual may be unusable!";
-			validate(thirdPlaceForWorkBuilding, warningMessage);
-			individualToBuild.m_thirdPlaceForWorkBuilding = thirdPlaceForWorkBuilding;
-			Point pointOfClosestPath = getPointForPath(thirdPlaceForWorkBuilding);
-			validate(pointOfClosestPath, warningMessage);
-			individualToBuild.m_thirdPlaceForWorkPoint = new MasonGeometry(pointOfClosestPath);
-			individualToBuild.m_thirdPlaceForWorkPoint.isMovable = false;
+			validate(thirdPlaceForWorkBuilding.getGeometry().getCoordinate(), warningMessage);
+			Node thirdPlaceForWorkNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(thirdPlaceForWorkBuilding);
+			validate(thirdPlaceForWorkNode, warningMessage);
+			individualToBuild.setThirdPlaceForWorkNode(thirdPlaceForWorkNode);
 			return this;
 		}
 		
 		public Builder withLeisureBuilding(MasonGeometry leisureBuilding) {
 			String warningMessage = "The place for leisure is invalid. The built individual may be unusable!";
-			validate(leisureBuilding, warningMessage);
-			individualToBuild.m_leisureBuilding = leisureBuilding;
-			Point pointOfClosestPath = getPointForPath(leisureBuilding);
-			validate(pointOfClosestPath, warningMessage);
-			individualToBuild.m_leisurePoint = new MasonGeometry(pointOfClosestPath);
-			individualToBuild.m_leisurePoint.isMovable = false;
+			validate(leisureBuilding.getGeometry().getCoordinate(), warningMessage);
+			Node leisureNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(leisureBuilding);
+			validate(leisureNode, warningMessage);
+			individualToBuild.setLeisureNode(leisureNode);
 			return this;
 		}
 		
 		public Builder withThirdPlaceForLeisureBuilding(MasonGeometry thirdPlaceForLeisureBuilding) {
 			String warningMessage = "The third place for leisure is invalid. The built individual may be unusable!";
-			validate(thirdPlaceForLeisureBuilding, warningMessage);
-			individualToBuild.m_thirdPlaceForLeisureBuilding = thirdPlaceForLeisureBuilding;
-			Point pointOfClosestPath = getPointForPath(thirdPlaceForLeisureBuilding);
-			validate(pointOfClosestPath, warningMessage);
-			individualToBuild.m_thirdPlaceForLeisurePoint = new MasonGeometry(pointOfClosestPath);
-			individualToBuild.m_thirdPlaceForLeisurePoint.isMovable = false;
+			validate(thirdPlaceForLeisureBuilding.getGeometry().getCoordinate(), warningMessage);
+			Node thirdPlaceForLeisureNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(thirdPlaceForLeisureBuilding);
+			validate(thirdPlaceForLeisureNode, warningMessage);
+			individualToBuild.setThirdPlaceForLeisureNode(thirdPlaceForLeisureNode);
 			return this;
 		}
 		
@@ -210,84 +190,48 @@ public class Individual {
 			}
 		}
 		
-		private Point getPointForPath(MasonGeometry building) {
-			Coordinate coordinateOfClosestPath = Environment.BUILDING_TO_CLOSEST_PATH_MAP.get(building).geometry.getCoordinate();
-			return Environment.GEO_FACTORY.createPoint(coordinateOfClosestPath);
-		}
-
-		/**
-		 * Sets the {@link MasonGeometry} that represents the building where this
-		 * {@link Individual} wants to go to. <b>Note:<b> Use
-		 * BUILDING_TO_CLOSEST_PATH_MAP in {@link Environment} to get the
-		 * {@link MasonGeometry} that represents the path which is closest to the
-		 * individuals home location.
-		 * 
-		 * @param homeLocation - The {@link MasonGeometry} that represents the building
-		 *                     this individual wants to go to
-		 * @return {@link Builder}
-		 */
-		public Builder withTargetLocation(MasonGeometry targetLocation) {
-			if (targetLocation == null || !(targetLocation instanceof MasonGeometry)) {
-				Logger.getLogger(Individual.class.getName())
-						.log(Level.SEVERE, "Target location is invalid. The built individual may be unusable!");
-			}
-			individualToBuild.m_targetLocationGeometry = targetLocation;
-			Coordinate targetCoordinate = Environment.BUILDING_TO_CLOSEST_PATH_MAP.get(individualToBuild.m_targetLocationGeometry).geometry.getCoordinate();
-			Point targetPoint = Environment.GEO_FACTORY.createPoint(targetCoordinate);
-			if (targetPoint == null) {
-				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, "Target point is invalid. The built individual may be unusable!");
-			}
-			individualToBuild.m_targetLocationPoint = new MasonGeometry(targetPoint);
-			individualToBuild.m_targetLocationPoint.isMovable = true;
-			Node targetNode = individualToBuild.getNode(individualToBuild.m_targetLocationPoint);
-			if (targetNode == null) {
-				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, "Target node is invalid. The built individual may be unusable!");
-			}
-			return this;
-		}
-		
 		public Builder withHousholdMembersNetworkId(int householdMembersNetworkId) {
-			individualToBuild.m_householdMembersNetworkId = householdMembersNetworkId;
+			individualToBuild.setHouseholdMembersNetworkId(householdMembersNetworkId);
 			return this;
 		}
 		
 		public Builder withHousholdMembersNetwork(Network householdMembersNetwork) {
-			individualToBuild.m_householdMembersNetwork = householdMembersNetwork;
+			individualToBuild.setHouseholdMembersNetwork(householdMembersNetwork);
 			return this;
 		}
 		
 		public Builder addHouseholdMember(Individual householdMember) {
-			individualToBuild.m_householdMembersNetwork.addNode(householdMember);
+			individualToBuild.getHouseholdMembersNetwork().addNode(householdMember);
 			return this;
 		}
 		
 		public Builder withWorkColleguesNetworkId(int workColleguesNetworkId) {
-			individualToBuild.m_workColleguesNetworkId = workColleguesNetworkId;
+			individualToBuild.setWorkColleguesNetworkId(workColleguesNetworkId);
 			return this;
 		}
 		
 		public Builder withWorkColleguesNetwork(Network workColleguesNetwork) {
-			individualToBuild.m_workColleguesNetwork = workColleguesNetwork;
+			individualToBuild.setWorkColleguesNetwork(workColleguesNetwork);
 			return this;
 		}
 		
 		public Builder addWorkCollegue(Individual workCollegue) {
-			individualToBuild.m_workColleguesNetwork.addNode(workCollegue);
+			individualToBuild.getWorkColleguesNetwork().addNode(workCollegue);
 			return this;
 		}
 		
 		public Builder withFriendsNetworkId(int friendsNetworkId) {
-			individualToBuild.m_friendsNetworkId = friendsNetworkId;
+			individualToBuild.setFriendsNetworkId(friendsNetworkId);
 			return this;
 		}
 		
 		public Builder withFriendsNetwork(Network friendsNetwork) {
-			individualToBuild.m_friendsNetwork = friendsNetwork;
+			individualToBuild.setFriendsNetwork(friendsNetwork);
 			return this;
 		}
 		
 		public Builder addFriend(Individual friend) {
-			individualToBuild.m_friendsNetwork.addNode(friend);
+			individualToBuild.getFriendsNetwork().addNode(friend);
 			return this;
 		}
 		
@@ -302,70 +246,29 @@ public class Individual {
 			return builtIndividual;
 		}
 	}
-
-	public void executeActivity(Environment environment) {
-		Activity currentActivity = getActivityAgenda().getActivityForDateTime(environment.getSimulationTime().getCurrentTime());
-		MasonGeometry currentLocation = getCurrentLocation();
-		MasonGeometry activityLocation = getActivityLocation(currentActivity);
-		if (!currentLocation.equals(activityLocation)) {
-			if (m_pathToNextTarget.isEmpty()) {
-				initPathToTarget(activityLocation);
-			}
-			if (!hasReachedTarget()) {
-				moveTowardsTarget();
-			}
-		}
-		if (hasReachedTarget()) {
-			if (!currentActivity.isJointActivity()) {
-				updateActualNeedTimeSplit(currentActivity);
-			}
-			else { // joint activity
-				// TODO: how to handle case where individual is the only one currently at target location
-				updateActualNeedTimeSplit(currentActivity);
-			}
-		}
-	}
 	
-	private void updateActualNeedTimeSplit(Activity activity) {
-		for (Need needSatisfiedByRandomActivity: activity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
-			m_actualNeedTimeSplit.updateNeedTimeSplit(needSatisfiedByRandomActivity, activity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity));
-		}
-	}
-	
-	private void moveTowardsTarget() {
-		m_currentIndexOnLineOfEdge += calculateTravellingDistance();
-		if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
-			// positive movement
-			moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
-
-		} else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
-			// negative movement
-			moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
-		}
-		updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
-	}
-	
-	public boolean isPlanningPossible(Environment environment, ArrayList<DateTime> availableTimePoints) {
-		return availableTimePoints.stream().anyMatch(timePoint -> timePoint.equals(environment.getSimulationTime().getCurrentTime()));
-	}
-	
-	public void carryOverJointActivities(Environment environment) {
-		m_activityAgenda.clearAgenda();
-		for (Interval interval: m_jointActivityAgenda.getIntervals()) {
-			m_activityAgenda.addActivityForInterval(interval, m_jointActivityAgenda.getActivityForInterval(interval));
-			m_activityAgenda.addLocationForInterval(interval, m_jointActivityAgenda.getLocationForInterval(interval));
-		}
-	}
+	// PLAN JOINT ACTIVITIES
 	
 	public void planJointActivities(Environment environment) {
 		if (isOpenForNetworkActivities(environment, ISimulationSettings.MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY, ISimulationSettings.PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY)) {
-			planActivityForNetwork(environment, m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK , ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
+			planActivityForNetwork(environment, getHouseholdMembersNetwork(), NetworkType.HOUSEHOLD_NETWORK , ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
 		}
 		if (isOpenForNetworkActivities(environment, ISimulationSettings.MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY, ISimulationSettings.PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY)) {
-			planActivityForNetwork(environment, m_workColleguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES);
+			planActivityForNetwork(environment, getWorkColleguesNetwork(), NetworkType.WORK_COLLEGUES_NETWORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES);
 		}
 		if (isOpenForNetworkActivities(environment, ISimulationSettings.MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY, ISimulationSettings.PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY)) {
-			planActivityForNetwork(environment, m_friendsNetwork, NetworkType.FRIENDS_NETWORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES);
+			planActivityForNetwork(environment, getFriendsNetwork(), NetworkType.FRIENDS_NETWORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES);
+		}
+	}
+	
+	public boolean isOpenForNetworkActivities(Environment environment, int maxNumberOfActivitiesForNetworkType, double probabilityOfPlaningActivityForNetworkType) {
+		if (!TimeUtility.isDayFullyPlanned(environment, getJointActivityAgenda())
+				&& getNumberOfHouseholdNetworkActivitiesPlanned() < maxNumberOfActivitiesForNetworkType
+				&& environment.random.nextDouble(true, true) <= probabilityOfPlaningActivityForNetworkType) {
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 	
@@ -387,11 +290,24 @@ public class Individual {
 			}
 			// setup activity for all participating network members
 			Activity jointActivity = availableActivities.get(environment.random.nextInt(availableActivities.size()));
-			MasonGeometry jointActivityLocation = getActivityLocation(jointActivity);
+			Node jointActivityNode = getActivityNode(jointActivity);
 			for (Individual individual: networkMemberParticipating) {
 				individual.getJointActivityAgenda().addActivityForInterval(intervalOfJointActivity, jointActivity);
-				individual.getJointActivityAgenda().addLocationForInterval(intervalOfJointActivity, jointActivityLocation);
-				individual.incrementNumberOfHouseholdNetworkActivitiesPlanned();	
+				individual.getJointActivityAgenda().addNodeForInterval(intervalOfJointActivity, jointActivityNode);
+				switch (type) {
+				case FRIENDS_NETWORK:
+					individual.incrementNumberOfFriendsNetworkActivitiesPlanned();
+					break;
+				case HOUSEHOLD_NETWORK:
+					individual.incrementNumberOfHouseholdNetworkActivitiesPlanned();
+					break;
+				case WORK_COLLEGUES_NETWORK:
+					individual.incrementNumberOfWorkColleguesNetworkActivitiesPlanned();
+					break;
+				default:
+					Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not increment number of activities for this type!", String.valueOf(type)));
+					break;
+				}
 			}
 		}
 	}
@@ -425,6 +341,7 @@ public class Individual {
 		return networkMemberParticipating;
 	}
 	
+	
 	private Interval determineIntervalOfJointActivity(Environment environment, ArrayList<Individual> networkMemberParticipating, ArrayList<DateTime> availableStartTimes) {
 		Interval intervalOfInterest;
 		int numberOfTrials = 0;
@@ -444,27 +361,49 @@ public class Individual {
 		}
 	}
 	
+	private Node getActivityNode(Activity activity) {
+		switch (activity.getActivityLocation()) {
+		case HOME:
+			return getHomeNode();
+		case THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE:
+			return getThirdPlaceForHouseholdAndFamilyCareNode();
+		case LEISURE:
+			return getLeisureNode();
+		case THIRD_PLACE_FOR_LEISURE:
+			return getThirdPlaceForLeisureNode();
+		case THIRD_PLACE_FOR_WORK:
+			return getThirdPlaceForWorkNode();
+		case WORK:
+			return getWorkPlaceNode();
+		default:
+			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, "Could not choose activty location!");
+			return null;
+		}
+	}
+	
+	// PLAN INDIVIDUAL ACTIVITIES
+	
 	public void planIndividualActivities(Environment environment) {
-		m_allDayPlans.clear();
+		getAllDayPlans().clear();
 		DateTime endOfCurrentDay = TimeUtility.getStartOfNextDay(environment.getSimulationTime().getCurrentDateTime()).minusMinutes(1);
 		for (int i = 0; i < ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE; i++) {
-			ActivityAgenda randomPlan = ActivityAgenda.newInstance(m_jointActivityAgenda);
+			ActivityAgenda randomPlan = ActivityAgenda.newInstance(getJointActivityAgenda());
 			while (!TimeUtility.isDayFullyPlanned(environment, randomPlan)) {
 				Interval availableInterval = TimeUtility.getFirstAvailableInterval(environment, randomPlan);
 				int maxDurationInMinutes = (int) availableInterval.toDuration().getStandardMinutes();
 				BigDecimal duration = determineDuration(environment, maxDurationInMinutes);
 				Interval activityInterval = determineActivityInterval(availableInterval, duration.intValue(), endOfCurrentDay);
 				Activity activity = determineActivity(environment, randomPlan, activityInterval);
-				MasonGeometry activityLocation = getActivityLocation(activity);
+				Node activityNode = getActivityNode(activity);
 				randomPlan.addActivityForInterval(activityInterval, activity);
-				randomPlan.addLocationForInterval(activityInterval, activityLocation);
+				randomPlan.addNodeForInterval(activityInterval, activityNode);
 				for (Need needSatisfiedByRandomActivity: activity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
 					BigDecimal fractionForNeed = activity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity);
 					BigDecimal timeSpentSatisfyingNeed = fractionForNeed.multiply(duration);
 					randomPlan.getActualNeedTimeSplit().updateNeedTimeSplit(needSatisfiedByRandomActivity, timeSpentSatisfyingNeed);
 				}
 			}
-			m_allDayPlans.add(randomPlan);
+			getAllDayPlans().add(randomPlan);
 		}
 	}
 	
@@ -519,81 +458,94 @@ public class Individual {
 	public void chooseBestAgenda() {
 		ActivityAgenda bestAgenda = null;
 		BigDecimal minimumSquaredMeanError = new BigDecimal(Integer.MAX_VALUE);
-		for (int i = 0; i < m_allDayPlans.size(); i++) {
-			BigDecimal meanSquaredError = CalculationUtility.calculateMeanSquaredError(m_allDayPlans.get(i), m_targetNeedTimeSplit);
+		for (int i = 0; i < getAllDayPlans().size(); i++) {
+			BigDecimal meanSquaredError = CalculationUtility.calculateMeanSquaredError(getAllDayPlans().get(i), getTargetNeedTimeSplit());
 			if (meanSquaredError.compareTo(minimumSquaredMeanError) < 0) {
 				minimumSquaredMeanError = meanSquaredError;
-				bestAgenda = m_allDayPlans.get(i);
+				bestAgenda = getAllDayPlans().get(i);
 			}
 		}
-		m_activityAgenda = bestAgenda;
+		setActivityAgenda(bestAgenda);
 	}
 	
-	private MasonGeometry getActivityLocation(Activity activity) {
-		switch (activity.getActivityLocation()) {
-		case HOME:
-			return m_homeBuilding;
-		case THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE:
-			return m_thirdPlaceForHouseholdAndFamilyCareBuilding;
-		case LEISURE:
-			return m_leisureBuilding;
-		case THIRD_PLACE_FOR_LEISURE:
-			return m_thirdPlaceForLeisureBuilding;
-		case THIRD_PLACE_FOR_WORK:
-			return m_thirdPlaceForWorkBuilding;
-		case WORK:
-			return m_thirdPlaceForWorkBuilding;
-		default:
-			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, "Could not choose activty location!");
-			return null;
-		}
-	}
-	
-	
-	/**
-	 * 
-	 * 
-	 * @return the travelling distance for this step
-	 */
-	private double calculateTravellingDistance() {
-		// TODO: make this more realistic
-		//		double maxTrafficCapacity = m_currentEdge.getLine().getLength() * Environment.MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT;
-		//		// edge can be occupied by at least 1 individual
-		//		if (maxTrafficCapacity < 1.0) {
-		//			maxTrafficCapacity = 1.0;
-		//		}
-		//		double traffic = m_environment.m_edgeTraffic.get(m_currentEdge).size();
-		//		double trafficFactor = 1.0 - (traffic / maxTrafficCapacity); // TODO: not realistic -> velocity does not depend linearly
-		//																// on traffic...
-		//		trafficFactor = Math.max(trafficFactor, Environment.MAX_SLOW_DOWN_FACTOR);
-		return m_edgeDirection * ISimulationSettings.MAX_VELOCITY;
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @param remainingDistance the distance the agent can still travel this turn
-	 */
-	private void moveRemainingDistanceOnNextEdge(double remainingDistance) {
-		m_currentIndexOnPathToNextTarget += 1;
-		if (hasReachedTarget()) {
-			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
-			m_currentIndexOnPathToNextTarget = 0;
-			m_pathToNextTarget.clear();
-			m_targetLocationGeometry = null;
-			m_targetLocationPoint = null;
-			return;
-		}
-		setupNextEdge();
-		m_currentIndexOnLineOfEdge += remainingDistance;
-		if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
-			// positive movement
-			moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
+	// EXECUTE ACTIVITIES
 
-		} else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
-			// negative movement
-			moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
+	public void executeActivity(Environment environment) {
+		Activity currentActivity = getActivityAgenda().getActivityForDateTime(environment.getSimulationTime().getCurrentTime());
+		Node currentNode = getCurrentNode();
+		Node targetNode = getActivityNode(currentActivity);
+		if (!currentNode.equals(targetNode)) {
+			if (getPathToNextTarget().isEmpty()) {
+				initPathToTarget(targetNode);
+			}
+			if (!hasReachedTarget()) {
+				moveTowardsTarget();
+			}
 		}
+		if (hasReachedTarget()) {
+			if (!currentActivity.isJointActivity()) {
+				updateActualNeedTimeSplit(currentActivity);
+			}
+			else { // joint activity
+				// TODO: how to handle case where individual is the only one currently at target location
+				updateActualNeedTimeSplit(currentActivity);
+			}
+		}
+	}
+	
+	private void initPathToTarget(Node targetNode) {
+		Node currentNode = getCurrentNode();
+		if (currentNode == null || targetNode == null) {
+			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, String.format("Can not initialize path to target building. Got values currentNode=%s; targetNode=%s.", String.valueOf(currentNode), String.valueOf(targetNode)));
+		}
+		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(currentNode, targetNode);
+		if (!pathToTarget.isEmpty()) {
+			setPathToNextTarget(pathToTarget);
+			setCurrentEdge((GeomPlanarGraphEdge) pathToTarget.get(0).getEdge());
+			setupNextEdge();
+			updatePosition(getSegment().extractPoint(getCurrentIndexOnLineOfEdge()));
+			colorPathToTarget();
+		} 
+		else { // already at the target location
+		}
+	}
+	
+	
+	/**
+	 * Sets up the next edge on which the individual continues to its target
+	 * location
+	 * 
+	 * @param nextEdge - the GeomPlanarGraphEdge to traverse next
+	 */
+	private void setupNextEdge() {
+		GeomPlanarGraphEdge nextEdge = (GeomPlanarGraphEdge) getPathToNextTarget().get(getCurrentIndexOnPathToNextTarget()).getEdge();
+		updateEdgeTraffic(nextEdge);
+		setCurrentEdge(nextEdge);
+		LineString lineOfNextEdge = nextEdge.getLine();
+		setSegment(new LengthIndexedLine(nextEdge.getLine()));
+		setStartIndexOfCurrentEdge(getSegment().getStartIndex());
+		setEndIndexOfCurrentEdge(getSegment().getEndIndex());
+		setEdgeDirection(1);
+		setCurrentIndexOnLineOfEdge(0);
+		double distanceToStart = lineOfNextEdge.getStartPoint().distance(getCurrentLocationPoint().geometry);
+		double distanceToEnd = lineOfNextEdge.getEndPoint().distance(getCurrentLocationPoint().geometry);
+		if (distanceToStart <= distanceToEnd) {
+			setCurrentIndexOnLineOfEdge(getSegment().getStartIndex());
+			setEdgeDirection(1);
+		} else {
+			setCurrentIndexOnLineOfEdge(getSegment().getEndIndex());
+			setEdgeDirection(-1);
+		}
+	}
+	
+	private void updateEdgeTraffic(GeomPlanarGraphEdge nextEdge) {
+		if (m_environment.m_edgeTrafficMap.get(getCurrentEdge()) != null) {
+			m_environment.m_edgeTrafficMap.get(getCurrentEdge()).remove(this); // current edge is actually the old edge here
+		}
+		if (m_environment.m_edgeTrafficMap.get(nextEdge) == null) {
+			m_environment.m_edgeTrafficMap.put(nextEdge, new ArrayList<Individual>());
+		}
+		m_environment.m_edgeTrafficMap.get(nextEdge).add(this);
 	}
 	
 	/**
@@ -603,72 +555,16 @@ public class Individual {
 	 * @param c - The coordinate to which the individual is moved to
 	 */
 	private void updatePosition(Coordinate c) {
-		m_pointMoveTo.setCoordinate(c);
-		m_environment.getIndividualsGeomVectorField().setGeometryLocation(m_currentLocationPoint, m_pointMoveTo);
+		getPointMoveTo().setCoordinate(c);
+		m_environment.getIndividualsGeomVectorField().setGeometryLocation(getCurrentLocationPoint(), getPointMoveTo());
 	}
 	
 	private boolean hasReachedTarget() {
-		if (m_pathToNextTarget.isEmpty()) { // current location is target location
+		if (getPathToNextTarget().isEmpty()) { // current location is target location
 			return true;
 		}
 		else {
-			return m_currentIndexOnPathToNextTarget >= m_pathToNextTarget.size();
-		}
-	}
-	
-	/**
-	 * Sets up the next edge on which the individual continues to its target
-	 * location
-	 * 
-	 * @param nextEdge - the GeomPlanarGraphEdge to traverse next
-	 */
-	private void setupNextEdge() {
-		GeomPlanarGraphEdge nextEdge = (GeomPlanarGraphEdge) m_pathToNextTarget.get(m_currentIndexOnPathToNextTarget).getEdge();
-		updateEdgeTraffic(nextEdge);
-		m_currentEdge = nextEdge;
-		LineString lineOfNextEdge = nextEdge.getLine();
-		m_segment = new LengthIndexedLine(nextEdge.getLine());
-		m_startIndexOfCurrentEdge = m_segment.getStartIndex();
-		m_endIndexOfCurrentEdge = m_segment.getEndIndex();
-		m_edgeDirection = 1;
-		m_currentIndexOnLineOfEdge = 0;
-		double distanceToStart = lineOfNextEdge.getStartPoint().distance(m_currentLocationPoint.geometry);
-		double distanceToEnd = lineOfNextEdge.getEndPoint().distance(m_currentLocationPoint.geometry);
-		if (distanceToStart <= distanceToEnd) {
-			m_currentIndexOnLineOfEdge = m_segment.getStartIndex();
-			m_edgeDirection = 1;
-		} else {
-			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
-			m_edgeDirection = -1;
-		}
-	}
-	
-	private void updateEdgeTraffic(GeomPlanarGraphEdge nextEdge) {
-		if (m_environment.m_edgeTrafficMap.get(m_currentEdge) != null) {
-			m_environment.m_edgeTrafficMap.get(m_currentEdge).remove(this); // current edge is actually the old edge here
-		}
-		if (m_environment.m_edgeTrafficMap.get(nextEdge) == null) {
-			m_environment.m_edgeTrafficMap.put(nextEdge, new ArrayList<Individual>());
-		}
-		m_environment.m_edgeTrafficMap.get(nextEdge).add(this);
-	}
-
-	private void initPathToTarget(MasonGeometry targetBuilding) {
-		MasonGeometry closestPathToBuilding = Environment.BUILDING_TO_CLOSEST_PATH_MAP.get(targetBuilding);
-		Node currentNode = m_currentNode;
-		Node targetNode = getNode(closestPathToBuilding);
-		if (currentNode == null || targetNode == null) {
-			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, String.format("Can not initialize path to target building. Got values currentNode=%s; targetNode=%s.", String.valueOf(currentNode), String.valueOf(targetNode)));
-		}
-		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(currentNode, targetNode);
-		if (!pathToTarget.isEmpty()) {
-			m_pathToNextTarget = pathToTarget;
-			m_currentEdge = (GeomPlanarGraphEdge) pathToTarget.get(0).getEdge();
-			setupNextEdge();
-			updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
-			colorPathToTarget();
-		} 
-		else { // already at the target location
+			return getCurrentIndexOnPathToNextTarget() >= getPathToNextTarget().size();
 		}
 	}
 	
@@ -694,187 +590,89 @@ public class Individual {
 			});
 		}
 	}
-
-	/**
-	 * 
-	 * @return The {@link MasonGeometry} where this individual currently is located
-	 *         on
-	 */
-	public MasonGeometry getCurrentLocation() {
-		return m_currentLocationPoint;
-	}
-
-	/**
-	 * @param environment - the current state of the environment
-	 * @return the {@link Node} where the agent is currently located
-	 */
-	public Node getCurrentNode() {
-		return m_environment.m_pathNetworkGeomVectorField.findNode(m_currentLocationPoint.getGeometry().getCoordinate());
-	}
-
-	/**
-	 * 
-	 * @param environment         - the current state of the simulation
-	 * @param masonGeometryOfPath - some {@link MasonGeometry} that is part of the
-	 *                            path network
-	 * @return {@link Node} of the path network
-	 */
-	public Node getNode(MasonGeometry masonGeometryOfPath) {
-		return m_environment.m_pathNetworkGeomVectorField.findNode(masonGeometryOfPath.getGeometry().getCoordinate());
-	}
-
-	/**
-	 * 
-	 * @param environment      - the current state of the simulation
-	 * @param coordinateOfPath - some {@link Coordinate} that is part of the path
-	 *                         network
-	 * @return {@link Node} of the path network
-	 */
-	public Node getNode(Environment environment, Coordinate coordinateOfPath) {
-		return environment.m_pathNetworkGeomVectorField.findNode(coordinateOfPath);
+	
+	private void updateActualNeedTimeSplit(Activity activity) {
+		for (Need needSatisfiedByRandomActivity: activity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
+			getActualNeedTimeSplit().updateNeedTimeSplit(needSatisfiedByRandomActivity, activity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity));
+		}
 	}
 	
-	public NeedTimeSplit getTargetNeedTimeSplit() {
-		return m_targetNeedTimeSplit;
+	private void moveTowardsTarget() {
+		setCurrentIndexOnLineOfEdge(getCurrentIndexOnLineOfEdge() + calculateTravellingDistance());
+		if (getEdgeDirection() == 1 && getCurrentIndexOnLineOfEdge() >= getEndIndexOfCurrentEdge()) {
+			// positive movement
+			moveRemainingDistanceOnNextEdge(getCurrentIndexOnLineOfEdge() - getEndIndexOfCurrentEdge());
+
+		} else if (getEdgeDirection() == -1 && getCurrentIndexOnLineOfEdge() <= getStartIndexOfCurrentEdge()) {
+			// negative movement
+			moveRemainingDistanceOnNextEdge(getStartIndexOfCurrentEdge() - getCurrentIndexOnLineOfEdge());
+		}
+		updatePosition(getSegment().extractPoint(getCurrentIndexOnLineOfEdge()));
 	}
 	
-	public ArrayList<GeomPlanarGraphDirectedEdge> getPathToNextTarget() {
-		return m_pathToNextTarget;
+	public boolean isPlanningPossible(Environment environment, ArrayList<DateTime> availableTimePoints) {
+		return availableTimePoints.stream().anyMatch(timePoint -> timePoint.equals(environment.getSimulationTime().getCurrentTime()));
 	}
+	
+	public void carryOverJointActivities(Environment environment) {
+		getActivityAgenda().clearAgenda();
+		for (Interval interval: getJointActivityAgenda().getIntervals()) {
+			getActivityAgenda().addActivityForInterval(interval, getJointActivityAgenda().getActivityForInterval(interval));
+			getActivityAgenda().addNodeForInterval(interval, getJointActivityAgenda().getNodeForInterval(interval));
+		}
+	}
+	
+
+	
+	
+	/**
+	 * 
+	 * 
+	 * @return the travelling distance for this step
+	 */
+	private double calculateTravellingDistance() {
+		// TODO: make this more realistic
+		//		double maxTrafficCapacity = m_currentEdge.getLine().getLength() * Environment.MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT;
+		//		// edge can be occupied by at least 1 individual
+		//		if (maxTrafficCapacity < 1.0) {
+		//			maxTrafficCapacity = 1.0;
+		//		}
+		//		double traffic = m_environment.m_edgeTraffic.get(m_currentEdge).size();
+		//		double trafficFactor = 1.0 - (traffic / maxTrafficCapacity); // TODO: not realistic -> velocity does not depend linearly
+		//																// on traffic...
+		//		trafficFactor = Math.max(trafficFactor, Environment.MAX_SLOW_DOWN_FACTOR);
+		return getEdgeDirection() * ISimulationSettings.MAX_VELOCITY;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param remainingDistance the distance the agent can still travel this turn
+	 */
+	private void moveRemainingDistanceOnNextEdge(double remainingDistance) {
+		setCurrentIndexOnPathToNextTarget(getCurrentIndexOnPathToNextTarget() + 1);
+		if (hasReachedTarget()) {
+			setCurrentIndexOnLineOfEdge(getSegment().getEndIndex());
+			setCurrentIndexOnPathToNextTarget(0);
+			getPathToNextTarget().clear();
+			return;
+		}
+		setupNextEdge();
+		setCurrentIndexOnLineOfEdge(getCurrentIndexOnLineOfEdge() + remainingDistance);
+		if (getEdgeDirection() == 1 && getCurrentIndexOnLineOfEdge() >= getEndIndexOfCurrentEdge()) {
+			// positive movement
+			moveRemainingDistanceOnNextEdge(getCurrentIndexOnLineOfEdge() - getEndIndexOfCurrentEdge());
+
+		} else if (getEdgeDirection() == -1 && getCurrentIndexOnLineOfEdge() <= getStartIndexOfCurrentEdge()) {
+			// negative movement
+			moveRemainingDistanceOnNextEdge(getStartIndexOfCurrentEdge() - getCurrentIndexOnLineOfEdge());
+		}
+	}
+	
+	// HELPER FUNCTIONS
 	
 	public void updateActualNeedTimeSplit(Need need, BigDecimal timeSpentSatisfyingNeed) {
-		m_actualNeedTimeSplit.updateNeedTimeSplit(need, timeSpentSatisfyingNeed);
-	}
-	
-	public ActualNeedTimeSplit getActualNeedTimeSplit() {
-		return m_actualNeedTimeSplit;
-	}
-	
-	public Network getHouseholdMembersNetwork() {
-		return m_householdMembersNetwork;
-	}
-	
-	public Network getWorkColleguesNetwork() {
-		return m_workColleguesNetwork;
-	}
-	
-	public Network getFriendsNetwork() {
-		return m_friendsNetwork;
-	}
-	
-	public int getId() {
-		return m_id;
-	}
-	
-	public int getHouseholdMembersNetworkId() {
-		return m_householdMembersNetworkId;
-	}
-
-	public int getWorkColleguesNetworkId() {
-		return m_workColleguesNetworkId;
-	}
-	
-	public int getFriendsNetworkId() {
-		return m_friendsNetworkId;
-	}
-	
-	public MasonGeometry getHomeBuilding() {
-		return m_homeBuilding;
-	}
-	
-	public MasonGeometry getThirdPlaceForHouseholdAndFamilyCareBuilding() {
-		return m_thirdPlaceForHouseholdAndFamilyCareBuilding;
-	}
-	
-	public MasonGeometry getThirdPlaceForHouseholdAndFamilyCarePoint() {
-		return m_thirdPlaceForHouseholdAndFamilyCarePoint;
-	}
-	
-	public MasonGeometry getWorkPlaceBuilding() {
-		return m_workPlaceBuilding;
-	}
-	
-	public MasonGeometry getWorkPlacePoint() {
-		return m_workPlacePoint;
-	}
-	
-	public MasonGeometry getThirdPlaceForWorkBuilding() {
-		return m_thirdPlaceForWorkBuilding;
-	}
-	
-	public MasonGeometry getThirdPlaceForWorkPoint() {
-		return m_thirdPlaceForWorkPoint;
-	}
-	
-	public MasonGeometry getLeisureBuilding() {
-		return m_leisureBuilding;
-	}
-	
-	public MasonGeometry getLeisurePoint() {
-		return m_leisurePoint;
-	}
-	
-	public MasonGeometry getThirdPlaceForLeisureBuilding() {
-		return m_thirdPlaceForLeisureBuilding;
-	}
-	
-	public MasonGeometry getThirdPlaceForLeisurePoint() {
-		return m_thirdPlaceForLeisurePoint;
-	}
-	
-	public ActivityAgenda getActivityAgenda() {
-		return m_activityAgenda;
-	}
-	
-	public ActivityAgenda getJointActivityAgenda() {
-		return m_jointActivityAgenda;
-	}
-	
-	public boolean isOpenForNetworkActivities(Environment environment, int maxNumberOfActivitiesForNetworkType, double probabilityOfPlaningActivityForNetworkType) {
-		if (!TimeUtility.isDayFullyPlanned(environment, m_jointActivityAgenda)
-				&& m_numberOfHouseholdNetworkActivitiesPlanned < maxNumberOfActivitiesForNetworkType
-				&& environment.random.nextDouble(true, true) <= probabilityOfPlaningActivityForNetworkType) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-	public int getNumberOfHouseholdNetworkActivitiesPlanned() {
-		return m_numberOfHouseholdNetworkActivitiesPlanned;
-	}
-	
-	public void incrementNumberOfHouseholdNetworkActivitiesPlanned() {
-		m_numberOfHouseholdNetworkActivitiesPlanned++;
-	}
-	
-	public void setNumberOfHouseholdNetworkActivitiesPlanned(int numberOfHouseholdNetworkActivitiesPlanned) {
-		m_numberOfHouseholdNetworkActivitiesPlanned = numberOfHouseholdNetworkActivitiesPlanned;
-	}
-	
-	public int getNumberOfWorkColleguesNetworkActivitiesPlanned() {
-		return m_numberOfWorkColleguesNetworkActivitiesPlanned;
-	}
-	
-	public void incrementNumberOfWorkColleguesNetworkActivitiesPlanned() {
-		m_numberOfWorkColleguesNetworkActivitiesPlanned++;
-	}
-	
-	public void setNumberOfWorkColleguesNetworkActivitiesPlanned(int numberOfWorkColleguesNetworkActivitiesPlanned) {
-		m_numberOfWorkColleguesNetworkActivitiesPlanned = numberOfWorkColleguesNetworkActivitiesPlanned;
-	}
-	
-	public int getNumberOfFriendsNetworkActivitiesPlanned() {
-		return m_numberOfFriendsNetworkActivitiesPlanned;
-	}
-	
-	public void incrementNumberOfFriendsNetworkActivitiesPlanned() {
-		m_numberOfFriendsNetworkActivitiesPlanned++;
-	}
-	
-	public void setNumberOfFriendsNetworkActivitiesPlanned(int numberOfFriendsNetworkActivitiesPlanned) {
-		m_numberOfFriendsNetworkActivitiesPlanned = numberOfFriendsNetworkActivitiesPlanned;
+		getActualNeedTimeSplit().updateNeedTimeSplit(need, timeSpentSatisfyingNeed);
 	}
 	
 	public void initNewDay() {
@@ -885,5 +683,275 @@ public class Individual {
 		setNumberOfFriendsNetworkActivitiesPlanned(0);
 		setNumberOfHouseholdNetworkActivitiesPlanned(0);
 		setNumberOfWorkColleguesNetworkActivitiesPlanned(0);
+	}
+
+	// GETTER & SETTER
+	
+	public int getId() {
+		return m_id;
+	}
+
+	public void setId(int id) {
+		m_id = id;
+	}
+
+	public Network getHouseholdMembersNetwork() {
+		return m_householdMembersNetwork;
+	}
+
+	public void setHouseholdMembersNetwork(Network householdMembersNetwork) {
+		m_householdMembersNetwork = householdMembersNetwork;
+	}
+
+	public int getHouseholdMembersNetworkId() {
+		return m_householdMembersNetworkId;
+	}
+
+	public void setHouseholdMembersNetworkId(int householdMembersNetworkId) {
+		m_householdMembersNetworkId = householdMembersNetworkId;
+	}
+
+	public int getNumberOfHouseholdNetworkActivitiesPlanned() {
+		return m_numberOfHouseholdNetworkActivitiesPlanned;
+	}
+
+	public void setNumberOfHouseholdNetworkActivitiesPlanned(int numberOfHouseholdNetworkActivitiesPlanned) {
+		m_numberOfHouseholdNetworkActivitiesPlanned = numberOfHouseholdNetworkActivitiesPlanned;
+	}
+
+	public void incrementNumberOfHouseholdNetworkActivitiesPlanned() {
+		m_numberOfHouseholdNetworkActivitiesPlanned++;
+	}
+
+	public Network getWorkColleguesNetwork() {
+		return m_workColleguesNetwork;
+	}
+
+	public void setWorkColleguesNetwork(Network workColleguesNetwork) {
+		m_workColleguesNetwork = workColleguesNetwork;
+	}
+
+	public int getWorkColleguesNetworkId() {
+		return m_workColleguesNetworkId;
+	}
+
+	public void setWorkColleguesNetworkId(int workColleguesNetworkId) {
+		m_workColleguesNetworkId = workColleguesNetworkId;
+	}
+
+	public int getNumberOfWorkColleguesNetworkActivitiesPlanned() {
+		return m_numberOfWorkColleguesNetworkActivitiesPlanned;
+	}
+
+	public void setNumberOfWorkColleguesNetworkActivitiesPlanned(int numberOfWorkColleguesNetworkActivitiesPlanned) {
+		m_numberOfWorkColleguesNetworkActivitiesPlanned = numberOfWorkColleguesNetworkActivitiesPlanned;
+	}
+	
+	public void incrementNumberOfWorkColleguesNetworkActivitiesPlanned() {
+		m_numberOfWorkColleguesNetworkActivitiesPlanned++;
+	}
+
+	public Network getFriendsNetwork() {
+		return m_friendsNetwork;
+	}
+
+	public void setFriendsNetwork(Network friendsNetwork) {
+		m_friendsNetwork = friendsNetwork;
+	}
+
+	public int getFriendsNetworkId() {
+		return m_friendsNetworkId;
+	}
+
+	public void setFriendsNetworkId(int friendsNetworkId) {
+		m_friendsNetworkId = friendsNetworkId;
+	}
+
+	public int getNumberOfFriendsNetworkActivitiesPlanned() {
+		return m_numberOfFriendsNetworkActivitiesPlanned;
+	}
+
+	public void setNumberOfFriendsNetworkActivitiesPlanned(int numberOfFriendsNetworkActivitiesPlanned) {
+		m_numberOfFriendsNetworkActivitiesPlanned = numberOfFriendsNetworkActivitiesPlanned;
+	}
+	
+	public void incrementNumberOfFriendsNetworkActivitiesPlanned() {
+		m_numberOfFriendsNetworkActivitiesPlanned++;
+	}
+
+	public NeedTimeSplit getTargetNeedTimeSplit() {
+		return m_targetNeedTimeSplit;
+	}
+
+	public void setTargetNeedTimeSplit(NeedTimeSplit targetNeedTimeSplit) {
+		m_targetNeedTimeSplit = targetNeedTimeSplit;
+	}
+
+	public ActualNeedTimeSplit getActualNeedTimeSplit() {
+		return m_actualNeedTimeSplit;
+	}
+
+	public void setActualNeedTimeSplit(ActualNeedTimeSplit actualNeedTimeSplit) {
+		m_actualNeedTimeSplit = actualNeedTimeSplit;
+	}
+
+	public ActivityAgenda getActivityAgenda() {
+		return m_activityAgenda;
+	}
+
+	public void setActivityAgenda(ActivityAgenda activityAgenda) {
+		m_activityAgenda = activityAgenda;
+	}
+
+	public ActivityAgenda getJointActivityAgenda() {
+		return m_jointActivityAgenda;
+	}
+
+	public void setJointActivityAgenda(ActivityAgenda jointActivityAgenda) {
+		m_jointActivityAgenda = jointActivityAgenda;
+	}
+
+	public ArrayList<ActivityAgenda> getAllDayPlans() {
+		return m_allDayPlans;
+	}
+
+	public void setAllDayPlans(ArrayList<ActivityAgenda> allDayPlans) {
+		m_allDayPlans = allDayPlans;
+	}
+
+	public Node getHomeNode() {
+		return m_homeNode;
+	}
+
+	public void setHomeNode(Node homeNode) {
+		m_homeNode = homeNode;
+	}
+
+	public Node getThirdPlaceForHouseholdAndFamilyCareNode() {
+		return m_thirdPlaceForHouseholdAndFamilyCareNode;
+	}
+
+	public void setThirdPlaceForHouseholdAndFamilyCareNode(Node thirdPlaceForHouseholdAndFamilyCareNode) {
+		m_thirdPlaceForHouseholdAndFamilyCareNode = thirdPlaceForHouseholdAndFamilyCareNode;
+	}
+
+	public Node getWorkPlaceNode() {
+		return m_workPlaceNode;
+	}
+
+	public void setWorkPlaceNode(Node workPlaceNode) {
+		m_workPlaceNode = workPlaceNode;
+	}
+
+	public Node getThirdPlaceForWorkNode() {
+		return m_thirdPlaceForWorkNode;
+	}
+
+	public void setThirdPlaceForWorkNode(Node thirdPlaceForWorkNode) {
+		m_thirdPlaceForWorkNode = thirdPlaceForWorkNode;
+	}
+
+	public Node getLeisureNode() {
+		return m_leisureNode;
+	}
+
+	public void setLeisureNode(Node leisureNode) {
+		m_leisureNode = leisureNode;
+	}
+
+	public Node getThirdPlaceForLeisureNode() {
+		return m_thirdPlaceForLeisureNode;
+	}
+
+	public void setThirdPlaceForLeisureNode(Node thirdPlaceForLeisureNode) {
+		m_thirdPlaceForLeisureNode = thirdPlaceForLeisureNode;
+	}
+
+	public MasonGeometry getCurrentLocationPoint() {
+		return m_currentLocationPoint;
+	}
+
+	public void setCurrentLocationPoint(MasonGeometry currentLocationPoint) {
+		m_currentLocationPoint = currentLocationPoint;
+	}
+
+	public LengthIndexedLine getSegment() {
+		return m_segment;
+	}
+
+	public void setSegment(LengthIndexedLine segment) {
+		m_segment = segment;
+	}
+
+	public double getEndIndexOfCurrentEdge() {
+		return m_endIndexOfCurrentEdge;
+	}
+
+	public void setEndIndexOfCurrentEdge(double endIndexOfCurrentEdge) {
+		m_endIndexOfCurrentEdge = endIndexOfCurrentEdge;
+	}
+
+	public double getStartIndexOfCurrentEdge() {
+		return m_startIndexOfCurrentEdge;
+	}
+
+	public void setStartIndexOfCurrentEdge(double startIndexOfCurrentEdge) {
+		m_startIndexOfCurrentEdge = startIndexOfCurrentEdge;
+	}
+
+	public double getCurrentIndexOnLineOfEdge() {
+		return m_currentIndexOnLineOfEdge;
+	}
+
+	public void setCurrentIndexOnLineOfEdge(double currentIndexOnLineOfEdge) {
+		m_currentIndexOnLineOfEdge = currentIndexOnLineOfEdge;
+	}
+
+	public PointMoveTo getPointMoveTo() {
+		return m_pointMoveTo;
+	}
+
+	public void setPointMoveTo(PointMoveTo pointMoveTo) {
+		m_pointMoveTo = pointMoveTo;
+	}
+
+	public ArrayList<GeomPlanarGraphDirectedEdge> getPathToNextTarget() {
+		return m_pathToNextTarget;
+	}
+
+	public void setPathToNextTarget(ArrayList<GeomPlanarGraphDirectedEdge> pathToNextTarget) {
+		m_pathToNextTarget = pathToNextTarget;
+	}
+
+	public GeomPlanarGraphEdge getCurrentEdge() {
+		return m_currentEdge;
+	}
+
+	public void setCurrentEdge(GeomPlanarGraphEdge currentEdge) {
+		m_currentEdge = currentEdge;
+	}
+
+	public int getEdgeDirection() {
+		return m_edgeDirection;
+	}
+
+	public void setEdgeDirection(int edgeDirection) {
+		m_edgeDirection = edgeDirection;
+	}
+
+	public int getCurrentIndexOnPathToNextTarget() {
+		return m_currentIndexOnPathToNextTarget;
+	}
+
+	public void setCurrentIndexOnPathToNextTarget(int currentIndexOnPathToNextTarget) {
+		m_currentIndexOnPathToNextTarget = currentIndexOnPathToNextTarget;
+	}
+	
+	public Node getCurrentNode() {
+		return m_currentNode;
+	}
+
+	public void setCurrentNode(Node currentNode) {
+		m_currentNode = currentNode;
 	}
 }

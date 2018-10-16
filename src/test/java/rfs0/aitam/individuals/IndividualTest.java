@@ -22,6 +22,7 @@ public class IndividualTest {
 		Environment environment = new Environment(1L) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void start() {
 				super.start();
 				// schedule the individual via anonymus classes
@@ -79,7 +80,7 @@ public class IndividualTest {
 		
 		// all entries have a location
 		activityPlan.getIntervals().stream().forEach(interval -> {
-			assertNotEquals(null, activityPlan.getLocationForInterval(interval));
+			assertNotEquals(null, activityPlan.getNodeForInterval(interval));
 		});
 	}
 	
@@ -88,6 +89,7 @@ public class IndividualTest {
 		Environment environment = new Environment(1L) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void start() {
 				super.start();
 				getIndividualsGeomVectorField().clear();

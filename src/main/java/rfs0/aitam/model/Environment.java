@@ -13,13 +13,13 @@ import java.util.stream.Stream;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.planargraph.Node;
 
 import activities.Activity;
 import activities.ActivityInitializer;
 import individuals.Individual;
 import individuals.IndividualInitializer;
 import rfs0.aitam.commons.ISimulationSettings;
-import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.geo.GeomVectorField;
@@ -34,7 +34,7 @@ public class Environment extends SimState {
 	private static final long serialVersionUID = 1L;
 	
 	public static final GeometryFactory GEO_FACTORY = new GeometryFactory();
-	public static HashMap<MasonGeometry, MasonGeometry> BUILDING_TO_CLOSEST_PATH_MAP = new HashMap<>();
+	public static HashMap<MasonGeometry, Node> BUILDING_TO_CLOSEST_NODE_MAP = new HashMap<>();
 	
 	// Activities
 	private Activity m_workAtHomeAloneActivity;
@@ -72,7 +72,7 @@ public class Environment extends SimState {
 	// GIS
 	public GeomVectorField m_buildingsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of buildings
 	public GeomVectorField m_pathsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of paths
-	public GeomPlanarGraph m_pathNetworkGeomVectorField = new GeomPlanarGraph(); // represents graph all paths
+	public GeomPlanarGraph m_pathGraph = new GeomPlanarGraph();
 	public HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> m_edgeTrafficMap = new HashMap<>(); // used to capture the
 	
 	// Buildings
@@ -150,10 +150,13 @@ public class Environment extends SimState {
 	}
 	
 	private void initEnvironment() {
+		System.out.println("Initializing the environment...");
+		long start = System.nanoTime();
 		Envelope globalMBR = m_buildingsGeomVectorField.getMBR();
 		readShapeFiles(globalMBR);
 		synchronizeMinimumBoundingRectangles(globalMBR);
-		m_pathNetworkGeomVectorField.createFromGeomField(m_pathsGeomVectorField);
+		m_pathGraph.createFromGeomField(m_pathsGeomVectorField);
+		System.out.println(String.format("Initialized environment in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
 	private void readShapeFiles(Envelope globalMBR) {
@@ -221,6 +224,8 @@ public class Environment extends SimState {
 	}
 	
 	private void initActivities() {
+		System.out.println("Initializing activities...");
+		long start = System.nanoTime();
 		initLeisureActivities();		
 		initWorkActivities();
 		initPersonalCareActivities();
@@ -254,6 +259,7 @@ public class Environment extends SimState {
 				m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembersActivity,
 				m_travelActivity)
 				.collect(Collectors.toCollection(ArrayList::new));
+		System.out.println(String.format("Initialized activities in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
 	private void initWorkActivities() {
@@ -298,30 +304,36 @@ public class Environment extends SimState {
 	}
 	
 	private void initIndividuals() {
+		System.out.println("Initializing individuals...");
+		long start = System.nanoTime();
 		m_individuals =  IndividualInitializer.initIndividuals(this);
+		System.out.println(String.format("Initialized individuals in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
 	private void initBuildings() {
-		initBuildingToClosestPathMap();
+		System.out.println("Initializing buildings...");
+		long start = System.nanoTime();
+		initBuildingToClosestNodeMap();
+		System.out.println(String.format("Initialized buildings in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
-	private void initBuildingToClosestPathMap() {
+	private void initBuildingToClosestNodeMap() {
 		for (Object buildingObject: m_buildingsGeomVectorField.getGeometries()) {
 			MasonGeometry building = (MasonGeometry) buildingObject;
-			MasonGeometry pathClosestToBuilding = getClosestPath(building);
-			BUILDING_TO_CLOSEST_PATH_MAP.put(building, pathClosestToBuilding);
+			Node closestNode = null;
+			Bag alreadyChecked = new Bag();
+			double searchDistance = 0.0;
+			while (closestNode == null) {
+				Bag withinDistance = m_pathsGeomVectorField.getObjectsWithinDistance(GEO_FACTORY.createPoint(building.getGeometry().getCoordinate()), searchDistance);
+				withinDistance.removeAll(alreadyChecked);
+				while (!withinDistance.isEmpty() && closestNode == null) {
+					closestNode = m_pathGraph.findNode(((MasonGeometry) withinDistance.remove(0)).getGeometry().getCoordinate());
+				}
+				alreadyChecked.addAll(withinDistance);
+				searchDistance += 1.0;
+			}
+			BUILDING_TO_CLOSEST_NODE_MAP.put(building, closestNode);
 		}
-	}
-
-	public MasonGeometry getClosestPath(MasonGeometry geometry) {
-		double searchDistance = 0.0;
-		MasonGeometry closestPath = null;
-		while (closestPath == null) {
-			Bag withinDistance = m_pathsGeomVectorField.getObjectsWithinDistance(GEO_FACTORY.createPoint(geometry.getGeometry().getCoordinate()), searchDistance);
-			closestPath = GeometryUtility.findClosestGeometry(geometry, withinDistance);
-			searchDistance += 1.0;
-		}
-		return closestPath;
 	}
 	
 	public ArrayList<Individual> getIndividuals() {
@@ -337,7 +349,7 @@ public class Environment extends SimState {
 	}
 	
 	public GeomPlanarGraph getPathNetworkGeomVectorField() {
-		return m_pathNetworkGeomVectorField;
+		return m_pathGraph;
 	}
 	
 	public ArrayList<Integer> getIndividualsNotInitialized() {

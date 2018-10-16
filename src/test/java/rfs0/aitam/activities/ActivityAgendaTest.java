@@ -7,6 +7,9 @@ import org.joda.time.Interval;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.planargraph.Node;
+
 import activities.Activity;
 import activities.ActivityAgenda;
 import rfs0.aitam.commons.ISimulationSettings;
@@ -24,8 +27,8 @@ public class ActivityAgendaTest {
 	public static Interval s_secondInterval;
 	public static Activity s_secondActivity;
 	public static Activity s_thirdActivity;
-	public static MasonGeometry s_firstLocation;
-	public static MasonGeometry s_secondLocation;
+	public static Node s_firstNode;
+	public static Node s_secondNode;
 	public static MasonGeometry s_thirdLocation;
 	public static Interval s_intervalWithNoActivity;
 	public static ActivityAgenda s_plan;
@@ -42,14 +45,14 @@ public class ActivityAgendaTest {
 		s_secondActivity = ACTIVITY_BUILDER.build();
 		s_intervalWithNoActivity = new Interval(s_startOfFirstInterval, s_endOfSecondInterval);
 		s_thirdActivity = ACTIVITY_BUILDER.build();
-		s_firstLocation = new MasonGeometry();
-		s_secondLocation = new MasonGeometry();
+		s_firstNode = new Node(new Coordinate());
+		s_secondNode = new Node(new Coordinate());
 		s_thirdLocation = new MasonGeometry();
 		s_plan = new ActivityAgenda();
 		s_plan.addActivityForInterval(s_firstInterval, s_firstActivity);
 		s_plan.addActivityForInterval(s_secondInterval, s_secondActivity);
-		s_plan.addLocationForInterval(s_firstInterval, s_firstLocation);
-		s_plan.addLocationForInterval(s_secondInterval, s_secondLocation);
+		s_plan.addNodeForInterval(s_firstInterval, s_firstNode);
+		s_plan.addNodeForInterval(s_secondInterval, s_secondNode);
 	}
 	
 	@Test
@@ -67,8 +70,8 @@ public class ActivityAgendaTest {
 	@Test
 	public void testGetLocationForInterval() {
 		Interval invalidInterval = new Interval(s_startOfFirstInterval, s_endOfSecondInterval);
-		assertEquals(s_firstLocation, s_plan.getLocationForInterval(s_firstInterval));
-		assertEquals(s_secondLocation, s_plan.getLocationForInterval(s_secondInterval));
-		assertEquals(null, s_plan.getLocationForInterval(invalidInterval));
+		assertEquals(s_firstNode, s_plan.getNodeForInterval(s_firstInterval));
+		assertEquals(s_secondNode, s_plan.getNodeForInterval(s_secondInterval));
+		assertEquals(null, s_plan.getNodeForInterval(invalidInterval));
 	}
 }

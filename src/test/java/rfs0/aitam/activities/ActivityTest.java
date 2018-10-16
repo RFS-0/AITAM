@@ -28,7 +28,7 @@ public class ActivityTest {
 	public static ActivityCategory s_testActivityCategory;
 	public static String s_testActivityDescription;
 	public static NeedTimeSplit s_testNeedTimeSplit;
-	public static Set<Need> s_testNeeds = Stream.of(Need.SUBSISTENCE, Need.AFFECTION, Need.UNDERSTANDING, Need.PARTICIPATION, Need.CREATION, Need.FREEDOM)
+	public static Set<Need> s_testNeeds = Stream.of(Need.SUBSISTENCE, Need.AFFECTION, Need.UNDERSTANDING, Need.PARTICIPATION, Need.CREATION, Need.FREEDOM, Need.NOT_DEFINED)
 			.collect(Collectors.toSet());
 	public static String s_testExamples;
 	public static int s_testStartHourOfDay;
@@ -88,7 +88,7 @@ public class ActivityTest {
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER.withNeedTimeSplit(Need.AFFECTION, BigDecimal.valueOf(0.5)).build())
 				.build();
 		assertEquals(Stream.of(Need.AFFECTION, Need.NOT_DEFINED).collect(Collectors.toSet()), incompleteNeedTimeSplitActivity.getNeedTimeSplit().getNeeds());
-		assertEquals(BigDecimal.valueOf(0.5), incompleteNeedTimeSplitActivity.getNeedTimeSplit().getFractionForNeed(Need.NOT_DEFINED));
+		assertEquals(CalculationUtility.createBigDecimal(0.5), incompleteNeedTimeSplitActivity.getNeedTimeSplit().getFractionForNeed(Need.NOT_DEFINED));
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE), s_testActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 	}
 	

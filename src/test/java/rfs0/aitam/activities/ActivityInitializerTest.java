@@ -113,7 +113,7 @@ public class ActivityInitializerTest {
 	public void testInitLeisureAtHomeWithHouseholdMembersActivity() {
 		Activity leisureAtHomeWithHouseholdMembersActivity = ActivityInitializer.initLeisureAtHomeWithHouseholdMembersActivity();
 		assertEquals(ActivityCategory.LEISURE, leisureAtHomeWithHouseholdMembersActivity.getActivityCategory());
-		assertEquals("Leisure at home alone", leisureAtHomeWithHouseholdMembersActivity.getActivityDescription());
+		assertEquals("Leisure at home with household member(s)", leisureAtHomeWithHouseholdMembersActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE), leisureAtHomeWithHouseholdMembersActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Sports and recreation, hobbies, reading, TV viewing", leisureAtHomeWithHouseholdMembersActivity.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);

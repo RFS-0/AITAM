@@ -66,6 +66,6 @@ public class CalculationUtilityTest {
 				.withNeedTimeSplit(Need.CREATION, CalculationUtility.createBigDecimal(0.10))
 				.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.createBigDecimal(0.10))
 				.build();
-		assertEquals(BigDecimal.valueOf(0.00916667).setScale(8), CalculationUtility.calculateMeanSquaredError(activityAgenda, targetNeedTimeSplit));
+		assertEquals(BigDecimal.valueOf(0.0275000).setScale(7), CalculationUtility.calculateMeanSquaredError(activityAgenda, targetNeedTimeSplit));
 	}
 }
