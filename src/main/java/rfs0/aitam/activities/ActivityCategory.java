@@ -1,4 +1,4 @@
-package activities;
+package rfs0.aitam.activities;
 
 public enum ActivityCategory {
 	LEISURE,

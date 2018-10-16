@@ -1,4 +1,4 @@
-package activities;
+package rfs0.aitam.activities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import individuals.NetworkType;
 import rfs0.aitam.commons.ISimulationSettings;
+import rfs0.aitam.individuals.NetworkType;
 import rfs0.aitam.model.needs.NeedTimeSplit;
 
 public class Activity {

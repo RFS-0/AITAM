@@ -10,8 +10,8 @@ import org.junit.Test;
 
 import com.vividsolutions.jts.planargraph.Node;
 
-import individuals.Individual;
 import rfs0.aitam.commons.ISimulationSettings;
+import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.model.Environment;
 
 public class IndividualInitializerTest {

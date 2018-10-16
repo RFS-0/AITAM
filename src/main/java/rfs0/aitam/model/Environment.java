@@ -4,22 +4,20 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.planargraph.Node;
 
-import activities.Activity;
-import activities.ActivityInitializer;
-import individuals.Individual;
-import individuals.IndividualInitializer;
+import rfs0.aitam.activities.Activity;
+import rfs0.aitam.activities.ActivityInitializer;
 import rfs0.aitam.commons.ISimulationSettings;
+import rfs0.aitam.individuals.Individual;
+import rfs0.aitam.individuals.IndividualInitializer;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.geo.GeomVectorField;
@@ -66,22 +64,17 @@ public class Environment extends SimState {
 	private ArrayList<Activity> m_allActivities;
 
 	// Time
-	// TODO probably replace this with corresponding class of joda time
 	private SimulationTime m_simulationTime = new SimulationTime();
 
 	// GIS
-	public GeomVectorField m_buildingsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of buildings
-	public GeomVectorField m_pathsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of paths
-	public GeomPlanarGraph m_pathGraph = new GeomPlanarGraph();
-	public HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> m_edgeTrafficMap = new HashMap<>(); // used to capture the
+	private GeomVectorField m_buildingsField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of buildings
+	private GeomVectorField m_pathField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of paths
+	private GeomPlanarGraph m_pathGraph = new GeomPlanarGraph();
+	private HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> m_edgeTraffic = new HashMap<>(); // used to capture the
 	
-	// Buildings
-	public Set<Integer> m_buildingsNotInitialized = IntStream.range(0, m_buildingsGeomVectorField.getGeometries().size()).boxed().collect(Collectors.toSet());
-
 	// Individuals
-	private GeomVectorField m_individualsGeomVectorField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
+	private GeomVectorField m_individualsField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
 	private ArrayList<Individual> m_individuals = new ArrayList<>();
-	private ArrayList<Integer> m_individualsNotInitialized = IntStream.range(0, ISimulationSettings.NUMBER_OF_INDIVIDUALS).boxed().collect(Collectors.toCollection(ArrayList::new));
 	
 	public Environment(long seed) {
 		super(seed);
@@ -94,10 +87,10 @@ public class Environment extends SimState {
 	@Override
 	public void start() {
 		super.start();
-		m_individualsGeomVectorField.clear();
-		m_individualsGeomVectorField.setMBR(m_buildingsGeomVectorField.getMBR());
+		getIndividualsField().clear();
+		getIndividualsField().setMBR(getBuildingsField().getMBR());
 		// schedule the individual via anonymus classes
-		for (Individual individual: m_individuals) {
+		for (Individual individual: getIndividuals()) {
 			schedule.scheduleRepeating(0.0, 0, new Steppable() {			
 				private static final long serialVersionUID = 1L;
 				@Override
@@ -140,8 +133,9 @@ public class Environment extends SimState {
 				}
 			});
 		}
-		schedule.scheduleRepeating(0.0, 5, m_simulationTime); // update clock after indivdual have executed their step
-		schedule.scheduleRepeating(0.0, 6, m_individualsGeomVectorField.scheduleSpatialIndexUpdater());
+		schedule.scheduleRepeating(0.0, 5, getSimulationTime());
+//		schedule.scheduleRepeating(0.0, 6, m_individualsGeomVectorField.scheduleSpatialIndexUpdater());
+		schedule.scheduleRepeating(getIndividualsField().scheduleSpatialIndexUpdater(), Integer.MAX_VALUE, 1.0);
 	}
 	
 	public static void main(String[] args) {
@@ -152,10 +146,10 @@ public class Environment extends SimState {
 	private void initEnvironment() {
 		System.out.println("Initializing the environment...");
 		long start = System.nanoTime();
-		Envelope globalMBR = m_buildingsGeomVectorField.getMBR();
+		Envelope globalMBR = getBuildingsField().getMBR();
 		readShapeFiles(globalMBR);
 		synchronizeMinimumBoundingRectangles(globalMBR);
-		m_pathGraph.createFromGeomField(m_pathsGeomVectorField);
+		getPathGraph().createFromGeomField(getPathField());
 		System.out.println(String.format("Initialized environment in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
@@ -163,11 +157,11 @@ public class Environment extends SimState {
 		try {
 			System.out.println("Reading building layer...");
 			Bag attributesOfBuildings = initAttributesOfBuildings();
-			readShapeFile(ISimulationSettings.BUILDINGS_FILE, m_buildingsGeomVectorField, globalMBR, attributesOfBuildings);
+			readShapeFile(ISimulationSettings.BUILDINGS_FILE, getBuildingsField(), globalMBR, attributesOfBuildings);
 
 			System.out.println("Reading the path layer...");
 			Bag attributesOfPaths = initializeAttributesOfPaths();
-			readShapeFile(ISimulationSettings.PATHS_FILE, m_pathsGeomVectorField, globalMBR, attributesOfPaths);
+			readShapeFile(ISimulationSettings.PATHS_FILE, getPathField(), globalMBR, attributesOfPaths);
 		} catch (Exception e) {
 			Logger.getLogger(Environment.class.getName()).log(Level.SEVERE, "Failed to construct simulation", e);
 		}
@@ -219,8 +213,8 @@ public class Environment extends SimState {
 	}
 	
 	private void synchronizeMinimumBoundingRectangles(Envelope minimumBoundingRectangle) {
-		m_buildingsGeomVectorField.setMBR(minimumBoundingRectangle);
-		m_pathsGeomVectorField.setMBR(minimumBoundingRectangle);
+		getBuildingsField().setMBR(minimumBoundingRectangle);
+		getPathField().setMBR(minimumBoundingRectangle);
 	}
 	
 	private void initActivities() {
@@ -231,7 +225,7 @@ public class Environment extends SimState {
 		initPersonalCareActivities();
 		initHouseholdCareActivities();
 		initTravelActivities();
-		m_allActivities = Stream.of(
+		setAllActivities(Stream.of(
 				m_workAtHomeAloneActivity,
 				m_workAtWorkPlaceAloneActivity,
 				m_workAtWorkPlaceWithCoworkersActivity,
@@ -258,7 +252,7 @@ public class Environment extends SimState {
 				m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity,
 				m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembersActivity,
 				m_travelActivity)
-				.collect(Collectors.toCollection(ArrayList::new));
+				.collect(Collectors.toCollection(ArrayList::new)));
 		System.out.println(String.format("Initialized activities in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
@@ -306,7 +300,7 @@ public class Environment extends SimState {
 	private void initIndividuals() {
 		System.out.println("Initializing individuals...");
 		long start = System.nanoTime();
-		m_individuals =  IndividualInitializer.initIndividuals(this);
+		setIndividuals(IndividualInitializer.initIndividuals(this));
 		System.out.println(String.format("Initialized individuals in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
@@ -318,16 +312,16 @@ public class Environment extends SimState {
 	}
 	
 	private void initBuildingToClosestNodeMap() {
-		for (Object buildingObject: m_buildingsGeomVectorField.getGeometries()) {
+		for (Object buildingObject: getBuildingsField().getGeometries()) {
 			MasonGeometry building = (MasonGeometry) buildingObject;
 			Node closestNode = null;
 			Bag alreadyChecked = new Bag();
 			double searchDistance = 0.0;
 			while (closestNode == null) {
-				Bag withinDistance = m_pathsGeomVectorField.getObjectsWithinDistance(GEO_FACTORY.createPoint(building.getGeometry().getCoordinate()), searchDistance);
+				Bag withinDistance = getPathField().getObjectsWithinDistance(GEO_FACTORY.createPoint(building.getGeometry().getCoordinate()), searchDistance);
 				withinDistance.removeAll(alreadyChecked);
 				while (!withinDistance.isEmpty() && closestNode == null) {
-					closestNode = m_pathGraph.findNode(((MasonGeometry) withinDistance.remove(0)).getGeometry().getCoordinate());
+					closestNode = getPathGraph().findNode(((MasonGeometry) withinDistance.remove(0)).getGeometry().getCoordinate());
 				}
 				alreadyChecked.addAll(withinDistance);
 				searchDistance += 1.0;
@@ -335,40 +329,68 @@ public class Environment extends SimState {
 			BUILDING_TO_CLOSEST_NODE_MAP.put(building, closestNode);
 		}
 	}
-	
-	public ArrayList<Individual> getIndividuals() {
-		return m_individuals;
-	}
-	
-	public GeomVectorField getPathsGeomVectorField() {
-		return m_pathsGeomVectorField;
-	}
-	
-	public GeomVectorField getBuildingsGeomVectorField() {
-		return m_buildingsGeomVectorField;
-	}
-	
-	public GeomPlanarGraph getPathNetworkGeomVectorField() {
-		return m_pathGraph;
-	}
-	
-	public ArrayList<Integer> getIndividualsNotInitialized() {
-		return m_individualsNotInitialized;
-	}
-	
-	public SimulationTime getSimulationTime() {
-		return m_simulationTime;
-	}
-
-	public Activity getActivityWorkAtHomeAlone() {
-		return m_workAtHomeAloneActivity;
-	}
 
 	public ArrayList<Activity> getAllActivities() {
 		return m_allActivities;
 	}
 
-	public GeomVectorField getIndividualsGeomVectorField() {
-		return m_individualsGeomVectorField;
+	public void setAllActivities(ArrayList<Activity> allActivities) {
+		m_allActivities = allActivities;
+	}
+
+	public SimulationTime getSimulationTime() {
+		return m_simulationTime;
+	}
+
+	public void setSimulationTime(SimulationTime simulationTime) {
+		m_simulationTime = simulationTime;
+	}
+
+	public GeomVectorField getBuildingsField() {
+		return m_buildingsField;
+	}
+
+	public void setBuildingsField(GeomVectorField buildingsField) {
+		m_buildingsField = buildingsField;
+	}
+
+	public GeomVectorField getPathField() {
+		return m_pathField;
+	}
+
+	public void setPathField(GeomVectorField pathField) {
+		m_pathField = pathField;
+	}
+
+	public GeomPlanarGraph getPathGraph() {
+		return m_pathGraph;
+	}
+
+	public void setPathGraph(GeomPlanarGraph pathGraph) {
+		m_pathGraph = pathGraph;
+	}
+
+	public HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> getEdgeTraffic() {
+		return m_edgeTraffic;
+	}
+
+	public void setEdgeTraffic(HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> edgeTraffic) {
+		m_edgeTraffic = edgeTraffic;
+	}
+
+	public GeomVectorField getIndividualsField() {
+		return m_individualsField;
+	}
+
+	public void setIndividualsField(GeomVectorField individualsField) {
+		m_individualsField = individualsField;
+	}
+
+	public ArrayList<Individual> getIndividuals() {
+		return m_individuals;
+	}
+
+	public void setIndividuals(ArrayList<Individual> individuals) {
+		m_individuals = individuals;
 	}
 }

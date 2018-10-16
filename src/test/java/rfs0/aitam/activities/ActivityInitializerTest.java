@@ -9,10 +9,10 @@ import org.joda.time.DateTimeConstants;
 import org.joda.time.Interval;
 import org.junit.Test;
 
-import activities.Activity;
-import activities.ActivityCategory;
-import activities.ActivityInitializer;
-import activities.ActivityLocation;
+import rfs0.aitam.activities.Activity;
+import rfs0.aitam.activities.ActivityCategory;
+import rfs0.aitam.activities.ActivityInitializer;
+import rfs0.aitam.activities.ActivityLocation;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.utilities.CalculationUtility;

@@ -1,11 +1,11 @@
-package individuals;
+package rfs0.aitam.individuals;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import activities.ActivityCategory;
+import rfs0.aitam.activities.ActivityCategory;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.needs.Need;
@@ -159,7 +159,7 @@ public final class IndividualInitializer {
 	}
 	
 	private static MasonGeometry determineBuildingForCategoryWithinDistance(Environment environment, ArrayList<MasonGeometry> availableBuildings, MasonGeometry building, double distance, ActivityCategory activityCategory) {
-		Bag buildingsWithinDistance = environment.m_buildingsGeomVectorField.getObjectsWithinDistance(building, distance);
+		Bag buildingsWithinDistance = environment.getBuildingsField().getObjectsWithinDistance(building, distance);
 		int indexOfChoosenLocation = environment.random.nextInt(buildingsWithinDistance.size());
 		MasonGeometry choosenLocation = availableBuildings.remove(indexOfChoosenLocation);
 		choosenLocation.addAttribute(ISimulationSettings.ATTRIBUTE_ACTIVITY_CATEGORY, activityCategory);
@@ -168,7 +168,7 @@ public final class IndividualInitializer {
 	
 	public static ArrayList<MasonGeometry> getAvailableBuildings(Environment environment) {
 		ArrayList<MasonGeometry> availableBuildings = new ArrayList<>();  
-		for (Object geometry: environment.m_buildingsGeomVectorField.getGeometries()) {
+		for (Object geometry: environment.getBuildingsField().getGeometries()) {
 			  if (geometry instanceof MasonGeometry) {
 				  MasonGeometry mg = (MasonGeometry) geometry;
 				  if (mg.getAttribute(ISimulationSettings.ATTRIBUTE_ACTIVITY_CATEGORY) == null) { // no attribute allocated yet

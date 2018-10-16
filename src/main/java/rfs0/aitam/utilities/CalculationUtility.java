@@ -5,7 +5,7 @@ import java.math.MathContext;
 import java.util.Collection;
 import java.util.HashMap;
 
-import activities.ActivityAgenda;
+import rfs0.aitam.activities.ActivityAgenda;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;

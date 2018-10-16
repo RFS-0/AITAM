@@ -7,9 +7,9 @@ import org.joda.time.DateTime;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import activities.ActivityAgenda;
-import individuals.Individual;
+import rfs0.aitam.activities.ActivityAgenda;
 import rfs0.aitam.commons.ISimulationSettings;
+import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.model.Environment;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -92,8 +92,8 @@ public class IndividualTest {
 			@Override
 			public void start() {
 				super.start();
-				getIndividualsGeomVectorField().clear();
-				getIndividualsGeomVectorField().setMBR(m_buildingsGeomVectorField.getMBR());
+				getIndividualsField().clear();
+				getIndividualsField().setMBR(getBuildingsField().getMBR());
 				for (Individual individual: getIndividuals()) {
 					schedule.scheduleRepeating(0.0, 0, new Steppable() {			
 						private static final long serialVersionUID = 1L;
@@ -138,7 +138,7 @@ public class IndividualTest {
 					});
 				}
 				schedule.scheduleRepeating(0.0, 5, getSimulationTime()); // update clock after indivdual have executed their step
-				schedule.scheduleRepeating(0.0, 6, getIndividualsGeomVectorField().scheduleSpatialIndexUpdater());
+				schedule.scheduleRepeating(0.0, 6, getIndividualsField().scheduleSpatialIndexUpdater());
 			};
 		};
 		environment.start();

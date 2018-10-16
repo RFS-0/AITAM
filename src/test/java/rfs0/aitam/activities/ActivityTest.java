@@ -13,9 +13,9 @@ import org.joda.time.Interval;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import activities.Activity;
-import activities.ActivityCategory;
-import activities.ActivityLocation;
+import rfs0.aitam.activities.Activity;
+import rfs0.aitam.activities.ActivityCategory;
+import rfs0.aitam.activities.ActivityLocation;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;

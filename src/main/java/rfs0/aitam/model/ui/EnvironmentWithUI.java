@@ -80,7 +80,7 @@ public class EnvironmentWithUI extends GUIState {
 	}
 
 	private void setupPortrayalForAgents(Environment environment) {
-		m_agentPortrayal.setField(environment.getIndividualsGeomVectorField());
+		m_agentPortrayal.setField(environment.getIndividualsField());
 		m_agentPortrayal.setPortrayalForAll(
 				new CircledPortrayal2D(
 						new GeomPortrayal(ISimulationSettings.COLOR_OF_AGENT, ISimulationSettings.SIZE_OF_AGENT, true),
@@ -90,7 +90,7 @@ public class EnvironmentWithUI extends GUIState {
 	}
 
 	private void setupPortrayalForPaths(Environment environment) {
-		m_pathsPortrayal.setField(environment.m_pathsGeomVectorField);
+		m_pathsPortrayal.setField(environment.getPathField());
 		m_pathsPortrayal.setPortrayalForRemainder(
 				new CircledPortrayal2D(
 						new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH, true), 
@@ -100,7 +100,7 @@ public class EnvironmentWithUI extends GUIState {
 	}
 
 	private void setupPortrayalForBuildings(Environment environment) {
-		m_buildingsPortrayal.setField(environment.m_buildingsGeomVectorField);
+		m_buildingsPortrayal.setField(environment.getBuildingsField());
 		m_buildingsPortrayal.setPortrayalForRemainder(
 				new CircledPortrayal2D(
 						new BuildingLabelPortrayal(

@@ -1,4 +1,4 @@
-package individuals;
+package rfs0.aitam.individuals;
 
 public enum NetworkType {
 	ALL,

@@ -1,4 +1,4 @@
-package individuals;
+package rfs0.aitam.individuals;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,10 +15,10 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.linearref.LengthIndexedLine;
 import com.vividsolutions.jts.planargraph.Node;
 
-import activities.Activity;
-import activities.ActivityAgenda;
-import activities.ActivityCategory;
-import activities.ActivityLocation;
+import rfs0.aitam.activities.Activity;
+import rfs0.aitam.activities.ActivityAgenda;
+import rfs0.aitam.activities.ActivityCategory;
+import rfs0.aitam.activities.ActivityLocation;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.needs.ActualNeedTimeSplit;
@@ -446,7 +446,7 @@ public class Individual {
 				.collect(Collectors.toCollection(ArrayList::new));
 		}
 		if (availableActivities.size() == 0) {
-			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Make sure there is always at least one activity available!", String.valueOf(activityInterval)));	
+			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Location is: %s. Make sure there is always at least one activity available!", String.valueOf(activityInterval), String.valueOf(randomAgenda.getActivityForDateTime(activityInterval.getStart().minusMinutes(1)).getActivityLocation())));	
 		}
 		return availableActivities.get(environment.random.nextInt(availableActivities.size()));
 	}
@@ -504,7 +504,7 @@ public class Individual {
 			setCurrentEdge((GeomPlanarGraphEdge) pathToTarget.get(0).getEdge());
 			setupNextEdge();
 			updatePosition(getSegment().extractPoint(getCurrentIndexOnLineOfEdge()));
-			colorPathToTarget();
+//			colorPathToTarget();
 		} 
 		else { // already at the target location
 		}
@@ -539,13 +539,13 @@ public class Individual {
 	}
 	
 	private void updateEdgeTraffic(GeomPlanarGraphEdge nextEdge) {
-		if (m_environment.m_edgeTrafficMap.get(getCurrentEdge()) != null) {
-			m_environment.m_edgeTrafficMap.get(getCurrentEdge()).remove(this); // current edge is actually the old edge here
+		if (m_environment.getEdgeTraffic().get(getCurrentEdge()) != null) {
+			m_environment.getEdgeTraffic().get(getCurrentEdge()).remove(this); // current edge is actually the old edge here
 		}
-		if (m_environment.m_edgeTrafficMap.get(nextEdge) == null) {
-			m_environment.m_edgeTrafficMap.put(nextEdge, new ArrayList<Individual>());
+		if (m_environment.getEdgeTraffic().get(nextEdge) == null) {
+			m_environment.getEdgeTraffic().put(nextEdge, new ArrayList<Individual>());
 		}
-		m_environment.m_edgeTrafficMap.get(nextEdge).add(this);
+		m_environment.getEdgeTraffic().get(nextEdge).add(this);
 	}
 	
 	/**
@@ -556,7 +556,7 @@ public class Individual {
 	 */
 	private void updatePosition(Coordinate c) {
 		getPointMoveTo().setCoordinate(c);
-		m_environment.getIndividualsGeomVectorField().setGeometryLocation(getCurrentLocationPoint(), getPointMoveTo());
+		m_environment.getIndividualsField().setGeometryLocation(getCurrentLocationPoint(), getPointMoveTo());
 	}
 	
 	private boolean hasReachedTarget() {
@@ -569,14 +569,14 @@ public class Individual {
 	}
 	
 	public void colorPathToTarget() {
-		GeomVectorField field = m_environment.getPathsGeomVectorField();
+		GeomVectorField pathField = m_environment.getPathField();
 		List<Coordinate> coordinatesOfPath = getPathToNextTarget()
 				.stream()
 				.map(path -> path.getCoordinate())
 				.collect(Collectors.toList());
 		for (Coordinate coordinate : coordinatesOfPath) {
 			ArrayList<MasonGeometry> coveringObjects = GeometryUtility
-					.getCoveringObjects(new MasonGeometry(Environment.GEO_FACTORY.createPoint(coordinate)), field);
+					.getCoveringObjects(new MasonGeometry(Environment.GEO_FACTORY.createPoint(coordinate)), pathField);
 			coveringObjects.forEach(mg -> {
 				mg.setUserData(
 						new CircledPortrayal2D(

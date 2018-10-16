@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
-import activities.ActivityAgenda;
+import rfs0.aitam.activities.ActivityAgenda;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
