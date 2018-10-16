@@ -87,8 +87,6 @@ public class Environment extends SimState {
 	@Override
 	public void start() {
 		super.start();
-		getIndividualsField().clear();
-		getIndividualsField().setMBR(getBuildingsField().getMBR());
 		// schedule the individual via anonymus classes
 		for (Individual individual: getIndividuals()) {
 			schedule.scheduleRepeating(0.0, 0, new Steppable() {			
@@ -133,9 +131,8 @@ public class Environment extends SimState {
 				}
 			});
 		}
-		schedule.scheduleRepeating(0.0, 5, getSimulationTime());
-//		schedule.scheduleRepeating(0.0, 6, m_individualsGeomVectorField.scheduleSpatialIndexUpdater());
-		schedule.scheduleRepeating(getIndividualsField().scheduleSpatialIndexUpdater(), Integer.MAX_VALUE, 1.0);
+		schedule.scheduleRepeating(0.0, 5, m_individualsField.scheduleSpatialIndexUpdater());
+		schedule.scheduleRepeating(0.0, 6, getSimulationTime());
 	}
 	
 	public static void main(String[] args) {
@@ -149,7 +146,7 @@ public class Environment extends SimState {
 		Envelope globalMBR = getBuildingsField().getMBR();
 		readShapeFiles(globalMBR);
 		synchronizeMinimumBoundingRectangles(globalMBR);
-		getPathGraph().createFromGeomField(getPathField());
+		m_pathGraph.createFromGeomField(getPathField());
 		System.out.println(String.format("Initialized environment in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
@@ -207,14 +204,13 @@ public class Environment extends SimState {
 			minimumBoundingRectangle.expandToInclude(geometry.getMBR());
 
 		} catch (Exception e) {
-			Logger.getLogger(Environment.class.getName())
-					.log(Level.SEVERE, String.format("Failed to read GIS file with path: %s", relativePathToFile), e);
+			Logger.getLogger(Environment.class.getName()).log(Level.SEVERE, String.format("Failed to read GIS file with path: %s", relativePathToFile), e);
 		}
 	}
 	
 	private void synchronizeMinimumBoundingRectangles(Envelope minimumBoundingRectangle) {
-		getBuildingsField().setMBR(minimumBoundingRectangle);
-		getPathField().setMBR(minimumBoundingRectangle);
+		m_buildingsField.setMBR(minimumBoundingRectangle);
+		m_pathField.setMBR(minimumBoundingRectangle);
 	}
 	
 	private void initActivities() {
@@ -225,7 +221,7 @@ public class Environment extends SimState {
 		initPersonalCareActivities();
 		initHouseholdCareActivities();
 		initTravelActivities();
-		setAllActivities(Stream.of(
+		m_allActivities = Stream.of(
 				m_workAtHomeAloneActivity,
 				m_workAtWorkPlaceAloneActivity,
 				m_workAtWorkPlaceWithCoworkersActivity,
@@ -252,7 +248,7 @@ public class Environment extends SimState {
 				m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity,
 				m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembersActivity,
 				m_travelActivity)
-				.collect(Collectors.toCollection(ArrayList::new)));
+				.collect(Collectors.toCollection(ArrayList::new));
 		System.out.println(String.format("Initialized activities in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
@@ -299,8 +295,13 @@ public class Environment extends SimState {
 	
 	private void initIndividuals() {
 		System.out.println("Initializing individuals...");
+		m_individualsField.clear();
 		long start = System.nanoTime();
-		setIndividuals(IndividualInitializer.initIndividuals(this));
+		m_individuals = IndividualInitializer.initIndividuals(this);
+		for (Individual individual: m_individuals) {
+			m_individualsField.addGeometry(individual.getCurrentLocationPoint());
+		}
+		m_individualsField.updateSpatialIndex();
 		System.out.println(String.format("Initialized individuals in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
@@ -318,10 +319,10 @@ public class Environment extends SimState {
 			Bag alreadyChecked = new Bag();
 			double searchDistance = 0.0;
 			while (closestNode == null) {
-				Bag withinDistance = getPathField().getObjectsWithinDistance(GEO_FACTORY.createPoint(building.getGeometry().getCoordinate()), searchDistance);
+				Bag withinDistance = m_pathField.getObjectsWithinDistance(GEO_FACTORY.createPoint(building.getGeometry().getCoordinate()), searchDistance);
 				withinDistance.removeAll(alreadyChecked);
 				while (!withinDistance.isEmpty() && closestNode == null) {
-					closestNode = getPathGraph().findNode(((MasonGeometry) withinDistance.remove(0)).getGeometry().getCoordinate());
+					closestNode = m_pathGraph.findNode(((MasonGeometry) withinDistance.remove(0)).getGeometry().getCoordinate());
 				}
 				alreadyChecked.addAll(withinDistance);
 				searchDistance += 1.0;

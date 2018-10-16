@@ -130,12 +130,12 @@ public class Individual {
 		public Builder withHomeBuilding(MasonGeometry homeBuilding) {
 			String warningMessage = "Home location is invalid. The built individual may be unusable!";
 			validate(homeBuilding.getGeometry().getCoordinate(), warningMessage);
-			individualToBuild.setCurrentLocationPoint(new MasonGeometry(Environment.GEO_FACTORY.createPoint(homeBuilding.getGeometry().getCoordinate())));
-			individualToBuild.getCurrentLocationPoint().isMovable = true;
 			Node homeNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(homeBuilding);
+			individualToBuild.m_currentLocationPoint = new MasonGeometry(Environment.GEO_FACTORY.createPoint(homeNode.getCoordinate()));
+			individualToBuild.m_currentLocationPoint.isMovable = true;
 			validate(homeNode, warningMessage);
-			individualToBuild.setCurrentNode(homeNode);
-			individualToBuild.setHomeNode(homeNode);
+			individualToBuild.m_currentNode = homeNode;
+			individualToBuild.m_homeNode = homeNode;
 			return this;
 		}
 		
