@@ -143,7 +143,7 @@ public class Environment extends SimState {
 	private void initEnvironment() {
 		System.out.println("Initializing the environment...");
 		long start = System.nanoTime();
-		Envelope globalMBR = getBuildingsField().getMBR();
+		Envelope globalMBR = new Envelope();
 		readShapeFiles(globalMBR);
 		synchronizeMinimumBoundingRectangles(globalMBR);
 		m_pathGraph.createFromGeomField(getPathField());
@@ -312,7 +312,7 @@ public class Environment extends SimState {
 	}
 	
 	private void initBuildingToClosestNodeMap() {
-		for (Object buildingObject: getBuildingsField().getGeometries()) {
+		for (Object buildingObject: m_buildingsField.getGeometries()) {
 			MasonGeometry building = (MasonGeometry) buildingObject;
 			Node closestNode = null;
 			Bag alreadyChecked = new Bag();
@@ -321,9 +321,11 @@ public class Environment extends SimState {
 				Bag withinDistance = m_pathField.getObjectsWithinDistance(GEO_FACTORY.createPoint(building.getGeometry().getCoordinate()), searchDistance);
 				withinDistance.removeAll(alreadyChecked);
 				while (!withinDistance.isEmpty() && closestNode == null) {
-					closestNode = m_pathGraph.findNode(((MasonGeometry) withinDistance.remove(0)).getGeometry().getCoordinate());
+					closestNode = m_pathGraph.findNode(((MasonGeometry) withinDistance.get(0)).getGeometry().getCoordinate());
 				}
-				alreadyChecked.addAll(withinDistance);
+				if (withinDistance.size() > 0) {
+					alreadyChecked.add(withinDistance.remove(0));
+				}
 				searchDistance += 1.0;
 			}
 			BUILDING_TO_CLOSEST_NODE_MAP.put(building, closestNode);
