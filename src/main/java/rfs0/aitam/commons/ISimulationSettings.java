@@ -19,6 +19,8 @@ public interface ISimulationSettings {
 	public static final int ENVIRONMENT_WIDTH = 1000;
 	public static final String BUILDINGS_FILE = "\\data\\environment\\buildings\\buildings.shp";
 	public static final String PATHS_FILE = "\\data\\environment\\paths\\paths.shp";
+	public static final String SIMULATION_OUTPUT_FOLDER = "\\data\\output\\";
+	public static final String CHAR_SET = "UTF-8";
 	public static final double MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT = 0.04; // assuming reaction time of 1.8 s and average velocity of 50 km/h
 	public static final double MAX_VELOCITY = 13.9; // max velocity in m/s (equivalent to 50 km/h)
 	public static final double MAX_SLOW_DOWN_FACTOR = 0.2;
@@ -175,4 +177,36 @@ public interface ISimulationSettings {
 	public static final double MAX_DISTANCE_TO_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE = 100;
 	public static final double MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK = 100;
 	public static final double MAX_DISTANCE_TO_THIRD_PLACE_FOR_LEISURE = 100;
+	
+	/**
+	 * Constants used to describe simulation output
+	 */
+	public static final String TIME_STAMP = "time stamp";
+	public static final String TOTAL_NUMBER_OF_AGENTS = "total number of agents";
+	public static final String LEISURE_AT_HOME_ALONE_ACTIVITY= "Leisure at home alone";
+	public static final String LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = "Leisure at home with household members";
+	public static final String LEISURE_AT_HOME_WITH_FRIENDS = "Leisure at home with friends";
+	public static final String LEISURE_AT_THIRD_PLACE_ALONE = "Leisure at 3rd place alone";
+	public static final String LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = "Leisure at 3rd place with household members";
+	public static final String LEISURE_AT_THIRD_PLACE_WITH_FRIENDS = "Leisure at home with friends";
+	public static final String WORK_AT_HOME_ALONE = "Work at home alone";
+	public static final String WORK_AT_WORK_PLACE_ALONE = "Work at work location alone";
+	public static final String WORK_AT_WORK_PLACE_WITH_COWORKERS = "Work at work location with coworkers";
+	public static final String WORK_AT_THIRD_PLACE_ALONE = "Work at 3rd for work alone";
+	public static final String WORK_AT_THIRD_PLACE_WITH_COWORKERS = "Work at 3rd for work with coworkers";
+	public static final String WORK_DURING_TRAVEL_ALONE = "Work during travel alone";
+	public static final String WORK_DURING_TRAVEL_WITH_COWORKERS = "Work during travel with coworkers";
+	public static final String PERSONAL_CARE_AT_HOME_ALONE = "Personal care at home alone";
+	public static final String PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = "Personal care at home with household members";
+	public static final String PERSONAL_CARE_AT_HOME_WITH_FRIENDS = "Personal care at home with friends";
+	public static final String PERSONAL_CARE_AT_WORK_ALONE = "Personal care at work alone";
+	public static final String PERSONAL_CARE_AT_WORK_WITH_COWORKERS = "Personal care at work with coworkers";
+	public static final String PERSONAL_CARE_AT_THIRD_PLACE_ALONE = "Personal care at 3rd place alone";
+	public static final String PERSONAL_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = "Personal care at 3rd place with household members";
+	public static final String PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS = "Personal care at 3rd place with friends";
+	public static final String HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_ALONE = "Household/family care at home alone";
+	public static final String HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = "Household/family care at home with household members";
+	public static final String HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_ALONE = "Household/family care at 3rd place alone";
+	public static final String HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = "Household/family care at 3rd place with household members";
+	public static final String TRAVEL = "Travel";
 }

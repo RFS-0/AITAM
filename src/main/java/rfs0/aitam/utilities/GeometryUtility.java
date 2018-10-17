@@ -3,11 +3,9 @@ package rfs0.aitam.utilities;
 import java.util.ArrayList;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.planargraph.Node;
 
 import rfs0.aitam.model.Environment;
 import sim.field.geo.GeomVectorField;
-import sim.util.Bag;
 import sim.util.geo.MasonGeometry;
 
 public final class GeometryUtility {

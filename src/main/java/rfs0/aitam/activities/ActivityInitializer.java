@@ -35,7 +35,7 @@ public final class ActivityInitializer {
 	public static Activity initLeisureAtHomeWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at home with household member(s)")
+				.withActivityDescription("Leisure at home with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
@@ -96,7 +96,7 @@ public final class ActivityInitializer {
 	public static Activity initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at third place with household members")
+				.withActivityDescription("Leisure at 3rd place with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
@@ -117,7 +117,7 @@ public final class ActivityInitializer {
 	public static Activity initLeisureAtThirdPlaceForLeisureWithFriendsActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at third place with friends")
+				.withActivityDescription("Leisure at 3rd place with friends")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
@@ -194,7 +194,7 @@ public final class ActivityInitializer {
 	public static Activity initWorkAtThirdPlaceForWorkAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at work location alone")
+				.withActivityDescription("Work at 3rd place for work alone")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
@@ -212,7 +212,7 @@ public final class ActivityInitializer {
 	public static Activity initWortAtThirdPlaceForWorkWithCoworkers() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at work location with coworkers")
+				.withActivityDescription("Work at 3rd place for work with coworkers")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
@@ -287,7 +287,7 @@ public final class ActivityInitializer {
 	public static Activity initPersonalCareAtHomeWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at home with household member(s)")
+				.withActivityDescription("Personal care at home with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
@@ -306,7 +306,7 @@ public final class ActivityInitializer {
 	public static Activity initPersonalCareAtHomeWithFriendsActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at home with friend(s)")
+				.withActivityDescription("Personal care at home with friends")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
@@ -378,7 +378,7 @@ public final class ActivityInitializer {
 	public static Activity initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at 3rd place with household member(s)")
+				.withActivityDescription("Personal care at 3rd place with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
@@ -397,7 +397,7 @@ public final class ActivityInitializer {
 	public static Activity initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at 3rd place with friend(s)")
+				.withActivityDescription("Personal care at 3rd place with friends")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
@@ -433,7 +433,7 @@ public final class ActivityInitializer {
 	public static Activity initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
-				.withActivityDescription("Household/family care at home with household member(s)")
+				.withActivityDescription("Household/family care at home with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.ELEVEN))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.ELEVEN))
@@ -468,7 +468,7 @@ public final class ActivityInitializer {
 	public static Activity initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
-				.withActivityDescription("Household/family care at 3rd place with household member(s)")
+				.withActivityDescription("Household/family care at 3rd place with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.ELEVEN))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.ELEVEN))

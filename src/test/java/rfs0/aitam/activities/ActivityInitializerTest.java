@@ -31,7 +31,7 @@ public class ActivityInitializerTest {
 		Interval available = new Interval(availableStartTime, availableEndTime);
 		assertEquals(true, workAtHomeAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
 		assertEquals(false, workAtHomeAloneActivity.isJointActivity());
-		assertEquals(workAtHomeAloneActivity.getActivityLocation(), ActivityLocation.HOME);
+		assertEquals(ActivityLocation.HOME, workAtHomeAloneActivity.getActivityLocation());
 	}
 	
 	@Test
@@ -113,7 +113,7 @@ public class ActivityInitializerTest {
 	public void testInitLeisureAtHomeWithHouseholdMembersActivity() {
 		Activity leisureAtHomeWithHouseholdMembersActivity = ActivityInitializer.initLeisureAtHomeWithHouseholdMembersActivity();
 		assertEquals(ActivityCategory.LEISURE, leisureAtHomeWithHouseholdMembersActivity.getActivityCategory());
-		assertEquals("Leisure at home with household member(s)", leisureAtHomeWithHouseholdMembersActivity.getActivityDescription());
+		assertEquals("Leisure at home with household members", leisureAtHomeWithHouseholdMembersActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE), leisureAtHomeWithHouseholdMembersActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Sports and recreation, hobbies, reading, TV viewing", leisureAtHomeWithHouseholdMembersActivity.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
@@ -158,7 +158,7 @@ public class ActivityInitializerTest {
 	public void testInitLeisureAtThirdPlaceWithHouseholdMembersActivity() {
 		Activity leisureAtThirdPlaceWithHouseholdMembersActivity = ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity();
 		assertEquals(ActivityCategory.LEISURE, leisureAtThirdPlaceWithHouseholdMembersActivity.getActivityCategory());
-		assertEquals("Leisure at third place with household members", leisureAtThirdPlaceWithHouseholdMembersActivity.getActivityDescription());
+		assertEquals("Leisure at 3rd place with household members", leisureAtThirdPlaceWithHouseholdMembersActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE), leisureAtThirdPlaceWithHouseholdMembersActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Sports and recreation, culture and amusement events, hobbies, shopping, having meals", leisureAtThirdPlaceWithHouseholdMembersActivity.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
@@ -173,7 +173,7 @@ public class ActivityInitializerTest {
 	public void testInitLeisureAtThirdPlaceWithFriendsActivity() {
 		Activity initLeisureAtThirdPlaceWithFriendsActivity = ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithFriendsActivity();
 		assertEquals(ActivityCategory.LEISURE, initLeisureAtThirdPlaceWithFriendsActivity.getActivityCategory());
-		assertEquals("Leisure at third place with friends", initLeisureAtThirdPlaceWithFriendsActivity.getActivityDescription());
+		assertEquals("Leisure at 3rd place with friends", initLeisureAtThirdPlaceWithFriendsActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE), initLeisureAtThirdPlaceWithFriendsActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Sports and recreation, culture and amusement events, hobbies, shopping, having meals", initLeisureAtThirdPlaceWithFriendsActivity.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
@@ -203,7 +203,7 @@ public class ActivityInitializerTest {
 	public void testInitPersonalCareAtHomeWithHouseholdMembersActivity() {
 		Activity initPersonalCareAtHomeWithHouseholdMembersActivity = ActivityInitializer.initPersonalCareAtHomeWithHouseholdMembersActivity();
 		assertEquals(ActivityCategory.PERSONAL_CARE, initPersonalCareAtHomeWithHouseholdMembersActivity.getActivityCategory());
-		assertEquals("Personal care at home with household member(s)", initPersonalCareAtHomeWithHouseholdMembersActivity.getActivityDescription());
+		assertEquals("Personal care at home with household members", initPersonalCareAtHomeWithHouseholdMembersActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR), initPersonalCareAtHomeWithHouseholdMembersActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Cooking, having meals, talking, cleaning", initPersonalCareAtHomeWithHouseholdMembersActivity.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
@@ -218,7 +218,7 @@ public class ActivityInitializerTest {
 	public void testInitPersonalCareAtHomeWithFriendsActivity() {
 		Activity initPersonalCareAtHomeWithFriendsActivity = ActivityInitializer.initPersonalCareAtHomeWithFriendsActivity();
 		assertEquals(ActivityCategory.PERSONAL_CARE, initPersonalCareAtHomeWithFriendsActivity.getActivityCategory());
-		assertEquals("Personal care at home with friend(s)", initPersonalCareAtHomeWithFriendsActivity.getActivityDescription());
+		assertEquals("Personal care at home with friends", initPersonalCareAtHomeWithFriendsActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR), initPersonalCareAtHomeWithFriendsActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Cooking, having meals, talking", initPersonalCareAtHomeWithFriendsActivity.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
@@ -278,7 +278,7 @@ public class ActivityInitializerTest {
 	public void testInitPersonalCareAtThirdPlaceWithHouseholdMembersActivity() {
 		Activity initPersonalCareAtThirdPlaceWithHouseholdMembersActivity = ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity();
 		assertEquals(ActivityCategory.PERSONAL_CARE, initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.getActivityCategory());
-		assertEquals("Personal care at 3rd place with household member(s)", initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.getActivityDescription());
+		assertEquals("Personal care at 3rd place with household members", initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR), initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Sports", initPersonalCareAtThirdPlaceWithHouseholdMembersActivity.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
@@ -293,7 +293,7 @@ public class ActivityInitializerTest {
 	public void testInitPersonalCareAtThirdPlaceWithFriendsActivity() {
 		Activity initPersonalCareAtThirdPlaceWithFriendsActivity = ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity();
 		assertEquals(ActivityCategory.PERSONAL_CARE, initPersonalCareAtThirdPlaceWithFriendsActivity.getActivityCategory());
-		assertEquals("Personal care at 3rd place with friend(s)", initPersonalCareAtThirdPlaceWithFriendsActivity.getActivityDescription());
+		assertEquals("Personal care at 3rd place with friends", initPersonalCareAtThirdPlaceWithFriendsActivity.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR), initPersonalCareAtThirdPlaceWithFriendsActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Sports", initPersonalCareAtThirdPlaceWithFriendsActivity.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
@@ -323,7 +323,7 @@ public class ActivityInitializerTest {
 	public void testInitHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty() {
 		Activity initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty = ActivityInitializer.initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty();
 		assertEquals(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty.getActivityCategory());
-		assertEquals("Household/family care at home with household member(s)", initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty.getActivityDescription());
+		assertEquals("Household/family care at home with household members", initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.ELEVEN), initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Housework, Shopping, family business, services and civic matters", initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
@@ -353,7 +353,7 @@ public class ActivityInitializerTest {
 	public void testInitHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers() {
 		Activity initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers = ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers();
 		assertEquals(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.getActivityCategory());
-		assertEquals("Household/family care at 3rd place with household member(s)", initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.getActivityDescription());
+		assertEquals("Household/family care at 3rd place with household members", initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.getActivityDescription());
 		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.ELEVEN), initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
 		assertEquals("Shopping, family business, services and civic matters", initHouseholdAndFamilyCareAtThirdPlaceWithHouseholdMembers.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);

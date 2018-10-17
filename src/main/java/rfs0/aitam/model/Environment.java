@@ -1,13 +1,13 @@
 package rfs0.aitam.model;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -38,33 +38,7 @@ public class Environment extends SimState {
 	public static HashMap<Node, MasonGeometry> NODE_TO_CLOSEST_BUILDING_MAP = new HashMap<>();
 	
 	// Activities
-	private Activity m_workAtHomeAloneActivity;
-	private Activity m_workAtWorkPlaceAloneActivity;
-	private Activity m_workAtWorkPlaceWithCoworkersActivity;
-	private Activity m_workAtThirdPlaceForWorkAloneActivity;
-	private Activity m_workAtThirdPlaceForWorkWithCoworkersActivity;
-	private Activity m_workDuringTravelAloneActivity;
-	private Activity m_workDuringTravelWithCoworkersActivity;
-	private Activity m_leisureAtHomeAloneActivity;
-	private Activity m_leisureAtHomeWithHouseholdMembersActivity;
-	private Activity m_leisureAtHomeWithFriends;
-	private Activity m_leisureAtThirdPlaceForLeisureAlone;
-	private Activity m_leisureAtThirdPlaceForLeisureWithHouseholdMembersActivity;
-	private Activity m_leisureAtThirdPlaceForLeisureWithFriends;
-	private Activity m_personalCareAtHomeAloneActivity;
-	private Activity m_personalCareAtHomeWithHouseholdMembersActivity;
-	private Activity m_personalCareAtHomeWithFriendsActivity;
-	private Activity m_personalCareAtWorkPlaceAloneActivity;
-	private Activity m_personalCareAtWorkPlaceWithCoworkersActivity;
-	private Activity m_personalCareAtThirdPlaceForPersonalCareAloneActivity;
-	private Activity m_personalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity;
-	private Activity m_personalCareAtThirdPlaceForPersonalCareWithFriendsActivity;
-	private Activity m_householdAndFamilyCareAtHomeAloneActivity;
-	private Activity m_householdAndFamilyCareAtHomeWithHousholdMembersActivty;
-	private Activity m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity;
-	private Activity m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembersActivity;
-	private Activity m_travelActivity;
-	private ArrayList<Activity> m_allActivities;
+	private HashMap<String, Activity> m_allActivities = new HashMap<>();
 
 	// Time
 	private SimulationTime m_simulationTime = new SimulationTime();
@@ -79,6 +53,10 @@ public class Environment extends SimState {
 	private GeomVectorField m_individualsField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
 	private ArrayList<Individual> m_individuals = new ArrayList<>();
 	
+	// Output
+	private LinkedHashMap<String, Object> m_outputHolder = new LinkedHashMap<>();
+	private EnvironmentObserver m_environmentObserver;
+	
 	public Environment(long seed) { // TODO: seed is only for dev purposes
 		super(seed); 
 		random.setSeed(seed); 
@@ -86,6 +64,7 @@ public class Environment extends SimState {
 		initActivities();
 		initBuildings();
 		initIndividuals();
+		initOutput();
 	}
 
 	@Override
@@ -97,9 +76,8 @@ public class Environment extends SimState {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
-					Environment environment = (Environment) state;
-					if (individual.isPlanningPossible(environment, ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_JOINT_ACTIVITIES)) {
-						individual.planJointActivities(environment);
+					if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_JOINT_ACTIVITIES)) {
+						individual.planJointActivities();
 					}
 				}
 			});
@@ -107,16 +85,15 @@ public class Environment extends SimState {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
-					individual.carryOverJointActivities((Environment) state);
+					individual.carryOverJointActivities();
 				}
 			});
 			schedule.scheduleRepeating(0.0, 2, new Steppable() {			
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
-					Environment environment = (Environment) state;
-					if (individual.isPlanningPossible(environment, ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_INDIVIDUAL_ACTIVITIES)) {
-						individual.planIndividualActivities(environment);
+					if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_INDIVIDUAL_ACTIVITIES)) {
+						individual.planIndividualActivities();
 					}
 				}
 			});
@@ -131,12 +108,24 @@ public class Environment extends SimState {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
-					individual.executeActivity((Environment) state);
+					individual.executeActivity();
 				}
 			});
 		}
 		schedule.scheduleRepeating(0.0, 5, m_individualsField.scheduleSpatialIndexUpdater());
-		schedule.scheduleRepeating(0.0, 6, getSimulationTime());
+		schedule.scheduleRepeating(0.0, 6, m_environmentObserver);
+		schedule.scheduleRepeating(0.0, 7, getSimulationTime());
+	}
+	
+	@Override
+	public void finish() {
+		super.finish();
+		try {
+			m_environmentObserver.getCsvPrinter().close();
+		}
+		catch (IOException e) {
+			Logger.getLogger(Environment.class.getName()).log(Level.SEVERE, "Failed to close file for simulation output", e);
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -226,76 +215,48 @@ public class Environment extends SimState {
 		initPersonalCareActivities();
 		initHouseholdCareActivities();
 		initTravelActivities();
-		m_allActivities = Stream.of(
-				m_workAtHomeAloneActivity,
-				m_workAtWorkPlaceAloneActivity,
-				m_workAtWorkPlaceWithCoworkersActivity,
-				m_workAtThirdPlaceForWorkAloneActivity,
-				m_workAtThirdPlaceForWorkWithCoworkersActivity,
-				m_workDuringTravelAloneActivity,
-				m_workDuringTravelWithCoworkersActivity,
-				m_leisureAtHomeAloneActivity,
-				m_leisureAtHomeWithHouseholdMembersActivity,
-				m_leisureAtHomeWithFriends,
-				m_leisureAtThirdPlaceForLeisureAlone,
-				m_leisureAtThirdPlaceForLeisureWithHouseholdMembersActivity,
-				m_leisureAtThirdPlaceForLeisureWithFriends,
-				m_personalCareAtHomeAloneActivity,
-				m_personalCareAtHomeWithHouseholdMembersActivity,
-				m_personalCareAtHomeWithFriendsActivity,
-				m_personalCareAtWorkPlaceAloneActivity,
-				m_personalCareAtWorkPlaceWithCoworkersActivity,
-				m_personalCareAtThirdPlaceForPersonalCareAloneActivity,
-				m_personalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity,
-				m_personalCareAtThirdPlaceForPersonalCareWithFriendsActivity,
-				m_householdAndFamilyCareAtHomeAloneActivity,
-				m_householdAndFamilyCareAtHomeWithHousholdMembersActivty,
-				m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity,
-				m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembersActivity,
-				m_travelActivity)
-				.collect(Collectors.toCollection(ArrayList::new));
 		System.out.println(String.format("Initialized activities in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
 	private void initWorkActivities() {
-		m_workAtHomeAloneActivity = ActivityInitializer.initWorkAtHomeAloneActivity();
-		m_workAtWorkPlaceAloneActivity = ActivityInitializer.initWorkAtWorkPlaceAloneActivity();
-		m_workAtWorkPlaceWithCoworkersActivity = ActivityInitializer.initWorkAtWorkPlaceWithCoworkers();
-		m_workAtThirdPlaceForWorkAloneActivity = ActivityInitializer.initWorkAtThirdPlaceForWorkAloneActivity();
-		m_workAtThirdPlaceForWorkWithCoworkersActivity = ActivityInitializer.initWortAtThirdPlaceForWorkWithCoworkers();
-		m_workDuringTravelAloneActivity = ActivityInitializer.initWorkDuringTravelAloneActivity();
-		m_workDuringTravelWithCoworkersActivity = ActivityInitializer.initWorkDuringTravelWithCoworkers();
+		m_allActivities.put(ISimulationSettings.WORK_AT_HOME_ALONE, ActivityInitializer.initWorkAtHomeAloneActivity());
+		m_allActivities.put(ISimulationSettings.WORK_AT_WORK_PLACE_ALONE, ActivityInitializer.initWorkAtWorkPlaceAloneActivity());
+		m_allActivities.put(ISimulationSettings.WORK_AT_WORK_PLACE_WITH_COWORKERS, ActivityInitializer.initWorkAtWorkPlaceWithCoworkers());
+		m_allActivities.put(ISimulationSettings.WORK_AT_THIRD_PLACE_ALONE, ActivityInitializer.initWorkAtThirdPlaceForWorkAloneActivity());
+		m_allActivities.put(ISimulationSettings.WORK_AT_THIRD_PLACE_WITH_COWORKERS, ActivityInitializer.initWortAtThirdPlaceForWorkWithCoworkers());
+		m_allActivities.put(ISimulationSettings.WORK_DURING_TRAVEL_ALONE, ActivityInitializer.initWorkDuringTravelAloneActivity());
+		m_allActivities.put(ISimulationSettings.WORK_DURING_TRAVEL_WITH_COWORKERS, ActivityInitializer.initWorkDuringTravelWithCoworkers());
 	}
 
 	private void initLeisureActivities() {
-		m_leisureAtHomeAloneActivity = ActivityInitializer.initLeisureAtHomeAloneActivity();
-		m_leisureAtHomeWithHouseholdMembersActivity = ActivityInitializer.initLeisureAtHomeWithHouseholdMembersActivity();
-		m_leisureAtHomeWithFriends = ActivityInitializer.initLeisureAtHomeWithFriendsActivity();
-		m_leisureAtThirdPlaceForLeisureAlone = ActivityInitializer.initLeisureAtThirdPlaceForLeisureAloneActivity();
-		m_leisureAtThirdPlaceForLeisureWithHouseholdMembersActivity = ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity();
-		m_leisureAtThirdPlaceForLeisureWithFriends = ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithFriendsActivity();
+		m_allActivities.put(ISimulationSettings.LEISURE_AT_HOME_ALONE_ACTIVITY, ActivityInitializer.initLeisureAtHomeAloneActivity());
+		m_allActivities.put(ISimulationSettings.LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initLeisureAtHomeWithHouseholdMembersActivity());
+		m_allActivities.put(ISimulationSettings.LEISURE_AT_HOME_WITH_FRIENDS, ActivityInitializer.initLeisureAtHomeWithFriendsActivity());
+		m_allActivities.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_ALONE, ActivityInitializer.initLeisureAtThirdPlaceForLeisureAloneActivity());
+		m_allActivities.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity());
+		m_allActivities.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_FRIENDS, ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithFriendsActivity());
 	}
 	
 	private void initPersonalCareActivities() {
-		m_personalCareAtHomeAloneActivity = ActivityInitializer.initPersonalCareAtHomeAloneActivity();
-		m_personalCareAtHomeWithHouseholdMembersActivity = ActivityInitializer.initPersonalCareAtHomeWithHouseholdMembersActivity();
-		m_personalCareAtHomeWithFriendsActivity = ActivityInitializer.initPersonalCareAtHomeWithFriendsActivity();
-		m_personalCareAtWorkPlaceAloneActivity = ActivityInitializer.initPersonalCareAtWorkPlaceAloneActivity();
-		m_personalCareAtWorkPlaceWithCoworkersActivity = ActivityInitializer.initPersonalCareAtWorkPlaceWithCoworkersActivity();
-		m_personalCareAtThirdPlaceForPersonalCareAloneActivity = ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareAloneActivity();
-		m_personalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity = ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity();
-		m_personalCareAtThirdPlaceForPersonalCareWithFriendsActivity = ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity();
+		m_allActivities.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_ALONE, ActivityInitializer.initPersonalCareAtHomeAloneActivity());
+		m_allActivities.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initPersonalCareAtHomeWithHouseholdMembersActivity());
+		m_allActivities.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_WITH_FRIENDS, ActivityInitializer.initPersonalCareAtHomeWithFriendsActivity());
+		m_allActivities.put(ISimulationSettings.PERSONAL_CARE_AT_WORK_ALONE, ActivityInitializer.initPersonalCareAtWorkPlaceAloneActivity());
+		m_allActivities.put(ISimulationSettings.PERSONAL_CARE_AT_WORK_WITH_COWORKERS, ActivityInitializer.initPersonalCareAtWorkPlaceWithCoworkersActivity());
+		m_allActivities.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_ALONE, ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareAloneActivity());
+		m_allActivities.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity());
+		m_allActivities.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS, ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity());
 	}
 	
 	private void initHouseholdCareActivities() {
-		m_householdAndFamilyCareAtHomeAloneActivity = ActivityInitializer.initHouseholdAndFamilyCareAtHomeAloneActivity();
-		m_householdAndFamilyCareAtHomeWithHousholdMembersActivty = ActivityInitializer.initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty();
-		m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity = ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity();
-		m_householdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembersActivity = ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers();
+		m_allActivities.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_ALONE, ActivityInitializer.initHouseholdAndFamilyCareAtHomeAloneActivity());
+		m_allActivities.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty());
+		m_allActivities.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_ALONE, ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity());
+		m_allActivities.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers());
 	}
 	
 	private void initTravelActivities() {
-		m_travelActivity = ActivityInitializer.initTravelActivity();
+		m_allActivities.put(ISimulationSettings.TRAVEL, ActivityInitializer.initTravelActivity());
 	}
 	
 	private void initIndividuals() {
@@ -331,6 +292,14 @@ public class Environment extends SimState {
 		}
 	}
 	
+	private void initOutput() {
+		m_outputHolder.put(ISimulationSettings.TIME_STAMP, null);
+		for (String activityDescription: m_allActivities.keySet()) {
+			m_outputHolder.put(activityDescription, null);
+		}
+		m_environmentObserver = new EnvironmentObserver(getOutputHolder().keySet());
+	}
+	
 	private Node getClosestNodeToBuilding(MasonGeometry building, Bag candidatePaths) {
 		Coordinate buildingCoordinate = building.getGeometry().getCoordinate();
 		double minDistance = Double.MAX_VALUE;
@@ -348,68 +317,53 @@ public class Environment extends SimState {
 		}
 		return closestNodeToBuilding;
 	}
-
-	public ArrayList<Activity> getAllActivities() {
+	
+	public HashMap<String, Activity> getAllActivities() {
 		return m_allActivities;
-	}
-
-	public void setAllActivities(ArrayList<Activity> allActivities) {
-		m_allActivities = allActivities;
 	}
 
 	public SimulationTime getSimulationTime() {
 		return m_simulationTime;
 	}
 
-	public void setSimulationTime(SimulationTime simulationTime) {
-		m_simulationTime = simulationTime;
-	}
-
 	public GeomVectorField getBuildingsField() {
 		return m_buildingsField;
-	}
-
-	public void setBuildingsField(GeomVectorField buildingsField) {
-		m_buildingsField = buildingsField;
 	}
 
 	public GeomVectorField getPathField() {
 		return m_pathField;
 	}
 
-	public void setPathField(GeomVectorField pathField) {
-		m_pathField = pathField;
-	}
-
 	public GeomPlanarGraph getPathGraph() {
 		return m_pathGraph;
-	}
-
-	public void setPathGraph(GeomPlanarGraph pathGraph) {
-		m_pathGraph = pathGraph;
 	}
 
 	public HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> getEdgeTraffic() {
 		return m_edgeTraffic;
 	}
 
-	public void setEdgeTraffic(HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> edgeTraffic) {
-		m_edgeTraffic = edgeTraffic;
-	}
-
 	public GeomVectorField getIndividualsField() {
 		return m_individualsField;
-	}
-
-	public void setIndividualsField(GeomVectorField individualsField) {
-		m_individualsField = individualsField;
 	}
 
 	public ArrayList<Individual> getIndividuals() {
 		return m_individuals;
 	}
 
-	public void setIndividuals(ArrayList<Individual> individuals) {
-		m_individuals = individuals;
+	public HashMap<String, Object> getOutputHolder() {
+		return m_outputHolder;
+	}
+	
+	public void incrementIntegerValueOfOutputHolder(String key) {
+		if (m_outputHolder.get(key) == null) {
+			m_outputHolder.put(key, new Integer(1));
+		}
+		else {
+			m_outputHolder.put(key, new Integer(((Integer) m_outputHolder.get(key)).intValue() + 1));
+		}
+	}
+
+	public EnvironmentObserver getEnvironmentObserver() {
+		return m_environmentObserver;
 	}
 }

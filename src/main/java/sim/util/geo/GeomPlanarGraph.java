@@ -50,14 +50,11 @@ public class GeomPlanarGraph extends PlanarGraph
         for (Object geometryObj: field.getGeometries()) {
         	MasonGeometry mg = (MasonGeometry) geometryObj;
         	if (mg.getGeometry() instanceof LineString) {
-//        		mg.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
         		addLineString(mg);
         	}
         	else if (mg.getGeometry() instanceof MultiLineString) {
         		MultiLineString mls = (MultiLineString) mg.getGeometry();
         		for (int i = 0; i < mls.getNumGeometries(); i++) {
-        			MasonGeometry mlsg = new MasonGeometry(mls.getGeometryN(i));
-//        			mlsg.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
         			addLineString(new MasonGeometry(mls.getGeometryN(i))); 
         		}
         	}

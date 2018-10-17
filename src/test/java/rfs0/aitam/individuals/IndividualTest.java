@@ -31,21 +31,21 @@ public class IndividualTest {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
-							individual.planJointActivities((Environment) state);
+							individual.planJointActivities();
 						}
 					});
 					schedule.scheduleRepeating(0.0, 1, new Steppable() {			
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
-							individual.carryOverJointActivities((Environment) state);
+							individual.carryOverJointActivities();
 						}
 					});
 					schedule.scheduleRepeating(0.0, 2, new Steppable() {			
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
-							individual.planIndividualActivities((Environment) state);
+							individual.planIndividualActivities();
 						}
 					});
 					schedule.scheduleRepeating(0.0, 3, new Steppable() {			
@@ -99,9 +99,8 @@ public class IndividualTest {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
-							Environment environment = (Environment) state;
-							if (individual.isPlanningPossible(environment, ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_JOINT_ACTIVITIES)) {
-								individual.planJointActivities(environment);
+							if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_JOINT_ACTIVITIES)) {
+								individual.planJointActivities();
 							}
 						}
 					});
@@ -109,16 +108,15 @@ public class IndividualTest {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
-							individual.carryOverJointActivities((Environment) state);
+							individual.carryOverJointActivities();
 						}
 					});
 					schedule.scheduleRepeating(0.0, 2, new Steppable() {			
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
-							Environment environment = (Environment) state;
-							if (individual.isPlanningPossible(environment, ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_INDIVIDUAL_ACTIVITIES)) {
-								individual.planIndividualActivities(environment);
+							if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_INDIVIDUAL_ACTIVITIES)) {
+								individual.planIndividualActivities();
 							}
 						}
 					});
@@ -133,7 +131,7 @@ public class IndividualTest {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
-							individual.executeActivity((Environment) state);
+							individual.executeActivity();
 						}
 					});
 				}
