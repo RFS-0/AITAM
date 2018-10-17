@@ -468,12 +468,25 @@ public class Individual {
 		setActivityAgenda(bestAgenda);
 	}
 	
+	public boolean isPlanningPossible(Environment environment, ArrayList<DateTime> availableTimePoints) {
+		return availableTimePoints.stream().anyMatch(timePoint -> timePoint.equals(environment.getSimulationTime().getCurrentTime()));
+	}
+	
+	public void carryOverJointActivities(Environment environment) {
+		getActivityAgenda().clearAgenda();
+		for (Interval interval: getJointActivityAgenda().getIntervals()) {
+			getActivityAgenda().addActivityForInterval(interval, getJointActivityAgenda().getActivityForInterval(interval));
+			getActivityAgenda().addNodeForInterval(interval, getJointActivityAgenda().getNodeForInterval(interval));
+		}
+	}
+	
 	// EXECUTE ACTIVITIES
 
 	public void executeActivity(Environment environment) {
 		Activity currentActivity = getActivityAgenda().getActivityForDateTime(environment.getSimulationTime().getCurrentTime());
 		Node currentNode = getCurrentNode();
 		Node targetNode = getActivityNode(currentActivity);
+		Environment.NODE_TO_CLOSEST_BUILDING_MAP.get(targetNode).getGeometry().setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_SELECTED_ENTITY, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
 		if (!currentNode.equals(targetNode)) {
 			if (getPathToNextTarget().isEmpty()) {
 				initPathToTarget(targetNode);
@@ -500,13 +513,14 @@ public class Individual {
 		}
 		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(currentNode, targetNode);
 		if (!pathToTarget.isEmpty()) {
-			setPathToNextTarget(pathToTarget);
-			setCurrentEdge((GeomPlanarGraphEdge) pathToTarget.get(0).getEdge());
+			m_pathToNextTarget = pathToTarget;
+			m_currentEdge = (GeomPlanarGraphEdge) pathToTarget.get(0).getEdge();
 			setupNextEdge();
-			updatePosition(getSegment().extractPoint(getCurrentIndexOnLineOfEdge()));
-//			colorPathToTarget();
+			updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
+			colorPathToTarget();
 		} 
 		else { // already at the target location
+			// TODO: handle this case
 		}
 	}
 	
@@ -518,29 +532,29 @@ public class Individual {
 	 * @param nextEdge - the GeomPlanarGraphEdge to traverse next
 	 */
 	private void setupNextEdge() {
-		GeomPlanarGraphEdge nextEdge = (GeomPlanarGraphEdge) getPathToNextTarget().get(getCurrentIndexOnPathToNextTarget()).getEdge();
+		GeomPlanarGraphEdge nextEdge = (GeomPlanarGraphEdge) m_pathToNextTarget.get(m_currentIndexOnPathToNextTarget).getEdge();
 		updateEdgeTraffic(nextEdge);
-		setCurrentEdge(nextEdge);
+		m_currentEdge = nextEdge;
 		LineString lineOfNextEdge = nextEdge.getLine();
-		setSegment(new LengthIndexedLine(nextEdge.getLine()));
-		setStartIndexOfCurrentEdge(getSegment().getStartIndex());
-		setEndIndexOfCurrentEdge(getSegment().getEndIndex());
-		setEdgeDirection(1);
-		setCurrentIndexOnLineOfEdge(0);
-		double distanceToStart = lineOfNextEdge.getStartPoint().distance(getCurrentLocationPoint().geometry);
-		double distanceToEnd = lineOfNextEdge.getEndPoint().distance(getCurrentLocationPoint().geometry);
+		m_segment = new LengthIndexedLine(nextEdge.getLine());
+		m_startIndexOfCurrentEdge = m_segment.getStartIndex();
+		m_endIndexOfCurrentEdge = m_segment.getEndIndex();
+		m_edgeDirection = 1;
+		m_currentIndexOnLineOfEdge = 0;
+		double distanceToStart = lineOfNextEdge.getStartPoint().distance(m_currentLocationPoint.getGeometry());
+		double distanceToEnd = lineOfNextEdge.getEndPoint().distance(m_currentLocationPoint.getGeometry());
 		if (distanceToStart <= distanceToEnd) {
-			setCurrentIndexOnLineOfEdge(getSegment().getStartIndex());
-			setEdgeDirection(1);
+			m_currentIndexOnLineOfEdge = m_segment.getStartIndex();
+			m_edgeDirection = 1;
 		} else {
-			setCurrentIndexOnLineOfEdge(getSegment().getEndIndex());
-			setEdgeDirection(-1);
+			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
+			m_edgeDirection = -1;
 		}
 	}
 	
 	private void updateEdgeTraffic(GeomPlanarGraphEdge nextEdge) {
-		if (m_environment.getEdgeTraffic().get(getCurrentEdge()) != null) {
-			m_environment.getEdgeTraffic().get(getCurrentEdge()).remove(this); // current edge is actually the old edge here
+		if (m_environment.getEdgeTraffic().get(m_currentEdge) != null) {
+			m_environment.getEdgeTraffic().get(m_currentEdge).remove(this); // current edge is actually the old edge here
 		}
 		if (m_environment.getEdgeTraffic().get(nextEdge) == null) {
 			m_environment.getEdgeTraffic().put(nextEdge, new ArrayList<Individual>());
@@ -555,16 +569,16 @@ public class Individual {
 	 * @param c - The coordinate to which the individual is moved to
 	 */
 	private void updatePosition(Coordinate c) {
-		getPointMoveTo().setCoordinate(c);
-		m_environment.getIndividualsField().setGeometryLocation(getCurrentLocationPoint(), getPointMoveTo());
+		m_pointMoveTo.setCoordinate(c);
+		m_environment.getIndividualsField().setGeometryLocation(m_currentLocationPoint, m_pointMoveTo);
 	}
 	
 	private boolean hasReachedTarget() {
-		if (getPathToNextTarget().isEmpty()) { // current location is target location
+		if (m_pathToNextTarget.isEmpty()) { // current location is target location
 			return true;
 		}
 		else {
-			return getCurrentIndexOnPathToNextTarget() >= getPathToNextTarget().size();
+			return m_currentIndexOnPathToNextTarget >= m_pathToNextTarget.size();
 		}
 	}
 	
@@ -581,10 +595,10 @@ public class Individual {
 				mg.setUserData(
 						new CircledPortrayal2D(
 								new GeomPortrayal(
-										ISimulationSettings.COLOR_OF_PATH_SELECTED,
+										ISimulationSettings.COLOR_OF_SELECTED_ENTITY,
 										ISimulationSettings.SIZE_OF_PATH
 										),
-								ISimulationSettings.COLOR_OF_PATH_SELECTED,
+								ISimulationSettings.COLOR_OF_SELECTED_ENTITY,
 								true
 								));
 			});
@@ -598,32 +612,18 @@ public class Individual {
 	}
 	
 	private void moveTowardsTarget() {
-		setCurrentIndexOnLineOfEdge(getCurrentIndexOnLineOfEdge() + calculateTravellingDistance());
-		if (getEdgeDirection() == 1 && getCurrentIndexOnLineOfEdge() >= getEndIndexOfCurrentEdge()) {
+		double travellingDistance = calculateTravellingDistance();
+		m_currentIndexOnLineOfEdge += travellingDistance;
+		if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
 			// positive movement
-			moveRemainingDistanceOnNextEdge(getCurrentIndexOnLineOfEdge() - getEndIndexOfCurrentEdge());
-
-		} else if (getEdgeDirection() == -1 && getCurrentIndexOnLineOfEdge() <= getStartIndexOfCurrentEdge()) {
+			moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
+		} 
+		else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
 			// negative movement
-			moveRemainingDistanceOnNextEdge(getStartIndexOfCurrentEdge() - getCurrentIndexOnLineOfEdge());
+			moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
 		}
-		updatePosition(getSegment().extractPoint(getCurrentIndexOnLineOfEdge()));
+		updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
 	}
-	
-	public boolean isPlanningPossible(Environment environment, ArrayList<DateTime> availableTimePoints) {
-		return availableTimePoints.stream().anyMatch(timePoint -> timePoint.equals(environment.getSimulationTime().getCurrentTime()));
-	}
-	
-	public void carryOverJointActivities(Environment environment) {
-		getActivityAgenda().clearAgenda();
-		for (Interval interval: getJointActivityAgenda().getIntervals()) {
-			getActivityAgenda().addActivityForInterval(interval, getJointActivityAgenda().getActivityForInterval(interval));
-			getActivityAgenda().addNodeForInterval(interval, getJointActivityAgenda().getNodeForInterval(interval));
-		}
-	}
-	
-
-	
 	
 	/**
 	 * 
@@ -650,22 +650,23 @@ public class Individual {
 	 * @param remainingDistance the distance the agent can still travel this turn
 	 */
 	private void moveRemainingDistanceOnNextEdge(double remainingDistance) {
-		setCurrentIndexOnPathToNextTarget(getCurrentIndexOnPathToNextTarget() + 1);
+		m_currentIndexOnPathToNextTarget += 1;
 		if (hasReachedTarget()) {
-			setCurrentIndexOnLineOfEdge(getSegment().getEndIndex());
-			setCurrentIndexOnPathToNextTarget(0);
-			getPathToNextTarget().clear();
+			// TODO: check if we have to distinguis positive and negative movmement.. most likely for negative movement we have to use the start index!
+			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
+			m_currentIndexOnPathToNextTarget = 0;
+			m_pathToNextTarget.clear();
 			return;
 		}
 		setupNextEdge();
-		setCurrentIndexOnLineOfEdge(getCurrentIndexOnLineOfEdge() + remainingDistance);
-		if (getEdgeDirection() == 1 && getCurrentIndexOnLineOfEdge() >= getEndIndexOfCurrentEdge()) {
+		m_currentIndexOnLineOfEdge += remainingDistance;
+		if (m_edgeDirection == 1 && m_currentIndexOnLineOfEdge >= m_endIndexOfCurrentEdge) {
 			// positive movement
-			moveRemainingDistanceOnNextEdge(getCurrentIndexOnLineOfEdge() - getEndIndexOfCurrentEdge());
+			moveRemainingDistanceOnNextEdge(m_currentIndexOnLineOfEdge - m_endIndexOfCurrentEdge);
 
-		} else if (getEdgeDirection() == -1 && getCurrentIndexOnLineOfEdge() <= getStartIndexOfCurrentEdge()) {
+		} else if (m_edgeDirection == -1 && m_currentIndexOnLineOfEdge <= m_startIndexOfCurrentEdge) {
 			// negative movement
-			moveRemainingDistanceOnNextEdge(getStartIndexOfCurrentEdge() - getCurrentIndexOnLineOfEdge());
+			moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
 		}
 	}
 	

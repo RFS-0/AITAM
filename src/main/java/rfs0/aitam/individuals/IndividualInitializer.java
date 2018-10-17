@@ -12,6 +12,7 @@ import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.utilities.CalculationUtility;
 import sim.field.network.Network;
+import sim.portrayal.geo.GeomPortrayal;
 import sim.util.Bag;
 import sim.util.geo.MasonGeometry;
 
@@ -49,7 +50,9 @@ public final class IndividualInitializer {
 			ArrayList<Integer> householdMembersIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MIN_NUMBER_OF_HOUSEHOLD_MEMBERS , ISimulationSettings.MAX_NUMBER_OF_HOUSEHOLD_MEMBERS);
 			Network householdNetwork = createNetworkForMemberIndices(householdMembersIndices);
 			MasonGeometry homeBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
+			homeBuilding.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
 			MasonGeometry thirdPlaceForHouseholdAndFamilyCare = determineBuildingForCategoryWithinDistance(environment, availableBuildings, homeBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
+//			thirdPlaceForHouseholdAndFamilyCare.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
 			for (Integer houseHoldMemberIndex: householdMembersIndices) {
 				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(houseHoldMemberIndex))
@@ -71,7 +74,9 @@ public final class IndividualInitializer {
 			ArrayList<Integer> workColleguesIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MIN_NUMBER_OF_WORK_COLLEGUES , ISimulationSettings.MAX_NUMBER_OF_WORK_COLLEGUES);
 			Network workColleguesNetwork = createNetworkForMemberIndices(workColleguesIndices);
 			MasonGeometry workBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.WORK);
+//			workBuilding.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
 			MasonGeometry thirdPlaceForWork = determineBuildingForCategoryWithinDistance(environment, availableBuildings, workBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK, ActivityCategory.WORK);
+//			thirdPlaceForWork.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
 			for (Integer workCollegueIndex: workColleguesIndices) {
 				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(workCollegueIndex))
@@ -93,7 +98,9 @@ public final class IndividualInitializer {
 			ArrayList<Integer> friendsIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MIN_NUMBER_OF_FRIENDS, ISimulationSettings.MAX_NUMBER_OF_FRIENDS);
 			Network friendsNetwork = createNetworkForMemberIndices(friendsIndices);
 			MasonGeometry leisureBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.LEISURE);
+//			leisureBuilding.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
 			MasonGeometry thirdPlaceForLeisure = determineBuildingForCategoryWithinDistance(environment, availableBuildings, leisureBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK, ActivityCategory.LEISURE);
+//			thirdPlaceForLeisure.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
 			for (Integer friendIndex: friendsIndices) {
 				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(friendIndex))

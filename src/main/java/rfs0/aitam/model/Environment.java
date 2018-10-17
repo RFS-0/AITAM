@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.planargraph.Node;
@@ -18,6 +19,7 @@ import rfs0.aitam.activities.ActivityInitializer;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.individuals.IndividualInitializer;
+import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.geo.GeomVectorField;
@@ -33,6 +35,7 @@ public class Environment extends SimState {
 	
 	public static final GeometryFactory GEO_FACTORY = new GeometryFactory();
 	public static HashMap<MasonGeometry, Node> BUILDING_TO_CLOSEST_NODE_MAP = new HashMap<>();
+	public static HashMap<Node, MasonGeometry> NODE_TO_CLOSEST_BUILDING_MAP = new HashMap<>();
 	
 	// Activities
 	private Activity m_workAtHomeAloneActivity;
@@ -76,8 +79,9 @@ public class Environment extends SimState {
 	private GeomVectorField m_individualsField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
 	private ArrayList<Individual> m_individuals = new ArrayList<>();
 	
-	public Environment(long seed) {
-		super(seed);
+	public Environment(long seed) { // TODO: seed is only for dev purposes
+		super(seed); 
+		random.setSeed(seed); 
 		initEnvironment();
 		initActivities();
 		initBuildings();
@@ -146,7 +150,8 @@ public class Environment extends SimState {
 		Envelope globalMBR = new Envelope();
 		readShapeFiles(globalMBR);
 		synchronizeMinimumBoundingRectangles(globalMBR);
-		m_pathGraph.createFromGeomField(getPathField());
+		m_pathGraph.createFromGeomField(m_pathField);
+//		addIntersectionNodes(m_pathGraph.nodeIterator());
 		System.out.println(String.format("Initialized environment in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
@@ -210,6 +215,7 @@ public class Environment extends SimState {
 	private void synchronizeMinimumBoundingRectangles(Envelope minimumBoundingRectangle) {
 		m_buildingsField.setMBR(minimumBoundingRectangle);
 		m_pathField.setMBR(minimumBoundingRectangle);
+		m_individualsField.setMBR(minimumBoundingRectangle);
 	}
 	
 	private void initActivities() {
@@ -294,7 +300,6 @@ public class Environment extends SimState {
 	
 	private void initIndividuals() {
 		System.out.println("Initializing individuals...");
-		m_individualsField.clear();
 		long start = System.nanoTime();
 		m_individuals = IndividualInitializer.initIndividuals(this);
 		for (Individual individual: m_individuals) {
@@ -314,22 +319,34 @@ public class Environment extends SimState {
 	private void initBuildingToClosestNodeMap() {
 		for (Object buildingObject: m_buildingsField.getGeometries()) {
 			MasonGeometry building = (MasonGeometry) buildingObject;
-			Node closestNode = null;
-			Bag alreadyChecked = new Bag();
+			Node closestNodeToBuilding = null;
 			double searchDistance = 0.0;
-			while (closestNode == null) {
-				Bag withinDistance = m_pathField.getObjectsWithinDistance(GEO_FACTORY.createPoint(building.getGeometry().getCoordinate()), searchDistance);
-				withinDistance.removeAll(alreadyChecked);
-				while (!withinDistance.isEmpty() && closestNode == null) {
-					closestNode = m_pathGraph.findNode(((MasonGeometry) withinDistance.get(0)).getGeometry().getCoordinate());
-				}
-				if (withinDistance.size() > 0) {
-					alreadyChecked.add(withinDistance.remove(0));
-				}
-				searchDistance += 1.0;
+			while (closestNodeToBuilding == null) {
+				Bag pathsWithinDistance = m_pathField.getObjectsWithinDistance(GEO_FACTORY.createPoint(building.getGeometry().getCoordinate()), searchDistance);
+				closestNodeToBuilding = getClosestNodeToBuilding(building, pathsWithinDistance);
+				searchDistance += 1;
 			}
-			BUILDING_TO_CLOSEST_NODE_MAP.put(building, closestNode);
+			BUILDING_TO_CLOSEST_NODE_MAP.put(building, closestNodeToBuilding);
+			NODE_TO_CLOSEST_BUILDING_MAP.put(closestNodeToBuilding, building);
 		}
+	}
+	
+	private Node getClosestNodeToBuilding(MasonGeometry building, Bag candidatePaths) {
+		Coordinate buildingCoordinate = building.getGeometry().getCoordinate();
+		double minDistance = Double.MAX_VALUE;
+		Node closestNodeToBuilding = null;
+		for (Object pathObj: candidatePaths) {
+			Coordinate pathCoordinate = ((MasonGeometry) pathObj).getGeometry().getCoordinate();
+			Node node = m_pathGraph.findNode(pathCoordinate);
+			if (node != null) {
+				double distance = GeometryUtility.calculateDistance(buildingCoordinate, node.getCoordinate());
+				if (distance < minDistance) {
+					minDistance = distance;
+					closestNodeToBuilding = node;
+				}
+			}
+		}
+		return closestNodeToBuilding;
 	}
 
 	public ArrayList<Activity> getAllActivities() {

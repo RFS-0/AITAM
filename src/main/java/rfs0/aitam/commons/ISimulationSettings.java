@@ -114,18 +114,17 @@ public interface ISimulationSettings {
 	/**
 	 * Constants used to configure UI of environment
 	 */
-	public static final double SIZE_OF_AGENT = 3.0;
+	public static final double SIZE_OF_AGENT = 10.0;
+	public static final double SIZE_OF_AGENT_SELECTED = 10.0;
 	public static final double SIZE_OF_BUILDING = 3.0;
-	public static final double SIZE_OF_PATH = 1.0; // not actually used by portrayal
-	public static final Color COLOR_OF_AGENT = Color.red;
-	public static final Color COLOR_OF_AGENT_SELECTED = new Color(200, 20, 120);
-	public static final Color COLOR_OF_BACKGROUND = new Color(30, 40, 50);
-	public static final Color COLOR_OF_BUILDING = new Color(70, 90, 100);
-	public static final Color COLOR_OF_BUILDING_SELECTED = new Color(255, 100, 160);
-	public static final Color COLOR_OF_PATH = new Color(80, 140, 160);
-	public static final Color COLOR_OF_PATH_SELECTED = new Color(250, 70, 130);
-	public static final Color COLOR_OF_START = new Color(250, 180, 190);
-	public static final Color COLOR_OF_TARGET = new Color(255, 100, 160);
+	public static final double SIZE_OF_BUILDING_SELCTED = 10.0; 
+	public static final double SIZE_OF_PATH = 1.0; // TODO: not actually used by portrayal
+	public static final Color COLOR_FOR_DEBUG = new Color(235, 59, 90); // desire (red)
+	public static final Color COLOR_OF_SELECTED_ENTITY = new Color(38, 222, 129); // reptile green
+	public static final Color COLOR_OF_AGENT = new Color(165, 94, 234); // lighter purple
+	public static final Color COLOR_OF_BACKGROUND = Color.white;
+	public static final Color COLOR_OF_BUILDING = new Color(69, 170, 242); // high blue
+	public static final Color COLOR_OF_PATH = new Color(209, 216, 224); // twinkle blue
 	
 	/**
 	 * Constants used for simulating time
@@ -147,7 +146,7 @@ public interface ISimulationSettings {
 	/**
 	 * Constants used for simulating individuals
 	 */
-	public static final int NUMBER_OF_INDIVIDUALS = 30;
+	public static final int NUMBER_OF_INDIVIDUALS = 5;
 	public static final int MIN_NUMBER_OF_HOUSEHOLD_MEMBERS = 1;
 	public static final int MAX_NUMBER_OF_HOUSEHOLD_MEMBERS = 4;
 	// TODO: maybe used different probability for planning and accepting a request? -> also justify probablilities

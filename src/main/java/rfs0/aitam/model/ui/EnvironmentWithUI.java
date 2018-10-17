@@ -84,7 +84,7 @@ public class EnvironmentWithUI extends GUIState {
 		m_agentPortrayal.setPortrayalForAll(
 				new CircledPortrayal2D(
 						new GeomPortrayal(ISimulationSettings.COLOR_OF_AGENT, ISimulationSettings.SIZE_OF_AGENT, true),
-						ISimulationSettings.COLOR_OF_AGENT_SELECTED, 
+						ISimulationSettings.COLOR_OF_SELECTED_ENTITY, 
 						true)
 				);
 	}
@@ -94,7 +94,7 @@ public class EnvironmentWithUI extends GUIState {
 		m_pathsPortrayal.setPortrayalForRemainder(
 				new CircledPortrayal2D(
 						new GeomPortrayal(ISimulationSettings.COLOR_OF_PATH, true), 
-						ISimulationSettings.COLOR_OF_PATH_SELECTED, 
+						ISimulationSettings.COLOR_OF_SELECTED_ENTITY, 
 						true)
 				);
 	}
@@ -108,7 +108,7 @@ public class EnvironmentWithUI extends GUIState {
 							ISimulationSettings.COLOR_OF_BUILDING),
 					ISimulationSettings.SIZE_OF_BUILDING,
 					ISimulationSettings.SIZE_OF_BUILDING,
-					ISimulationSettings.COLOR_OF_BUILDING_SELECTED,
+					ISimulationSettings.COLOR_OF_SELECTED_ENTITY,
 					true));
 	}
 }
