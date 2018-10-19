@@ -43,7 +43,7 @@ public class Individual {
 	private int m_id;
 	
 	/**
-	 * Networks related activities
+	 * Networks
 	 */
 	private Network m_householdMembersNetwork = new Network(false);
 	private int m_householdMembersNetworkId = -1;
@@ -56,22 +56,21 @@ public class Individual {
 	private int m_numberOfFriendsNetworkActivitiesPlanned = 0;
 
 	/**
-	 * Needs related activities
+	 * Needs
 	 */
 	private NeedTimeSplit m_targetNeedTimeSplit;
 	private ActualNeedTimeSplit m_actualNeedTimeSplit = new ActualNeedTimeSplit();
 	
 	/**
-	 * Activity related variables
+	 * Agendas
 	 */
 	private ActivityAgenda m_activityAgenda = new ActivityAgenda();
 	private ActivityAgenda m_jointActivityAgenda = new ActivityAgenda();
 	private ArrayList<ActivityAgenda> m_allDayPlans = new ArrayList<>();
 
 	/**
-	 * GIS related variables
+	 * Static locations
 	 */
-	// buildings for activities
 	private Node m_homeNode;
 	private Node m_thirdPlaceForHouseholdAndFamilyCareNode;
 	private Node m_workPlaceNode;
@@ -79,7 +78,9 @@ public class Individual {
 	private Node m_leisureNode;
 	private Node m_thirdPlaceForLeisureNode;
 	
-	// dynamic locations
+	/**
+	 * Dynamic locations
+	 */
 	private MasonGeometry m_currentLocationPoint; // point that represents the agent
 	private LengthIndexedLine m_segment = null; // Used by individual to walk along line segment
 	private double m_endIndexOfCurrentEdge = 0.0;
@@ -245,6 +246,11 @@ public class Individual {
 			individualToBuild = new Individual();
 			return builtIndividual;
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return "Id = " + m_id + "| Household Network = " + m_householdMembersNetworkId + "| Work network = " + m_workColleguesNetworkId + "| Friends network = " + m_friendsNetworkId;
 	}
 	
 	// PLAN JOINT ACTIVITIES
@@ -480,7 +486,8 @@ public class Individual {
 				bestAgenda = m_allDayPlans.get(i);
 			}
 		}
-		setActivityAgenda(bestAgenda);
+		m_activityAgenda = bestAgenda;
+		m_allDayPlans.clear();
 	}
 	
 	public boolean isPlanningPossible(ArrayList<DateTime> availableTimePoints) {
@@ -488,7 +495,7 @@ public class Individual {
 	}
 	
 	public void carryOverJointActivities() {
-		m_activityAgenda.clearAgenda();
+		m_activityAgenda.clear();
 		for (Interval interval: m_jointActivityAgenda.getIntervals()) {
 			m_activityAgenda.addActivityForInterval(interval, m_jointActivityAgenda.getActivityForInterval(interval));
 			m_activityAgenda.addNodeForInterval(interval, m_jointActivityAgenda.getNodeForInterval(interval));
@@ -511,6 +518,8 @@ public class Individual {
 			}
 		}
 		if (hasReachedTarget()) {
+			
+			// TODO: make sure we redraw entities at their target location as well
 			if (!currentActivity.isJointActivity()) {
 				updateActualNeedTimeSplit(currentActivity);
 			}
@@ -520,6 +529,7 @@ public class Individual {
 			}
 		}
 		m_environment.incrementIntegerValueOfOutputHolder(currentActivity.getActivityDescription());
+		m_environment.incrementIntegerValueOfOutputHolder(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS);
 	}
 	
 	private void initPathToTarget(Node targetNode) {
@@ -668,8 +678,12 @@ public class Individual {
 	private void moveRemainingDistanceOnNextEdge(double remainingDistance) {
 		m_currentIndexOnPathToNextTarget += 1;
 		if (hasReachedTarget()) {
-			// TODO: check if we have to distinguis positive and negative movmement.. most likely for negative movement we have to use the start index!
-			m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
+			if (m_edgeDirection == -1) {
+				m_currentIndexOnLineOfEdge = m_segment.getStartIndex();
+			}
+			else {
+				m_currentIndexOnLineOfEdge = m_segment.getEndIndex();
+			}
 			m_currentIndexOnPathToNextTarget = 0;
 			m_pathToNextTarget.clear();
 			return;
@@ -689,17 +703,17 @@ public class Individual {
 	// HELPER FUNCTIONS
 	
 	public void updateActualNeedTimeSplit(Need need, BigDecimal timeSpentSatisfyingNeed) {
-		getActualNeedTimeSplit().updateNeedTimeSplit(need, timeSpentSatisfyingNeed);
+		m_actualNeedTimeSplit.updateNeedTimeSplit(need, timeSpentSatisfyingNeed);
 	}
 	
 	public void initNewDay() {
-		getActivityAgenda().clearAgenda();
-		getActivityAgenda().clearLocations();
-		getJointActivityAgenda().clearAgenda();
-		getJointActivityAgenda().clearLocations();
-		setNumberOfFriendsNetworkActivitiesPlanned(0);
-		setNumberOfHouseholdNetworkActivitiesPlanned(0);
-		setNumberOfWorkColleguesNetworkActivitiesPlanned(0);
+		m_numberOfHouseholdNetworkActivitiesPlanned = 0;
+		m_numberOfWorkColleguesNetworkActivitiesPlanned = 0;
+		m_numberOfFriendsNetworkActivitiesPlanned = 0;
+		m_actualNeedTimeSplit.clear();
+		m_activityAgenda.clear();
+		m_jointActivityAgenda.clear();
+		m_allDayPlans.clear();
 	}
 
 	// GETTER & SETTER
