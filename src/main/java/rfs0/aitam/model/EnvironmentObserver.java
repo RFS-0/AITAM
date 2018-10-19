@@ -44,15 +44,30 @@ public class EnvironmentObserver implements Steppable {
 	public void step(SimState state) {
 		Environment environment = (Environment) state;
 		ArrayList<Object> values = new ArrayList<>();
+		fillValues(environment, values);
+		recordValues(values);
+		resetValues(environment);
+	}
+
+	private void fillValues(Environment environment, ArrayList<Object> values) {
 		for (String column: m_header) {
 			values.add(environment.getOutputHolder().get(column));
 		}
+	}
+	
+	private void recordValues(ArrayList<Object> values) {
 		try {
 			getCsvPrinter().printRecord(values);
 			getCsvPrinter().flush();
 		}
 		catch (IOException e) {
 			Logger.getLogger(EnvironmentObserver.class.getName()).log(Level.SEVERE, "Failed to write simulation output", e);
+		}
+	}
+
+	private void resetValues(Environment environment) {
+		for (String colum: m_header) {
+			environment.getOutputHolder().put(colum, null);
 		}
 	}
 
