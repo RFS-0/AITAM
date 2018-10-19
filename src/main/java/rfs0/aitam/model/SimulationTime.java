@@ -14,7 +14,8 @@ public class SimulationTime implements Steppable {
 
 	@Override
 	public void step(SimState state) {
-		m_dateTime = m_dateTime.plusMinutes(1);
+		((Environment) state).getOutputHolder().put(ISimulationSettings.TIME_STAMP, m_dateTime); // record current value
+		m_dateTime = m_dateTime.plusMinutes(1); // increment time
 	}
 	
 	public DateTime getCurrentDateTime() {
