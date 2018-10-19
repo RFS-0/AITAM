@@ -109,16 +109,13 @@ public class ActivityAgenda implements Cloneable {
 		return m_agenda;
 	}
 	
-	public void clearAgenda() {
+	public void clear() {
 		m_agenda = new TreeMap<>(new IntervalComparator());
+		m_locations = new TreeMap<>(new IntervalComparator());
 	}
 	
 	public TreeMap<Interval, Node> getNodes() {
 		return m_locations;
-	}
-	
-	public void clearLocations() {
-		m_locations = new TreeMap<>(new IntervalComparator());
 	}
 
 	public class IntervalComparator implements Comparator<Interval> {
