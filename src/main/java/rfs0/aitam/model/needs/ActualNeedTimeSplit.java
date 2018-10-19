@@ -40,4 +40,10 @@ public class ActualNeedTimeSplit {
 			return m_relativeNeedTimeSplit;
 		}
 	}
+	
+	public void clear() {
+		m_absoluteNeedTimeSplit.clear();
+		m_relativeNeedTimeSplit.clear();
+		m_isUpdated = false;
+	}
 }
