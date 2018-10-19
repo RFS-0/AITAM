@@ -136,6 +136,9 @@ public interface ISimulationSettings {
 	public static final int BASE_DAY = 1;
 	public static final int BASE_HOUR = 0;
 	public static final int BASE_MINUTE = 0;
+	public static final int LAST_HOUR_OF_DAY = 23;
+	public static final int LAST_MINUTE_OF_HOUR = 59;
+	public static final DateTime END_OF_DAY = new DateTime(BASE_YEAR, BASE_MONTH, BASE_DAY, LAST_HOUR_OF_DAY, LAST_MINUTE_OF_HOUR);
 	
 	/**
 	 * Constants used for handling numbers & calculations
@@ -152,18 +155,18 @@ public interface ISimulationSettings {
 	public static final int MIN_NUMBER_OF_HOUSEHOLD_MEMBERS = 1;
 	public static final int MAX_NUMBER_OF_HOUSEHOLD_MEMBERS = 4;
 	// TODO: maybe used different probability for planning and accepting a request? -> also justify probablilities
-	public static final double PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY = 0.8;
+	public static final double PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY = 0.9;
 	public static final int MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY = 3;
 	public static final int MIN_NUMBER_OF_WORK_COLLEGUES = 1;
 	public static final int MAX_NUMBER_OF_WORK_COLLEGUES = 4;
 	public static final int MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY = 1;
 	// TODO: maybe used different probability for planning and accepting a request?
-	public static final double PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY = 0.25;
+	public static final double PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY = 0.7;
 	public static final int MIN_NUMBER_OF_FRIENDS = 1;
 	public static final int MAX_NUMBER_OF_FRIENDS = 4;
 	public static final int MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY = 1;
 	// TODO: maybe used different probability for planning and accepting a request?
-	public static final double PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY = 0.5;
+	public static final double PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY = 0.7;
 	
 	/**
 	 * Attributes of buildings
