@@ -99,7 +99,7 @@ public class IndividualTest {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
-							if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_JOINT_ACTIVITIES)) {
+							if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES)) {
 								individual.planJointActivities();
 							}
 						}
@@ -115,7 +115,7 @@ public class IndividualTest {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
-							if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_INDIVIDUAL_ACTIVITIES)) {
+							if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES)) {
 								individual.planIndividualActivities();
 							}
 						}
