@@ -84,7 +84,7 @@ public class Environment extends SimState {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
-					if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_JOINT_ACTIVITIES)) {
+					if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES)) {
 						individual.planJointActivities();
 					}
 				}
@@ -93,14 +93,16 @@ public class Environment extends SimState {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
-					individual.carryOverJointActivities();
+					if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES)) {
+						individual.carryOverJointActivities();
+					}
 				}
 			});
 			schedule.scheduleRepeating(0.0, 2, new Steppable() {			
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
-					if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_INDIVIDUAL_ACTIVITIES)) {
+					if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES)) {
 						individual.planIndividualActivities();
 					}
 				}
@@ -109,7 +111,9 @@ public class Environment extends SimState {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
-					individual.chooseBestAgenda();
+					if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES)) {
+						individual.chooseBestAgenda();
+					}
 				}
 			});
 			schedule.scheduleRepeating(0.0, 4, new Steppable() {
@@ -124,7 +128,7 @@ public class Environment extends SimState {
 				@Override
 				public void step(SimState state) {
 					Environment environment = (Environment) state;
-					if (environment.getSimulationTime().getCurrentTime().equals(ISimulationSettings.END_OF_DAY)) {
+					if (environment.getSimulationTime().getCurrentTime().equals(ISimulationSettings.START_OF_DAY)) {
 						individual.initNewDay();
 					}
 				}
@@ -190,7 +194,6 @@ public class Environment extends SimState {
 		readShapeFiles(globalMBR);
 		synchronizeMinimumBoundingRectangles(globalMBR);
 		m_pathGraph.createFromGeomField(m_pathField);
-//		addIntersectionNodes(m_pathGraph.nodeIterator());
 		System.out.println(String.format("Initialized environment in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
@@ -265,6 +268,7 @@ public class Environment extends SimState {
 		initPersonalCareActivities();
 		initHouseholdCareActivities();
 		initTravelActivities();
+		initIdleActivities();
 		System.out.println(String.format("Initialized activities in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
@@ -309,12 +313,24 @@ public class Environment extends SimState {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.TRAVEL, ActivityInitializer.initTravelActivity());
 	}
 	
+	private void initIdleActivities() {
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_HOME, ActivityInitializer.initIdleAtHomeActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_LEISURE, ActivityInitializer.initIdleAtLeisureActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_WORK, ActivityInitializer.initIdleAtWorkActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, ActivityInitializer.initIdleAtThirdPlaceForHouseholdAndFamilyCareActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_LEISURE, ActivityInitializer.initIdleAtThirdPlaceForLeisureActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_WORK, ActivityInitializer.initIdleAtThirdPlaceForWorkActivity());
+	}
+	
 	private void initIndividuals() {
 		System.out.println("Initializing individuals...");
 		long start = System.nanoTime();
 		m_individuals = IndividualInitializer.initIndividuals(this);
 		for (Individual individual: m_individuals) {
+			MasonGeometry geometryOfIndividual = individual.getCurrentLocationPoint();
+			geometryOfIndividual.setUserData(individual);
 			m_individualsField.addGeometry(individual.getCurrentLocationPoint());
+			
 		}
 		m_individualsField.updateSpatialIndex();
 		System.out.println(String.format("Initialized individuals in %d ms", (System.nanoTime() - start) / 1000000));
