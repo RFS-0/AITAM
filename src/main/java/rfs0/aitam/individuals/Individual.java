@@ -1,5 +1,6 @@
 package rfs0.aitam.individuals;
 
+import java.awt.Font;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +31,10 @@ import rfs0.aitam.utilities.GraphUtility;
 import rfs0.aitam.utilities.TimeUtility;
 import sim.field.geo.GeomVectorField;
 import sim.field.network.Network;
+import sim.portrayal.DrawInfo2D;
 import sim.portrayal.geo.GeomPortrayal;
 import sim.portrayal.simple.CircledPortrayal2D;
+import sim.portrayal.simple.LabelledPortrayal2D;
 import sim.util.geo.GeomPlanarGraphDirectedEdge;
 import sim.util.geo.GeomPlanarGraphEdge;
 import sim.util.geo.MasonGeometry;
@@ -132,10 +135,11 @@ public class Individual {
 			String warningMessage = "Home location is invalid. The built individual may be unusable!";
 			validate(homeBuilding.getGeometry().getCoordinate(), warningMessage);
 			Node homeNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(homeBuilding);
-			individualToBuild.m_currentLocationPoint = new MasonGeometry(Environment.GEO_FACTORY.createPoint(homeNode.getCoordinate()));
+			Coordinate currentLocationPoint = new Coordinate(homeNode.getCoordinate());
+			individualToBuild.m_currentLocationPoint = new MasonGeometry(Environment.GEO_FACTORY.createPoint(currentLocationPoint));
 			individualToBuild.m_currentLocationPoint.isMovable = true;
 			validate(homeNode, warningMessage);
-			individualToBuild.m_currentNode = homeNode;
+			individualToBuild.m_currentNode = new Node(homeNode.getCoordinate(), homeNode.getOutEdges());
 			individualToBuild.m_homeNode = homeNode;
 			return this;
 		}
@@ -250,20 +254,57 @@ public class Individual {
 	
 	@Override
 	public String toString() {
-		return "Id = " + m_id + "| Household Network = " + m_householdMembersNetworkId + "| Work network = " + m_workColleguesNetworkId + "| Friends network = " + m_friendsNetworkId;
+		return "Id = " + m_id + " | Household Network = " + m_householdMembersNetworkId + " | Work network = " + m_workColleguesNetworkId + " | Friends network = " + m_friendsNetworkId;
 	}
 	
 	// PLAN JOINT ACTIVITIES
 	
 	public void planJointActivities() {
+		removeFutureJointActivitiesOfNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK);
+		removeFutureJointActivitiesOfNetwork(m_workColleguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK);
+		removeFutureJointActivitiesOfNetwork(m_friendsNetwork, NetworkType.FRIENDS_NETWORK);
 		if (isOpenForNetworkActivities(NetworkType.HOUSEHOLD_NETWORK, ISimulationSettings.PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY)) {
-			planActivityForNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK , ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
+			// TODO: define mapping from network to activity categories and use this instead of just one category!
+			planActivityForNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK , ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
 		}
 		if (isOpenForNetworkActivities(NetworkType.WORK_COLLEGUES_NETWORK, ISimulationSettings.PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY)) {
-			planActivityForNetwork(m_workColleguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES);
+			// TODO: define mapping from network to activity categories and use this instead of just one category!
+			planActivityForNetwork(m_workColleguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK, ActivityCategory.WORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES);
 		}
 		if (isOpenForNetworkActivities(NetworkType.FRIENDS_NETWORK, ISimulationSettings.PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY)) {
-			planActivityForNetwork(m_friendsNetwork, NetworkType.FRIENDS_NETWORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES);
+			// TODO: define mapping from network to activity categories and use this instead of just one category!
+			planActivityForNetwork(m_friendsNetwork, NetworkType.FRIENDS_NETWORK, ActivityCategory.LEISURE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES);
+		}
+	}
+	
+	private void removeFutureJointActivitiesOfNetwork(Network network, NetworkType networkType) {
+		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
+		for (Object individualObj: network.getAllNodes()) {
+			Individual individual = (Individual) individualObj;
+			List<Interval> futureIntervals = individual.getJointActivityAgenda().getAgenda().keySet().stream()
+				.filter(interval -> (interval.getStart().isAfter(currentDateTime))
+						|| interval.getStart().equals(currentDateTime)
+						|| interval.getEnd().isAfter(currentDateTime))
+				.collect(Collectors.toList());
+			for (Interval futureInterval: futureIntervals) {
+				if (individual.getJointActivityAgenda().getActivityForInterval(futureInterval).getNetworkType() == networkType) {
+					individual.getJointActivityAgenda().getAgenda().remove(futureInterval);
+					individual.getJointActivityAgenda().getNodes().remove(futureInterval);
+					switch (networkType) {
+						case HOUSEHOLD_NETWORK:
+							individual.decrementNumberOfHouseholdNetworkActivitiesPlanned();
+							break;
+						case WORK_COLLEGUES_NETWORK:
+							individual.decrementNumberOfWorkColleguesNetworkActivitiesPlanned();
+							break;
+						case FRIENDS_NETWORK:
+							individual.decrementNumberOfFriendsNetworkActivitiesPlanned();
+							break;
+						default:
+							Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("Can not apply method to the following network type: %s", String.valueOf(networkType)));
+					}
+				}
+			}
 		}
 	}
 	
@@ -293,42 +334,58 @@ public class Individual {
 		}
 	}
 	
-	private void planActivityForNetwork(Network network, NetworkType type, ArrayList<DateTime> availableStartTimes) {
-		ArrayList<Individual> networkMemberParticipating = determineParticipatingNetworkMembers(network, type);
-		if (networkMemberParticipating.size() > 1) {
-			
+	private void planActivityForNetwork(Network network, NetworkType type, ActivityCategory activityCategory, ArrayList<DateTime> availableStartTimes) {
+		// check if any activity is available for this category at this day
+		int currentWeekDay = m_environment.getSimulationTime().getCurrentWeekDay();
+		long numberOfActivitiesAvailableAtWeekDay = m_environment.getAllActivities().values().stream()
+				.filter(activity -> activity.getActivityCategory() == activityCategory)
+				.filter(activity -> activity.isAvailableAt(currentWeekDay))
+				.count();
+		// no activity available at this day of week for given category
+		if (numberOfActivitiesAvailableAtWeekDay < 1) {
+			return;
 		}
-		Interval intervalOfJointActivity = determineIntervalOfJointActivity(networkMemberParticipating, availableStartTimes);
-		if (intervalOfJointActivity != null) {
-			ArrayList<Activity> availableActivities = m_environment.getAllActivities().values().stream()
-					.filter(activity -> activity.isJointActivity())
-					.filter(activity -> activity.getActivityCategory() == ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
-					.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), intervalOfJointActivity))
-					.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
-					.collect(Collectors.toCollection(ArrayList::new));
-			if (availableActivities.size() == 0) {
-				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Make sure there is always at least one activity available!", String.valueOf(intervalOfJointActivity)));	
-			}
-			// setup activity for all participating network members
-			Activity jointActivity = availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
-			Node jointActivityNode = getActivityNode(jointActivity);
-			for (Individual individual: networkMemberParticipating) {
-				individual.getJointActivityAgenda().addActivityForInterval(intervalOfJointActivity, jointActivity);
-				individual.getJointActivityAgenda().addNodeForInterval(intervalOfJointActivity, jointActivityNode);
-				switch (type) {
-				case FRIENDS_NETWORK:
-					individual.incrementNumberOfFriendsNetworkActivitiesPlanned();
-					break;
-				case HOUSEHOLD_NETWORK:
-					individual.incrementNumberOfHouseholdNetworkActivitiesPlanned();
-					break;
-				case WORK_COLLEGUES_NETWORK:
-					individual.incrementNumberOfWorkColleguesNetworkActivitiesPlanned();
-					break;
-				default:
-					Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not increment number of activities for this type!", String.valueOf(type)));
-					break;
-				}
+		ArrayList<Individual> networkMemberParticipating = determineParticipatingNetworkMembers(network, type);
+		// nobody wants to participate in joint activity
+		if (networkMemberParticipating.size() < 2) { // TODO: make this dependent on network type?
+			return;
+		}
+		Interval baseIntervalOfJointActivity = determineIntervalOfJointActivity(networkMemberParticipating, availableStartTimes);
+		// no agreement on interval established
+		if (baseIntervalOfJointActivity == null) {
+			return;
+		}
+		// at this point we should have ensured that some activity is available and at least two network members agreed on some interval for conducting it
+		ArrayList<Activity> availableActivities = m_environment.getAllActivities().values().stream()
+				.filter(activity -> activity.isJointActivity())
+				.filter(activity -> activity.getActivityCategory() == activityCategory)
+				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), baseIntervalOfJointActivity))
+				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
+				.collect(Collectors.toCollection(ArrayList::new));
+		if (availableActivities.size() == 0) {
+			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Make sure there is always at least one activity available!", String.valueOf(baseIntervalOfJointActivity)));	
+		}
+		// setup activity for all participating network members
+		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
+		Interval realIntervalOfJointActivity = TimeUtility.convertToRealInterval(currentDateTime, baseIntervalOfJointActivity);
+		Activity jointActivity = availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
+		Node jointActivityNode = getActivityNode(jointActivity);
+		for (Individual individual: networkMemberParticipating) {
+			individual.getJointActivityAgenda().addActivityForInterval(realIntervalOfJointActivity, jointActivity);
+			individual.getJointActivityAgenda().addNodeForInterval(realIntervalOfJointActivity, jointActivityNode);
+			switch (type) {
+			case FRIENDS_NETWORK:
+				individual.incrementNumberOfFriendsNetworkActivitiesPlanned();
+				break;
+			case HOUSEHOLD_NETWORK:
+				individual.incrementNumberOfHouseholdNetworkActivitiesPlanned();
+				break;
+			case WORK_COLLEGUES_NETWORK:
+				individual.incrementNumberOfWorkColleguesNetworkActivitiesPlanned();
+				break;
+			default:
+				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not increment number of activities for this type!", String.valueOf(type)));
+				break;
 			}
 		}
 	}
@@ -338,44 +395,57 @@ public class Individual {
 		networkMemberParticipating.add(this);
 		for (Object individualObj: network.getAllNodes()) {
 			Individual individual = (Individual) individualObj;
-			switch (type) {
-			case HOUSEHOLD_NETWORK:
-				if (individual.isOpenForNetworkActivities(type, ISimulationSettings.PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY)) {
-					networkMemberParticipating.add(individual);
+			if (!individual.equals(this)) {
+				switch (type) {
+					case HOUSEHOLD_NETWORK:
+						if (individual.isOpenForNetworkActivities(type, ISimulationSettings.PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY)) {
+							networkMemberParticipating.add(individual);
+						}
+						break;
+					case WORK_COLLEGUES_NETWORK:
+						if (individual.isOpenForNetworkActivities(type, ISimulationSettings.PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY)) {
+							networkMemberParticipating.add(individual);
+						}
+						break;
+					case FRIENDS_NETWORK:
+						if (individual.isOpenForNetworkActivities(type, ISimulationSettings.PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY)) {
+							networkMemberParticipating.add(individual);
+						}
+						break;
+					default:
+						Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not plan activity for this type!", String.valueOf(type)));
+						break;
 				}
-				break;
-			case WORK_COLLEGUES_NETWORK:
-				if (individual.isOpenForNetworkActivities(type, ISimulationSettings.PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY)) {
-					networkMemberParticipating.add(individual);
-				}
-				break;
-			case FRIENDS_NETWORK:
-				if (individual.isOpenForNetworkActivities(type, ISimulationSettings.PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY)) {
-					networkMemberParticipating.add(individual);
-				}
-				break;
-			default:
-				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not plan activity for this type!", String.valueOf(type)));
-				break;
 			}
 		}
 		return networkMemberParticipating;
 	}
 	
 	
-	private Interval determineIntervalOfJointActivity(ArrayList<Individual> networkMemberParticipating, ArrayList<DateTime> availableStartTimes) {
-		Interval intervalOfInterest;
+	private Interval determineIntervalOfJointActivity(ArrayList<Individual> networkMemberParticipating, ArrayList<DateTime> startTimes) {
+		Interval baseIntervalOfInterest;
+		Interval realIntervalOfInterest;
+		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
 		int numberOfTrials = 0;
+		List<DateTime> availableStartTimes = startTimes.stream()
+				.filter(startTime -> startTime.isAfter(m_environment.getSimulationTime().getCurrentTime()))
+				.collect(Collectors.toList());
+		// TODO: mention in javadoc that this is configurable in settings
+		// no start times available anymore for network
+		if (availableStartTimes.size() == 0) {
+			return null;
+		}
 		do {
 			DateTime startOfJointActivity = availableStartTimes.get(m_environment.random.nextInt(availableStartTimes.size()));
 			BigDecimal duration = ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.get(m_environment.random.nextInt(ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.size()));
 			DateTime endOfJointActivity = startOfJointActivity.plusMinutes(duration.intValue());
-			intervalOfInterest = new Interval(startOfJointActivity, endOfJointActivity);
+			baseIntervalOfInterest = new Interval(startOfJointActivity, endOfJointActivity);
+			realIntervalOfInterest = TimeUtility.convertToRealInterval(currentDateTime, baseIntervalOfInterest);
 			numberOfTrials++;
 		} 
-		while (TimeUtility.isIntervalOverlappingAnyAgenda(networkMemberParticipating, intervalOfInterest) && numberOfTrials < ISimulationSettings.MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY);
+		while (TimeUtility.isIntervalOverlappingAnyAgenda(networkMemberParticipating, realIntervalOfInterest) && numberOfTrials < ISimulationSettings.MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY);
 		if (numberOfTrials < ISimulationSettings.MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY) {
-			return intervalOfInterest;
+			return baseIntervalOfInterest;
 		} 
 		else {
 			return null;
@@ -385,17 +455,17 @@ public class Individual {
 	private Node getActivityNode(Activity activity) {
 		switch (activity.getActivityLocation()) {
 		case HOME:
-			return getHomeNode();
+			return m_homeNode;
 		case THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE:
-			return getThirdPlaceForHouseholdAndFamilyCareNode();
+			return m_thirdPlaceForHouseholdAndFamilyCareNode;
 		case LEISURE:
-			return getLeisureNode();
+			return m_leisureNode;
 		case THIRD_PLACE_FOR_LEISURE:
-			return getThirdPlaceForLeisureNode();
+			return m_thirdPlaceForLeisureNode;
 		case THIRD_PLACE_FOR_WORK:
-			return getThirdPlaceForWorkNode();
+			return m_thirdPlaceForWorkNode;
 		case WORK:
-			return getWorkPlaceNode();
+			return m_workPlaceNode;
 		default:
 			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, "Could not choose activty location!");
 			return null;
@@ -406,18 +476,19 @@ public class Individual {
 	
 	public void planIndividualActivities() {
 		getAllDayPlans().clear();
-		DateTime endOfCurrentDay = TimeUtility.getStartOfNextDay(m_environment.getSimulationTime().getCurrentDateTime()).minusMinutes(1);
+		DateTime endOfCurrentDay = TimeUtility.getEndOfCurrentDay(m_environment.getSimulationTime().getCurrentDateTime());
 		for (int i = 0; i < ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE; i++) {
-			ActivityAgenda randomPlan = ActivityAgenda.newInstance(m_jointActivityAgenda);
+			ActivityAgenda randomPlan = ActivityAgenda.newInstance(m_activityAgenda);
 			while (!TimeUtility.isDayFullyPlanned(m_environment, randomPlan)) {
 				Interval availableInterval = TimeUtility.getFirstAvailableInterval(m_environment, randomPlan);
 				int maxDurationInMinutes = (int) availableInterval.toDuration().getStandardMinutes();
 				BigDecimal duration = determineDuration(maxDurationInMinutes);
-				Interval activityInterval = determineActivityInterval(availableInterval, duration.intValue(), endOfCurrentDay);
-				Activity activity = determineActivity(randomPlan, activityInterval);
+				Interval realActivityInterval = determineActivityInterval(availableInterval, duration.intValue(), endOfCurrentDay);
+				Interval baseActivityInterval = TimeUtility.convertToBaseInterval(realActivityInterval);
+				Activity activity = determineActivity(randomPlan, realActivityInterval, baseActivityInterval);
 				Node activityNode = getActivityNode(activity);
-				randomPlan.addActivityForInterval(activityInterval, activity);
-				randomPlan.addNodeForInterval(activityInterval, activityNode);
+				randomPlan.addActivityForInterval(realActivityInterval, activity);
+				randomPlan.addNodeForInterval(realActivityInterval, activityNode);
 				for (Need needSatisfiedByRandomActivity: activity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
 					BigDecimal fractionForNeed = activity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity);
 					BigDecimal timeSpentSatisfyingNeed = fractionForNeed.multiply(duration);
@@ -430,7 +501,7 @@ public class Individual {
 	
 	private BigDecimal determineDuration(int maxDurationInMinutes) {
 		List<BigDecimal> availableDurations = ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.stream()
-				.filter(minutes -> minutes.compareTo(CalculationUtility.createBigDecimal(maxDurationInMinutes)) <= 0)
+				.filter(minutes -> minutes.compareTo(CalculationUtility.createBigDecimal(maxDurationInMinutes)) < 0)
 				.collect(Collectors.toList());
 		if (availableDurations.size() == 0) {
 			return CalculationUtility.createBigDecimal(ISimulationSettings.MIN_DURATION);
@@ -448,12 +519,12 @@ public class Individual {
 		return new Interval(availableInterval.getStart(), end);
 	}
 	
-	private Activity determineActivity(ActivityAgenda randomAgenda, Interval activityInterval) {
+	private Activity determineActivity(ActivityAgenda randomAgenda, Interval realActivityInterval, Interval baseActivityInterval) {
 		ArrayList<Activity> availableActivities;
-		if ((int) activityInterval.toDuration().getStandardMinutes() == ISimulationSettings.MIN_DURATION) {
-			ActivityLocation currentLocation = randomAgenda.getActivityForDateTime(activityInterval.getStart().minusMinutes(1)).getActivityLocation();
+		if ((int) baseActivityInterval.toDuration().getStandardMinutes() <= ISimulationSettings.MIN_DURATION) {
+			ActivityLocation currentLocation = randomAgenda.getActivityForDateTime(realActivityInterval.getStart().minusMinutes(1)).getActivityLocation();
 			availableActivities = m_environment.getAllActivities().values().stream()
-				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), activityInterval))
+				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), baseActivityInterval))
 				.filter(activity -> activity.getActivityLocation() == currentLocation)
 				.filter(activity -> !activity.isJointActivity())
 				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
@@ -461,13 +532,13 @@ public class Individual {
 		}
 		else {
 			availableActivities = m_environment.getAllActivities().values().stream()
-				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), activityInterval))
+				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), baseActivityInterval))
 				.filter(activity -> !activity.isJointActivity())
 				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
 				.collect(Collectors.toCollection(ArrayList::new));
 		}
 		if (availableActivities.size() == 0) {
-			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Location is: %s. Make sure there is always at least one activity available!", String.valueOf(activityInterval), String.valueOf(randomAgenda.getActivityForDateTime(activityInterval.getStart().minusMinutes(1)).getActivityLocation())));	
+			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Location is: %s. Make sure there is always at least one activity available!", String.valueOf(realActivityInterval), String.valueOf(randomAgenda.getActivityForDateTime(realActivityInterval.getStart().minusMinutes(1)).getActivityLocation())));	
 		}
 		return availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
 	}
@@ -495,31 +566,63 @@ public class Individual {
 	}
 	
 	public void carryOverJointActivities() {
-		m_activityAgenda.clear();
+		// remvoe all future activities
+		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
+		List<Interval> futureIntervals = m_activityAgenda.getAgenda().keySet().stream()
+			.filter(interval -> (interval.getStart().isAfter(currentDateTime) 
+					|| interval.getStart().equals(currentDateTime)
+					|| interval.getEnd().isAfter(currentDateTime)))
+			.collect(Collectors.toList());
+		for (Interval futureInterval: futureIntervals) {
+			m_activityAgenda.getAgenda().remove(futureInterval);
+			m_activityAgenda.getNodes().remove(futureInterval);
+		}
+		// fill future with joint activities
 		for (Interval interval: m_jointActivityAgenda.getIntervals()) {
-			m_activityAgenda.addActivityForInterval(interval, m_jointActivityAgenda.getActivityForInterval(interval));
-			m_activityAgenda.addNodeForInterval(interval, m_jointActivityAgenda.getNodeForInterval(interval));
+			if (interval.isAfter(m_environment.getSimulationTime().getCurrentDateTime())) {
+				m_activityAgenda.addActivityForInterval(interval, m_jointActivityAgenda.getActivityForInterval(interval));
+				m_activityAgenda.addNodeForInterval(interval, m_jointActivityAgenda.getNodeForInterval(interval));
+			}
 		}
 	}
 	
 	// EXECUTE ACTIVITIES
 
 	public void executeActivity() {
-		Activity currentActivity = m_activityAgenda.getActivityForDateTime(m_environment.getSimulationTime().getCurrentTime());
-		Node currentNode = getCurrentNode();
+		Activity currentActivity = m_activityAgenda.getActivityForDateTime(m_environment.getSimulationTime().getCurrentDateTime());
 		Node targetNode = getActivityNode(currentActivity);
-		Environment.NODE_TO_CLOSEST_BUILDING_MAP.get(targetNode).getGeometry().setUserData(new GeomPortrayal(ISimulationSettings.COLOR_OF_SELECTED_ENTITY, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
-		if (!currentNode.equals(targetNode)) {
-			if (getPathToNextTarget().isEmpty()) {
-				initPathToTarget(targetNode);
+			Environment.NODE_TO_CLOSEST_BUILDING_MAP.get(targetNode).getGeometry().setUserData(
+					new LabelledPortrayal2D(
+							new GeomPortrayal(ISimulationSettings.COLOR_OF_TARGET_BUILDING, ISimulationSettings.SIZE_OF_BUILDING_SELCTED, true), 
+							10,
+							5,
+							0.5,
+							0.5,
+							new Font("SansSerif",Font.BOLD, 15),
+							LabelledPortrayal2D.ALIGN_LEFT,
+							null, 
+							ISimulationSettings.COLOR_OF_TARGET_BUILDING, 
+							false) {
+						private static final long serialVersionUID = 1L;
+						@Override
+						public String getLabel(Object object, DrawInfo2D info) {
+							return String.format("Target of %s for activity %s", String.valueOf(m_id), currentActivity.getActivityDescription());
+						}
+						
+					});
+		if (!m_currentNode.getCoordinate().equals(targetNode.getCoordinate())) {
+			if (m_pathToNextTarget.isEmpty()) {
+				initPathToTarget(m_currentNode, targetNode);
 			}
 			if (!hasReachedTarget()) {
 				moveTowardsTarget();
 			}
 		}
 		if (hasReachedTarget()) {
-			
-			// TODO: make sure we redraw entities at their target location as well
+			if (!m_currentNode.getCoordinate().equals(targetNode.getCoordinate())) {
+				updatePosition(targetNode.getCoordinate());
+				m_currentNode = new Node(targetNode.getCoordinate(), targetNode.getOutEdges());
+			}
 			if (!currentActivity.isJointActivity()) {
 				updateActualNeedTimeSplit(currentActivity);
 			}
@@ -532,8 +635,8 @@ public class Individual {
 		m_environment.incrementIntegerValueOfOutputHolder(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS);
 	}
 	
-	private void initPathToTarget(Node targetNode) {
-		Node currentNode = getCurrentNode();
+	private void initPathToTarget(Node currentNode, Node targetNode) {
+		m_pathToNextTarget.clear();
 		if (currentNode == null || targetNode == null) {
 			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, String.format("Can not initialize path to target building. Got values currentNode=%s; targetNode=%s.", String.valueOf(currentNode), String.valueOf(targetNode)));
 		}
@@ -546,10 +649,9 @@ public class Individual {
 			colorPathToTarget();
 		} 
 		else { // already at the target location
-			// TODO: handle this case
+			// nop
 		}
 	}
-	
 	
 	/**
 	 * Sets up the next edge on which the individual continues to its target
@@ -592,11 +694,13 @@ public class Individual {
 	 * Update the position of this individual by moving it to to the provided
 	 * {@link Coordinate} <code>c</code>.
 	 * 
-	 * @param c - The coordinate to which the individual is moved to
+	 * @param targetCoordinate - The coordinate to which the individual is moved to
 	 */
-	private void updatePosition(Coordinate c) {
-		m_pointMoveTo.setCoordinate(c);
+	private void updatePosition(Coordinate targetCoordinate) {
+		Coordinate copy = new Coordinate(targetCoordinate);
+		m_pointMoveTo.setCoordinate(copy);
 		m_environment.getIndividualsField().setGeometryLocation(m_currentLocationPoint, m_pointMoveTo);
+		m_environment.getIndividualsField().updateSpatialIndex();
 	}
 	
 	private boolean hasReachedTarget() {
@@ -615,8 +719,7 @@ public class Individual {
 				.map(path -> path.getCoordinate())
 				.collect(Collectors.toList());
 		for (Coordinate coordinate : coordinatesOfPath) {
-			ArrayList<MasonGeometry> coveringObjects = GeometryUtility
-					.getCoveringObjects(new MasonGeometry(Environment.GEO_FACTORY.createPoint(coordinate)), pathField);
+			ArrayList<MasonGeometry> coveringObjects = GeometryUtility.getCoveringObjects(new MasonGeometry(Environment.GEO_FACTORY.createPoint(coordinate)), pathField);
 			coveringObjects.forEach(mg -> {
 				mg.setUserData(
 						new CircledPortrayal2D(
@@ -648,7 +751,7 @@ public class Individual {
 			// negative movement
 			moveRemainingDistanceOnNextEdge(m_startIndexOfCurrentEdge - m_currentIndexOnLineOfEdge);
 		}
-		updatePosition(m_segment.extractPoint(m_currentIndexOnLineOfEdge));
+		updatePosition(new Coordinate(m_segment.extractPoint(m_currentIndexOnLineOfEdge)));
 	}
 	
 	/**
@@ -718,6 +821,10 @@ public class Individual {
 
 	// GETTER & SETTER
 	
+	public Environment getEnvironment() {
+		return m_environment;
+	}
+	
 	public int getId() {
 		return m_id;
 	}
@@ -753,6 +860,10 @@ public class Individual {
 	public void incrementNumberOfHouseholdNetworkActivitiesPlanned() {
 		m_numberOfHouseholdNetworkActivitiesPlanned++;
 	}
+	
+	public void decrementNumberOfHouseholdNetworkActivitiesPlanned() {
+		m_numberOfHouseholdNetworkActivitiesPlanned--;
+	}
 
 	public Network getWorkColleguesNetwork() {
 		return m_workColleguesNetwork;
@@ -781,6 +892,10 @@ public class Individual {
 	public void incrementNumberOfWorkColleguesNetworkActivitiesPlanned() {
 		m_numberOfWorkColleguesNetworkActivitiesPlanned++;
 	}
+	
+	public void decrementNumberOfWorkColleguesNetworkActivitiesPlanned() {
+		m_numberOfWorkColleguesNetworkActivitiesPlanned--;
+	}
 
 	public Network getFriendsNetwork() {
 		return m_friendsNetwork;
@@ -808,6 +923,10 @@ public class Individual {
 	
 	public void incrementNumberOfFriendsNetworkActivitiesPlanned() {
 		m_numberOfFriendsNetworkActivitiesPlanned++;
+	}
+	
+	public void decrementNumberOfFriendsNetworkActivitiesPlanned() {
+		m_numberOfFriendsNetworkActivitiesPlanned--;
 	}
 
 	public NeedTimeSplit getTargetNeedTimeSplit() {
