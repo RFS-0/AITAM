@@ -70,7 +70,7 @@ public class NeedTimeSplit {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		for (Need need: m_needTimeSplit.keySet()) {
-			builder.append(need.name() + ": " + m_needTimeSplit.get(need).toString());
+			builder.append(need.name() + ": " + m_needTimeSplit.get(need).toString() + "\n");
 		}
 		if (builder.length() == 0) {
 			return super.toString();
