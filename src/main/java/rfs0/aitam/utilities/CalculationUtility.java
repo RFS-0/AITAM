@@ -5,6 +5,7 @@ import java.math.MathContext;
 import java.util.Collection;
 import java.util.HashMap;
 
+import ec.util.MersenneTwisterFast;
 import rfs0.aitam.activities.ActivityAgenda;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
@@ -70,15 +71,17 @@ public final class CalculationUtility {
 		BigDecimal meanSquaredError = BigDecimal.ZERO;
 		HashMap<Need,BigDecimal> actualRelativeNeedTimeSplit = activityAgenda.getActualNeedTimeSplit().getRelativeNeedTimeSplit();
 		for (Need need: targetNeedTimeSplit.getNeedTimeSplit().keySet()) {
-			if (need != Need.NOT_DEFINED) {
-				BigDecimal targetFractionForNeed = targetNeedTimeSplit.getFractionForNeed(need);
-				BigDecimal actualFractionForNeed = actualRelativeNeedTimeSplit.get(need);
-				if (actualFractionForNeed == null) {
-					actualFractionForNeed = BigDecimal.ZERO;
-				}
-				meanSquaredError = CalculationUtility.add(meanSquaredError, CalculationUtility.power(CalculationUtility.substract(actualFractionForNeed, targetFractionForNeed), 2));
+			BigDecimal targetFractionForNeed = targetNeedTimeSplit.getFractionForNeed(need);
+			BigDecimal actualFractionForNeed = actualRelativeNeedTimeSplit.get(need);
+			if (actualFractionForNeed == null) {
+				actualFractionForNeed = BigDecimal.ZERO;
 			}
+			meanSquaredError = CalculationUtility.add(meanSquaredError, CalculationUtility.power(CalculationUtility.substract(actualFractionForNeed, targetFractionForNeed), 2));
 		}
 		return meanSquaredError;
+	}
+	
+	public static double map(MersenneTwisterFast random, double rangeStart, double rangeEnd) {
+		return rangeStart + (rangeEnd - rangeStart) * random.nextDouble();
 	}
 }
