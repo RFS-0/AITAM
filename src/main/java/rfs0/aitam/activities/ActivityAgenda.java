@@ -27,8 +27,14 @@ public class ActivityAgenda implements Cloneable {
 	public ActivityAgenda() {}
 	
 	private ActivityAgenda(TreeMap<Interval, Activity> agenda, TreeMap<Interval, Node> locations) {
-		m_agenda = agenda;
-		m_locations = locations;
+		m_agenda = new TreeMap<>(new IntervalComparator());
+		m_locations = new TreeMap<>(new IntervalComparator());
+		for (Interval interval: agenda.keySet()) {
+			m_agenda.put(interval, agenda.get(interval));
+		}
+		for (Interval interval: locations.keySet()) {
+			m_locations.put(interval, locations.get(interval));
+		}
 	}
 	
 	public static ActivityAgenda newInstance(ActivityAgenda activtyAgenda) {
@@ -50,7 +56,7 @@ public class ActivityAgenda implements Cloneable {
 	
 	public Activity getActivityForDateTime(DateTime time) {
 		for (Interval key: m_agenda.keySet()) {
-			if (key.contains(time)) {
+			if (key.contains(time) || key.getEnd().equals(time)) {
 				return m_agenda.get(key);
 			}
 		}
