@@ -483,6 +483,96 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	public static Activity initIdleAtHomeActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.IDLE)
+				.withActivityDescription(ISimulationSettings.IDLE_AT_HOME)
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.build())
+				.withExamples("Doing nothing at home")
+				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.HOME)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
+	public static Activity initIdleAtWorkActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.IDLE)
+				.withActivityDescription(ISimulationSettings.IDLE_AT_WORK)
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.build())
+				.withExamples("Doing nothing at work")
+				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.WORK)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
+	public static Activity initIdleAtLeisureActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.IDLE)
+				.withActivityDescription(ISimulationSettings.IDLE_AT_LEISURE)
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.build())
+				.withExamples("Doing nothing at leisure")
+				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.LEISURE)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
+	public static Activity initIdleAtThirdPlaceForHouseholdAndFamilyCareActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.IDLE)
+				.withActivityDescription(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.build())
+				.withExamples("Doing nothing at 3rd place for household and family care")
+				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
+	public static Activity initIdleAtThirdPlaceForWorkActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.IDLE)
+				.withActivityDescription(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_WORK)
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.build())
+				.withExamples("Doing nothing at 3rd place for work")
+				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
+	public static Activity initIdleAtThirdPlaceForLeisureActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.IDLE)
+				.withActivityDescription(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_LEISURE)
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.build())
+				.withExamples("Doing nothing at 3rd place for leisure")
+				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
 	public static Activity initTravelActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.TRAVEL)
