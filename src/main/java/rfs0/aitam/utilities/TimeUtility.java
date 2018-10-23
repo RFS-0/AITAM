@@ -55,9 +55,11 @@ public final class TimeUtility {
 	public static boolean isDayFullyPlanned(Environment environment, ActivityAgenda randomAgenda) {
 		DateTime currentTime = environment.getSimulationTime().getCurrentDateTime();
 		DateTime endOfCurrentDay = TimeUtility.getEndOfCurrentDay(currentTime);
-		if (randomAgenda.getFirstPlannedInterval() == null || !randomAgenda.getFirstPlannedInterval().getStart().equals(TimeUtility.getStartOfCurrentDay(currentTime))) {
+		// nothing planned yet 
+		if (randomAgenda.getFirstPlannedInterval() == null) {
 			return false;
 		}
+		// last activity does not end at end of day
 		if (!randomAgenda.getLastPlannedActivityInterval().getEnd().equals(TimeUtility.getEndOfCurrentDay(currentTime))) {
 			return false;
 		}
@@ -67,28 +69,35 @@ public final class TimeUtility {
 		if (!intervalIterator.hasNext()) {
 			return false;
 		}
+		// first planned interval
 		else {
 			preceding = intervalIterator.next();
 		}
+		// only one interval planned and it does not cover rest of day
 		if (preceding.getEnd().equals(endOfCurrentDay)) {
 			return true;
 		}
 		else if (!intervalIterator.hasNext()) {
 			return false;
 		}
+		// two or more intervals planned
 		else {
 			latter = intervalIterator.next();
 		}
 		do {
+			// gap between two consecutive intervals
 			if (!latter.abuts(preceding)) {
 				return false;
 			}
+			// last planned interval
 			if (!intervalIterator.hasNext()) {
-				if (!latter.getEnd().equals(endOfCurrentDay)) {
-					return false;
-				}
-				else {
+				// end is at end of day -> covers whole day
+				if (latter.getEnd().equals(endOfCurrentDay) || latter.getEnd().isAfter(endOfCurrentDay)) {
 					return true;
+				}
+				// end is before end of day -> does not cover whole day
+				else {
+					return false;
 				}
 			}
 			else {
@@ -106,39 +115,70 @@ public final class TimeUtility {
 		Interval preceding = null;
 		Interval latter = null;
 		Iterator<Interval> intervalIterator = agenda.getIntervals().iterator();
+		// nothing planned yet
 		if (!intervalIterator.hasNext()) {
 			return new Interval(currentTime, endOfCurrentDay);
 		}
 		else {
+			// first interval
 			preceding = intervalIterator.next();
-			if (!preceding.getStart().equals(currentTime)) {
+			// gap between now and first interval
+			if (preceding.getStart().isAfter(currentTime)) {
 				return new Interval(currentTime, preceding.getStart());
 			}
 		}
+		// only one interval planned
 		if (!intervalIterator.hasNext()) {
+			// gap between first interval and end of current day
 			return new Interval(preceding.getEnd(), endOfCurrentDay);
 		}
-
+		// two or more intervals planned
 		do {
 			latter = intervalIterator.next();
+			// gap between two consecutive intervals
 			if (!latter.abuts(preceding)) {
-				if (preceding.getEnd().isAfter(latter.getStart())) {
-					System.out.println(preceding);
-					System.out.println(latter);
-				}
 				return new Interval(preceding.getEnd(), latter.getStart());
 			}
+			// last planned interval
 			else if (!intervalIterator.hasNext()) {
+				// whole day planned -> no interval available
 				if (latter.getEnd().equals(endOfCurrentDay)) {
 					return null;
 				}
+				// gap between last interval planned and end of day
 				return new Interval(latter.getEnd(), endOfCurrentDay);
 			}
+			// no gap found yet and end of agenda not reached yet
 			else {
 				preceding = latter;
 			}
 		} 
 		while (intervalIterator.hasNext());
+		// can never happen
 		return null;
+	}
+	
+	public static Interval convertToBaseInterval(Interval realInterval) {
+		DateTime baseStart = realInterval.getStart()
+				.withYear(ISimulationSettings.BASE_YEAR)
+				.withMonthOfYear(ISimulationSettings.BASE_MONTH)
+				.withDayOfMonth(ISimulationSettings.BASE_DAY);
+		DateTime baseEnd = realInterval.getEnd()
+				.withYear(ISimulationSettings.BASE_YEAR)
+				.withMonthOfYear(ISimulationSettings.BASE_MONTH)
+				.withDayOfMonth(ISimulationSettings.BASE_DAY);
+		return new Interval(baseStart, baseEnd);
+	}
+	
+	public static Interval convertToRealInterval(DateTime currentDateTime, Interval baseInterval) {
+		DateTime realStart = baseInterval.getStart()
+				.withYear(currentDateTime.getYear())
+				.withMonthOfYear(currentDateTime.getMonthOfYear())
+				.withDayOfMonth(currentDateTime.getDayOfMonth());
+		DateTime realEnd = baseInterval.getEnd()
+				.withYear(currentDateTime.getYear())
+				.withMonthOfYear(currentDateTime.getMonthOfYear())
+				.withDayOfMonth(currentDateTime.getDayOfMonth());
+		return new Interval(realStart, realEnd);
 	}
 }
