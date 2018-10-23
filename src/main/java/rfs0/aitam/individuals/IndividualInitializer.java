@@ -1,5 +1,6 @@
 package rfs0.aitam.individuals;
 
+import java.awt.Font;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -12,7 +13,9 @@ import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.utilities.CalculationUtility;
 import sim.field.network.Network;
+import sim.portrayal.DrawInfo2D;
 import sim.portrayal.geo.GeomPortrayal;
+import sim.portrayal.simple.LabelledPortrayal2D;
 import sim.util.Bag;
 import sim.util.geo.MasonGeometry;
 
@@ -50,7 +53,24 @@ public final class IndividualInitializer {
 			ArrayList<Integer> householdMembersIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MIN_NUMBER_OF_HOUSEHOLD_MEMBERS , ISimulationSettings.MAX_NUMBER_OF_HOUSEHOLD_MEMBERS);
 			Network householdNetwork = createNetworkForMemberIndices(householdMembersIndices);
 			MasonGeometry homeBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
-			homeBuilding.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
+			homeBuilding.setUserData(
+					new LabelledPortrayal2D(
+							new GeomPortrayal(ISimulationSettings.COLOR_OF_BUILDING, ISimulationSettings.SIZE_OF_BUILDING, true), 
+						10,
+						5,
+						0.5,
+						0.5,
+						new Font("SansSerif",Font.BOLD, 15),
+						LabelledPortrayal2D.ALIGN_LEFT,
+						null, 
+						ISimulationSettings.COLOR_OF_BUILDING, 
+						false) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public String getLabel(Object object, DrawInfo2D info) {
+						return String.format("Home of: %s ", String.valueOf(householdMembersIndices));
+					}
+			});
 			MasonGeometry thirdPlaceForHouseholdAndFamilyCare = determineBuildingForCategoryWithinDistance(environment, availableBuildings, homeBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
 //			thirdPlaceForHouseholdAndFamilyCare.setUserData(new GeomPortrayal(ISimulationSettings.COLOR_FOR_DEBUG, ISimulationSettings.SIZE_OF_BUILDING_SELCTED));
 			for (Integer houseHoldMemberIndex: householdMembersIndices) {
