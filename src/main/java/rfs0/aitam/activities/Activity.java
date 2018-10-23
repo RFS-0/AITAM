@@ -181,6 +181,15 @@ public class Activity {
 		return m_availability;
 	}
 	
+	public boolean isAvailableAt(int weekDay) {
+		if (m_availability.get(weekDay) == null) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	
 	public boolean isAvailableAt(int weekDay, Interval interval) {
 		if (m_availability.get(weekDay) == null) {
 			return false;
