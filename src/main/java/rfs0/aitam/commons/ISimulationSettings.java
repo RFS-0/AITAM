@@ -44,6 +44,7 @@ public interface ISimulationSettings {
 			DateTimeConstants.SATURDAY, 
 			DateTimeConstants.SUNDAY)
 			.collect(Collectors.toCollection(ArrayList::new));
+	// TODO: write test to ensure that for each start time there is at least one activity that covers it (incl. duration) -> otherwise list of available activities might be empty during planning
 	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
@@ -60,22 +61,13 @@ public interface ISimulationSettings {
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
+	// TODO: write test to ensure that for each start time there is at least one activity that covers it (incl. duration) -> otherwise list of available activities might be empty during planning
 	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES = Stream.of(
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 30),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 30),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
+	// TODO: write test to ensure that for each start time there is at least one activity that covers it (incl. duration) -> otherwise list of available activities might be empty during planning
 	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
@@ -92,13 +84,7 @@ public interface ISimulationSettings {
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
-	public static final ArrayList<DateTime> AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_JOINT_ACTIVITIES = Stream.of(
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30))
-			.collect(Collectors.toCollection(ArrayList::new));
-	public static final ArrayList<DateTime> AVAILABLE_TIME_POINTS_FOR_PLANNING_OF_INDIVIDUAL_ACTIVITIES = Stream.of(
+	public static final ArrayList<DateTime> AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
@@ -110,22 +96,23 @@ public interface ISimulationSettings {
 			BigDecimal.valueOf(120))
 			.collect(Collectors.toCollection(ArrayList::new));
 	public static final int MIN_DURATION = 30;
-	public static final int MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY = 3;
-	public static final int NUMBER_OF_PLANS_TO_GENERATE = 10;
+	public static final int MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY = 5;
+	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
 	
 	/**
 	 * Constants used to configure UI of environment
 	 */
-	public static final double SIZE_OF_AGENT = 10.0;
-	public static final double SIZE_OF_AGENT_SELECTED = 10.0;
-	public static final double SIZE_OF_BUILDING = 3.0;
-	public static final double SIZE_OF_BUILDING_SELCTED = 10.0; 
+	public static final double SIZE_OF_AGENT = 3.0;
+	public static final double SIZE_OF_AGENT_SELECTED = 3.0;
+	public static final double SIZE_OF_BUILDING = 2.5;
+	public static final double SIZE_OF_BUILDING_SELCTED = 5.0; 
 	public static final double SIZE_OF_PATH = 1.0; // TODO: not actually used by portrayal
 	public static final Color COLOR_FOR_DEBUG = new Color(235, 59, 90); // desire (red)
 	public static final Color COLOR_OF_SELECTED_ENTITY = new Color(38, 222, 129); // reptile green
 	public static final Color COLOR_OF_AGENT = new Color(165, 94, 234); // lighter purple
 	public static final Color COLOR_OF_BACKGROUND = Color.white;
 	public static final Color COLOR_OF_BUILDING = new Color(69, 170, 242); // high blue
+	public static final Color COLOR_OF_TARGET_BUILDING = new Color(250, 130, 49); // beniukon bronze
 	public static final Color COLOR_OF_PATH = new Color(209, 216, 224); // twinkle blue
 	
 	/**
@@ -138,6 +125,7 @@ public interface ISimulationSettings {
 	public static final int BASE_MINUTE = 0;
 	public static final int LAST_HOUR_OF_DAY = 23;
 	public static final int LAST_MINUTE_OF_HOUR = 59;
+	public static final DateTime START_OF_DAY = new DateTime(BASE_YEAR, BASE_MONTH, BASE_DAY, BASE_HOUR, BASE_MINUTE);
 	public static final DateTime END_OF_DAY = new DateTime(BASE_YEAR, BASE_MONTH, BASE_DAY, LAST_HOUR_OF_DAY, LAST_MINUTE_OF_HOUR);
 	
 	/**
@@ -211,5 +199,11 @@ public interface ISimulationSettings {
 	public static final String HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = "Household/family care at home with household members";
 	public static final String HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_ALONE = "Household/family care at 3rd place alone";
 	public static final String HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = "Household/family care at 3rd place with household members";
+	public static final String IDLE_AT_HOME = "Idle at home";
+	public static final String IDLE_AT_WORK = "Idle at work";
+	public static final String IDLE_AT_LEISURE = "Idle at leisure";
+	public static final String IDLE_AT_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE = "Idle at 3rd place for household and family care";
+	public static final String IDLE_AT_THIRD_PLACE_FOR_WORK = "Idle at 3rd for work";
+	public static final String IDLE_AT_THIRD_PLACE_FOR_LEISURE = "Idle at 3rd for leisure";
 	public static final String TRAVEL = "Travel";
 }
