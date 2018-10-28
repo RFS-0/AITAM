@@ -3,8 +3,8 @@ package rfs0.aitam.model;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +26,6 @@ public class EnvironmentObserver implements Steppable {
 	
 	public EnvironmentObserver(Collection<String> header) {
 		m_header = header;
-		System.currentTimeMillis();
 		DateTimeFormat.forPattern("dd_MM_yyyy-HH_mm_ss").print(DateTime.now());
 		String fileName = DateTimeFormat.forPattern("dd_MM_yyyy--HH_mm_ss").print(DateTime.now()) + "_output.csv";
 		try {
@@ -43,19 +42,19 @@ public class EnvironmentObserver implements Steppable {
 	@Override
 	public void step(SimState state) {
 		Environment environment = (Environment) state;
-		ArrayList<Object> values = new ArrayList<>();
+		LinkedList<Object> values = new LinkedList<Object>();
 		fillValues(environment, values);
 		recordValues(values);
 		resetValues(environment);
 	}
 
-	private void fillValues(Environment environment, ArrayList<Object> values) {
+	private void fillValues(Environment environment, LinkedList<Object> values) {
 		for (String column: m_header) {
 			values.add(environment.getOutputHolder().get(column));
 		}
 	}
 	
-	private void recordValues(ArrayList<Object> values) {
+	private void recordValues(LinkedList<Object> values) {
 		try {
 			getCsvPrinter().printRecord(values);
 			getCsvPrinter().flush();
@@ -67,7 +66,12 @@ public class EnvironmentObserver implements Steppable {
 
 	private void resetValues(Environment environment) {
 		for (String colum: m_header) {
-			environment.getOutputHolder().put(colum, null);
+			Object value = environment.getOutputHolder().get(colum);
+			if (value instanceof Integer) {
+				environment.getOutputHolder().put(colum, Integer.valueOf(0));
+			} else {
+				environment.getOutputHolder().put(colum, null);
+			}
 		}
 	}
 
