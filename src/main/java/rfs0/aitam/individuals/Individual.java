@@ -3,6 +3,7 @@ package rfs0.aitam.individuals;
 import java.awt.Font;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,17 +70,17 @@ public class Individual {
 	 */
 	private ActivityAgenda m_activityAgenda = new ActivityAgenda();
 	private ActivityAgenda m_jointActivityAgenda = new ActivityAgenda();
-	private ArrayList<ActivityAgenda> m_allDayPlans = new ArrayList<>();
+	private HashMap<ActivityAgenda, ActivityAgenda> m_allDayPlans = new HashMap<>();
 
 	/**
 	 * Static locations
 	 */
 	private Node m_homeNode;
-	private Node m_thirdPlaceForHouseholdAndFamilyCareNode;
+	private ArrayList<Node> m_otherPlaceForHouseholdAndFamilyCareNodes;
 	private Node m_workPlaceNode;
-	private Node m_thirdPlaceForWorkNode;
+	private ArrayList<Node> m_otherPlaceForWorkNodes;
 	private Node m_leisureNode;
-	private Node m_thirdPlaceForLeisureNode;
+	private ArrayList<Node> m_otherPlaceForLeisureNodes;
 	
 	/**
 	 * Dynamic locations
@@ -144,12 +145,15 @@ public class Individual {
 			return this;
 		}
 		
-		public Builder withThirdPlaceForHouseholdAndFamilyCareBuilding(MasonGeometry thirdPlaceForHouseholdAndFamilyCareBuilding) {
+		public Builder withOtherPlaceForHouseholdAndFamilyCareBuildings(ArrayList<MasonGeometry> otherPlaceForHouseholdAndFamilyCareBuildings) {
 			String warningMessage = "Third place for household and family care is invalid. The built individual may be unusable!";
-			validate(thirdPlaceForHouseholdAndFamilyCareBuilding.getGeometry().getCoordinate(), warningMessage);
-			Node thirdPlaceForHouseholdAndFamilyCareNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(thirdPlaceForHouseholdAndFamilyCareBuilding);
-			validate(thirdPlaceForHouseholdAndFamilyCareNode, warningMessage);
-			individualToBuild.setThirdPlaceForHouseholdAndFamilyCareNode(thirdPlaceForHouseholdAndFamilyCareNode);
+			ArrayList<Node> otherPlaceForHouseholdAndFamilyCareNodes = new ArrayList<>();
+			for (MasonGeometry otherPlaceForHouseholdAndFamilyCareBuilding: otherPlaceForHouseholdAndFamilyCareBuildings) {
+				validate(otherPlaceForHouseholdAndFamilyCareBuilding.getGeometry().getCoordinate(), warningMessage);
+				Node thirdPlaceForHouseholdAndFamilyCareNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(otherPlaceForHouseholdAndFamilyCareBuilding);
+				otherPlaceForHouseholdAndFamilyCareNodes.add(thirdPlaceForHouseholdAndFamilyCareNode);
+			}
+			individualToBuild.m_otherPlaceForHouseholdAndFamilyCareNodes = otherPlaceForHouseholdAndFamilyCareNodes;
 			return this;
 		}
 		
@@ -162,12 +166,15 @@ public class Individual {
 			return this;
 		}
 		
-		public Builder withThirdPlaceForWorkBuilding(MasonGeometry thirdPlaceForWorkBuilding) {
+		public Builder withOtherPlaceForWorkBuildings(ArrayList<MasonGeometry> otherPlaceForWorkBuildings) {
 			String warningMessage = "The third place for work is invalid. The built individual may be unusable!";
-			validate(thirdPlaceForWorkBuilding.getGeometry().getCoordinate(), warningMessage);
-			Node thirdPlaceForWorkNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(thirdPlaceForWorkBuilding);
-			validate(thirdPlaceForWorkNode, warningMessage);
-			individualToBuild.setThirdPlaceForWorkNode(thirdPlaceForWorkNode);
+			ArrayList<Node> otherPlaceForWorkNodes = new ArrayList<>();
+			for (MasonGeometry otherPlaceForWorkBuilding: otherPlaceForWorkBuildings) {
+				validate(otherPlaceForWorkBuilding.getGeometry().getCoordinate(), warningMessage);
+				Node otherPlaceForWorkNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(otherPlaceForWorkBuilding);
+				otherPlaceForWorkNodes.add(otherPlaceForWorkNode);
+			}
+			individualToBuild.m_otherPlaceForWorkNodes = otherPlaceForWorkNodes;
 			return this;
 		}
 		
@@ -180,12 +187,15 @@ public class Individual {
 			return this;
 		}
 		
-		public Builder withThirdPlaceForLeisureBuilding(MasonGeometry thirdPlaceForLeisureBuilding) {
+		public Builder withOtherPlaceForLeisureBuildings(ArrayList<MasonGeometry> otherPlaceForLeisureBuildings) {
 			String warningMessage = "The third place for leisure is invalid. The built individual may be unusable!";
-			validate(thirdPlaceForLeisureBuilding.getGeometry().getCoordinate(), warningMessage);
-			Node thirdPlaceForLeisureNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(thirdPlaceForLeisureBuilding);
-			validate(thirdPlaceForLeisureNode, warningMessage);
-			individualToBuild.setThirdPlaceForLeisureNode(thirdPlaceForLeisureNode);
+			ArrayList<Node> otherPlaceForLeisureNodes = new ArrayList<>();
+			for (MasonGeometry otherPlaceForLeisureBuilding: otherPlaceForLeisureBuildings) {
+				validate(otherPlaceForLeisureBuilding.getGeometry().getCoordinate(), warningMessage);
+				Node thirdPlaceForLeisureNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(otherPlaceForLeisureBuilding);
+				otherPlaceForLeisureNodes.add(thirdPlaceForLeisureNode);
+			}
+			individualToBuild.m_otherPlaceForLeisureNodes = otherPlaceForLeisureNodes;
 			return this;
 		}
 		
@@ -369,7 +379,7 @@ public class Individual {
 		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
 		Interval realIntervalOfJointActivity = TimeUtility.convertToRealInterval(currentDateTime, baseIntervalOfJointActivity);
 		Activity jointActivity = availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
-		Node jointActivityNode = getActivityNode(jointActivity);
+		Node jointActivityNode = determineActivityNode(jointActivity);
 		for (Individual individual: networkMemberParticipating) {
 			individual.getJointActivityAgenda().addActivityForInterval(realIntervalOfJointActivity, jointActivity);
 			individual.getJointActivityAgenda().addNodeForInterval(realIntervalOfJointActivity, jointActivityNode);
@@ -452,18 +462,19 @@ public class Individual {
 		}
 	}
 	
-	private Node getActivityNode(Activity activity) {
+	private Node determineActivityNode(Activity activity) {
+		// TODO: decide wheter random choice is ok or not -> alternatively we can retrieve the closest node to current location
 		switch (activity.getActivityLocation()) {
 		case HOME:
 			return m_homeNode;
 		case THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE:
-			return m_thirdPlaceForHouseholdAndFamilyCareNode;
+			return m_otherPlaceForHouseholdAndFamilyCareNodes.get(m_environment.random.nextInt(m_otherPlaceForHouseholdAndFamilyCareNodes.size()));
 		case LEISURE:
 			return m_leisureNode;
 		case THIRD_PLACE_FOR_LEISURE:
-			return m_thirdPlaceForLeisureNode;
+			return m_otherPlaceForLeisureNodes.get(m_environment.random.nextInt(m_otherPlaceForLeisureNodes.size()));
 		case THIRD_PLACE_FOR_WORK:
-			return m_thirdPlaceForWorkNode;
+			return m_otherPlaceForWorkNodes.get(m_environment.random.nextInt(m_otherPlaceForWorkNodes.size()));
 		case WORK:
 			return m_workPlaceNode;
 		default:
@@ -478,28 +489,30 @@ public class Individual {
 		getAllDayPlans().clear();
 		DateTime endOfCurrentDay = TimeUtility.getEndOfCurrentDay(m_environment.getSimulationTime().getCurrentDateTime());
 		for (int i = 0; i < ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE; i++) {
-			ActivityAgenda randomPlan = ActivityAgenda.newInstance(m_activityAgenda);
-			while (!TimeUtility.isDayFullyPlanned(m_environment, randomPlan)) {
-				Interval availableInterval = TimeUtility.getFirstAvailableInterval(m_environment, randomPlan);
+			ActivityAgenda randomAgenda = ActivityAgenda.newInstance(m_activityAgenda);
+			while (!TimeUtility.isDayFullyPlanned(m_environment, randomAgenda)) {
+				Interval availableInterval = TimeUtility.getFirstAvailableInterval(m_environment, randomAgenda);
 				int maxDurationInMinutes = (int) availableInterval.toDuration().getStandardMinutes();
 				BigDecimal duration = determineDuration(maxDurationInMinutes);
 				Interval realActivityInterval = determineActivityInterval(availableInterval, duration.intValue(), endOfCurrentDay);
 				Interval baseActivityInterval = TimeUtility.convertToBaseInterval(realActivityInterval);
-				Activity activity = determineActivity(randomPlan, realActivityInterval, baseActivityInterval);
-				Node activityNode = getActivityNode(activity);
-				randomPlan.addActivityForInterval(realActivityInterval, activity);
-				randomPlan.addNodeForInterval(realActivityInterval, activityNode);
+				Activity activity = determineActivity(randomAgenda, realActivityInterval, baseActivityInterval);
+				Node activityNode = determineActivityNode(activity);
+				randomAgenda.addActivityForInterval(realActivityInterval, activity);
+				randomAgenda.addNodeForInterval(realActivityInterval, activityNode);
 				for (Need needSatisfiedByRandomActivity: activity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
 					BigDecimal fractionForNeed = activity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity);
 					BigDecimal timeSpentSatisfyingNeed = fractionForNeed.multiply(duration);
-					randomPlan.getActualNeedTimeSplit().updateNeedTimeSplit(needSatisfiedByRandomActivity, timeSpentSatisfyingNeed);
+					randomAgenda.getActualNeedTimeSplit().updateNeedTimeSplit(needSatisfiedByRandomActivity, timeSpentSatisfyingNeed);
 				}
 			}
-			m_allDayPlans.add(randomPlan);
+			ActivityAgenda randomAgendaWithTravelTime = createAgendaWithTravelTime(randomAgenda);
+			m_allDayPlans.put(randomAgendaWithTravelTime, randomAgenda);
 		}
 	}
 	
 	private BigDecimal determineDuration(int maxDurationInMinutes) {
+		m_environment.random.nextGaussian();
 		List<BigDecimal> availableDurations = ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.stream()
 				.filter(minutes -> minutes.compareTo(CalculationUtility.createBigDecimal(maxDurationInMinutes)) < 0)
 				.collect(Collectors.toList());
@@ -542,6 +555,35 @@ public class Individual {
 		}
 		return availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
 	}
+	
+	private ActivityAgenda createAgendaWithTravelTime(ActivityAgenda agenda) {
+		ActivityAgenda activityAgendaWithTravelTimes = ActivityAgenda.newInstance(agenda);
+		Activity travelActivity = m_environment.getAllActivities().get(ISimulationSettings.TRAVEL);
+		for (Interval interval: agenda.getIntervals()) {
+			Activity currentActivity = agenda.getActivityForInterval(interval);
+			Node activityNode = agenda.getNodeForInterval(interval);
+			Node nextActivityNode = agenda.getNodeForDateTime(interval.getEnd().plusMinutes(1));
+			// there is a next activity (last entry has no next node) and it is conducted at a different location
+			if (nextActivityNode != null && !activityNode.getCoordinate().equals(nextActivityNode.getCoordinate())) {
+				ArrayList<GeomPlanarGraphDirectedEdge> pathToNextActivity = GraphUtility.astarPath(activityNode, nextActivityNode);
+				double lengthOfPathToNextActivity = 0;
+				for (int i = 0; i<pathToNextActivity.size(); i++) {
+					GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) pathToNextActivity.get(i).getEdge();
+					lengthOfPathToNextActivity += edge.getLine().getLength();
+				}
+				int travelDurationInMinutes = Math.toIntExact(Math.round(lengthOfPathToNextActivity / ISimulationSettings.MAX_VELOCITY));
+				DateTime startOfTravel = interval.getStart();
+				DateTime endOfTravel = startOfTravel.plusMinutes(travelDurationInMinutes);
+				DateTime endOfActivity = interval.getEnd();
+				Interval travelInterval = new Interval(startOfTravel, endOfTravel);
+				Interval effectiveActivityInterval = new Interval(endOfTravel, endOfActivity);
+				activityAgendaWithTravelTimes.getAgenda().remove(interval);
+				activityAgendaWithTravelTimes.getAgenda().put(travelInterval, travelActivity);
+				activityAgendaWithTravelTimes.getAgenda().put(effectiveActivityInterval, currentActivity);
+			}
+		}
+		return activityAgendaWithTravelTimes;
+	}
 
 	
 	/**
@@ -550,14 +592,14 @@ public class Individual {
 	public void chooseBestAgenda() {
 		ActivityAgenda bestAgenda = null;
 		BigDecimal minimumSquaredMeanError = new BigDecimal(Integer.MAX_VALUE);
-		for (int i = 0; i < m_allDayPlans.size(); i++) {
-			BigDecimal meanSquaredError = CalculationUtility.calculateMeanSquaredError(getAllDayPlans().get(i), getTargetNeedTimeSplit());
+		for (ActivityAgenda randomAgendaWithTravelTime: m_allDayPlans.keySet()) {
+			BigDecimal meanSquaredError = CalculationUtility.calculateMeanSquaredError(randomAgendaWithTravelTime, getTargetNeedTimeSplit());
 			if (meanSquaredError.compareTo(minimumSquaredMeanError) < 0) {
 				minimumSquaredMeanError = meanSquaredError;
-				bestAgenda = m_allDayPlans.get(i);
+				bestAgenda = randomAgendaWithTravelTime;
 			}
 		}
-		m_activityAgenda = bestAgenda;
+		m_activityAgenda = m_allDayPlans.get(bestAgenda); // this gives the agenda without travel times
 		m_allDayPlans.clear();
 	}
 	
@@ -590,7 +632,7 @@ public class Individual {
 
 	public void executeActivity() {
 		Activity currentActivity = m_activityAgenda.getActivityForDateTime(m_environment.getSimulationTime().getCurrentDateTime());
-		Node targetNode = getActivityNode(currentActivity);
+		Node targetNode = determineActivityNode(currentActivity);
 			Environment.NODE_TO_CLOSEST_BUILDING_MAP.get(targetNode).getGeometry().setUserData(
 					new LabelledPortrayal2D(
 							new GeomPortrayal(ISimulationSettings.COLOR_OF_TARGET_BUILDING, ISimulationSettings.SIZE_OF_BUILDING_SELCTED, true), 
@@ -608,13 +650,13 @@ public class Individual {
 						public String getLabel(Object object, DrawInfo2D info) {
 							return String.format("Target of %s for activity %s", String.valueOf(m_id), currentActivity.getActivityDescription());
 						}
-						
 					});
 		if (!m_currentNode.getCoordinate().equals(targetNode.getCoordinate())) {
 			if (m_pathToNextTarget.isEmpty()) {
 				initPathToTarget(m_currentNode, targetNode);
 			}
 			if (!hasReachedTarget()) {
+				// TODO: decide on mode of transport
 				moveTowardsTarget();
 			}
 		}
@@ -630,8 +672,14 @@ public class Individual {
 				// TODO: how to handle case where individual is the only one currently at target location
 				updateActualNeedTimeSplit(currentActivity);
 			}
+			m_environment.incrementIntegerValueOfOutputHolder(currentActivity.getActivityCategory().toString());
+			m_environment.incrementIntegerValueOfOutputHolder(currentActivity.getActivityDescription());
 		}
-		m_environment.incrementIntegerValueOfOutputHolder(currentActivity.getActivityDescription());
+		else { // traveling towards target
+			m_environment.incrementIntegerValueOfOutputHolder(ActivityCategory.TRAVEL.toString());
+			// this has to be adjusted once more modes of transport are implemented
+			m_environment.incrementIntegerValueOfOutputHolder(m_environment.getCategoryToActivities().get(ActivityCategory.TRAVEL).get(0).getActivityDescription());
+		}
 		m_environment.incrementIntegerValueOfOutputHolder(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS);
 	}
 	
@@ -961,11 +1009,11 @@ public class Individual {
 		m_jointActivityAgenda = jointActivityAgenda;
 	}
 
-	public ArrayList<ActivityAgenda> getAllDayPlans() {
+	public HashMap<ActivityAgenda, ActivityAgenda> getAllDayPlans() {
 		return m_allDayPlans;
 	}
 
-	public void setAllDayPlans(ArrayList<ActivityAgenda> allDayPlans) {
+	public void setAllDayPlans(HashMap<ActivityAgenda, ActivityAgenda> allDayPlans) {
 		m_allDayPlans = allDayPlans;
 	}
 
@@ -977,12 +1025,12 @@ public class Individual {
 		m_homeNode = homeNode;
 	}
 
-	public Node getThirdPlaceForHouseholdAndFamilyCareNode() {
-		return m_thirdPlaceForHouseholdAndFamilyCareNode;
+	public ArrayList<Node> getOtherPlaceForHouseholdAndFamilyCareNodes() {
+		return m_otherPlaceForHouseholdAndFamilyCareNodes;
 	}
 
-	public void setThirdPlaceForHouseholdAndFamilyCareNode(Node thirdPlaceForHouseholdAndFamilyCareNode) {
-		m_thirdPlaceForHouseholdAndFamilyCareNode = thirdPlaceForHouseholdAndFamilyCareNode;
+	public void setOtherPlaceForHouseholdAndFamilyCareNodes(ArrayList<Node> otherPlaceForHouseholdAndFamilyCareNodes) {
+		m_otherPlaceForHouseholdAndFamilyCareNodes = otherPlaceForHouseholdAndFamilyCareNodes;
 	}
 
 	public Node getWorkPlaceNode() {
@@ -993,12 +1041,12 @@ public class Individual {
 		m_workPlaceNode = workPlaceNode;
 	}
 
-	public Node getThirdPlaceForWorkNode() {
-		return m_thirdPlaceForWorkNode;
+	public ArrayList<Node> getOtherPlaceForWorkNodes() {
+		return m_otherPlaceForWorkNodes;
 	}
 
-	public void setThirdPlaceForWorkNode(Node thirdPlaceForWorkNode) {
-		m_thirdPlaceForWorkNode = thirdPlaceForWorkNode;
+	public void setOtherPlaceForWorkNodes(ArrayList<Node> otherPlaceForWorkNodes) {
+		m_otherPlaceForWorkNodes = otherPlaceForWorkNodes;
 	}
 
 	public Node getLeisureNode() {
@@ -1009,12 +1057,12 @@ public class Individual {
 		m_leisureNode = leisureNode;
 	}
 
-	public Node getThirdPlaceForLeisureNode() {
-		return m_thirdPlaceForLeisureNode;
+	public ArrayList<Node> getOtherPlaceForLeisureNodes() {
+		return m_otherPlaceForLeisureNodes;
 	}
 
-	public void setThirdPlaceForLeisureNode(Node thirdPlaceForLeisureNode) {
-		m_thirdPlaceForLeisureNode = thirdPlaceForLeisureNode;
+	public void setOtherPlaceForLeisureNodes(ArrayList<Node> otherPlaceForLeisureNodes) {
+		m_otherPlaceForLeisureNodes = otherPlaceForLeisureNodes;
 	}
 
 	public MasonGeometry getCurrentLocationPoint() {
