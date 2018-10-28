@@ -10,19 +10,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.apache.commons.csv.CSVPrinter;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.planargraph.Node;
 
 import rfs0.aitam.activities.Activity;
+import rfs0.aitam.activities.ActivityAgenda;
 import rfs0.aitam.activities.ActivityCategory;
 import rfs0.aitam.activities.ActivityInitializer;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.individuals.IndividualInitializer;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -75,10 +79,27 @@ public class Environment extends SimState {
 		initOutput();
 	}
 
+	/**
+	 * This method schedules all {@link Steppable}'s of the simulation. This works as follows:
+	 * <ol>
+	 * 	<li>Schedule all the steps of the {@link Individual} as anonymous {@link Steppable}'s. <b>Note:</b> This is necessary since each of them must be executed for all {@link Individual}'s in the given order</li>
+	 * 	<ol>
+	 * 		<li>Plan joint {@link Activity}'s, if planning is possible. Write them into {@link Individual}'s joint {@link ActivityAgenda}</li>
+	 * 		<li>Carry over joint activities to {@link Individual}'s individual {@link ActivityAgenda}, if planning is possible</li>
+	 * 		<li>Plan individual activities, if planning is possible.</li>
+	 * 		<li>Choose the best of the generated {@link ActivityAgenda}'s</li>
+	 * 		<li>At each point in time: execute the actvitiy scheduled for the interval overlapping the current point in time. <b>Note:</b> This includes traveling to the {@link Activity}'s location, updating the {@link NeedTimeSplit} etc.
+	 * 		<li>Finally, if the beginning of a new day is reached, reset (only) variables which are used to generate a new {@link ActivityAgenda}</li>
+	 * 	</ol>
+	 * 	<li>Schedule the {@link GeomVectorField} containing all {@link Point}'s wrapped in a {@link MasonGeometry}. These represent the {@link Individual}'s as dots.</li>
+	 * 	<li>Schedule the {@link DefaultCategoryDataset} to be updated with the information of the aggregated number of {@link Individual}'s per {@link ActivityCategory}.</li>
+	 * 	<li>Schedule the {@link EnvironmentObserver} to write all data in {@link Environment#m_outputHolder} to disk.
+	 * 	<li>Schedule the {@link SimulationTime} to be incremented. <b>Note:</b>Each step takes exactly one minute. The start point of simulation is 01.01.2018 00:00.
+	 *<ol>
+	 */
 	@Override
 	public void start() {
 		super.start();
-		// schedule the individual via anonymus classes
 		for (Individual individual: getIndividuals()) {
 			schedule.scheduleRepeating(0.0, 0, new Steppable() {			
 				private static final long serialVersionUID = 1L;
@@ -139,7 +160,6 @@ public class Environment extends SimState {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
-					String title = "Activities";
 					Integer totalNumberOfAgents = (Integer) m_outputHolder.get(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS);
 					for (ActivityCategory category: m_activityCategoryToActivityMap.keySet()) {
 						ArrayList<Activity> activitiesOfCategory = m_activityCategoryToActivityMap.get(category);
@@ -150,12 +170,13 @@ public class Environment extends SimState {
 							}
 						}
 						double fractionOfCategory = (double) totalNumberOfAgentsPerCategory / totalNumberOfAgents * 100;
-						m_activityCategoryDataset.addValue(fractionOfCategory, title, category.toString());
+						m_activityCategoryDataset.addValue(fractionOfCategory, ISimulationSettings.TITLE_OF_BARCHART, category.toString());
 					}
 				}
 		});
 		schedule.scheduleRepeating(0.0, 12, m_environmentObserver);
 		schedule.scheduleRepeating(0.0, 13, m_simulationTime);
+		// TODO: this is only for dev purposes. Remove this once simulation is complete
 		schedule.scheduleRepeating(0.0, 14, new Steppable() {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -168,9 +189,12 @@ public class Environment extends SimState {
 					environment.getCurrentLocationPoints().add(individual.getCurrentLocationPoint());
 				}
 			}
-	});
+		});
 	}
 	
+	/**
+	 * Additionally close the {@link CSVPrinter}.
+	 */
 	@Override
 	public void finish() {
 		super.finish();
@@ -182,11 +206,19 @@ public class Environment extends SimState {
 		}
 	}
 	
+	/**
+	 * Loop which executes the simulation.
+	 * 
+	 * @param args - See {@link SimState#doLoop(sim.engine.MakesSimState, String[])} for details on args.
+	 */
 	public static void main(String[] args) {
 		doLoop(Environment.class, args);
 		System.exit(0);
 	}
 	
+	/**
+	 * Initializes the environment by reading the shape files for the buildings and the paths layer.
+	 */
 	private void initEnvironment() {
 		System.out.println("Initializing the environment...");
 		long start = System.nanoTime();
@@ -360,15 +392,21 @@ public class Environment extends SimState {
 	
 	private void initOutput() {
 		m_outputHolder.put(ISimulationSettings.TIME_STAMP, m_simulationTime.getCurrentDateTime());
-		m_outputHolder.put(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS, ISimulationSettings.NUMBER_OF_INDIVIDUALS);
+		m_outputHolder.put(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS, 0);
 		for (ActivityCategory category: ActivityCategory.values()) {
-			ArrayList<Activity> activitiesOfCategory = m_activityDescriptionToActivityMap.values().stream().filter(activity -> activity.getActivityCategory() == category).collect(Collectors.toCollection(ArrayList::new));
+			m_outputHolder.put(category.toString(), 0);
+			ArrayList<Activity> activitiesOfCategory = m_activityDescriptionToActivityMap.values().stream()
+					.filter(activity -> activity.getActivityCategory() == category)
+					.collect(Collectors.toCollection(ArrayList::new));
+			for (Activity activity: activitiesOfCategory) {
+				m_outputHolder.put(activity.getActivityDescription(), 0);
+			}
 			if (m_activityCategoryToActivityMap.get(category) == null) {
 				m_activityCategoryToActivityMap.put(category, new ArrayList<>());
 			}
 			m_activityCategoryToActivityMap.get(category).addAll(activitiesOfCategory);
 		}
-		m_environmentObserver = new EnvironmentObserver(getOutputHolder().keySet());
+		m_environmentObserver = new EnvironmentObserver(m_outputHolder.keySet());
 	}
 	
 	private Node getClosestNodeToBuilding(MasonGeometry building, Bag candidatePaths) {
