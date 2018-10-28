@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
@@ -22,7 +23,7 @@ public interface ISimulationSettings {
 	public static final String SIMULATION_OUTPUT_FOLDER = "\\data\\output\\";
 	public static final String CHAR_SET = "UTF-8";
 	public static final double MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT = 0.04; // assuming reaction time of 1.8 s and average velocity of 50 km/h
-	public static final double MAX_VELOCITY = 13.9; // max velocity in m/s (equivalent to 50 km/h)
+	public static final double MAX_VELOCITY = 500; // max velocity in m/min (equivalent to 30 km/h)
 	public static final double MAX_SLOW_DOWN_FACTOR = 0.2;
 	public static final ArrayList<Integer> WEEK = Stream.of(
 			DateTimeConstants.MONDAY, 
@@ -98,6 +99,10 @@ public interface ISimulationSettings {
 	public static final int MIN_DURATION = 30;
 	public static final int MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY = 5;
 	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
+	public static final int NUMBER_OF_OTHER_PLACES_FOR_LEISURE = 5;
+	public static final int NUMBER_OF_OTHER_PLACES_FOR_WORK = 5;
+	public static final int NUMBER_OF_OTHER_PLACES_FOR_PERSONAL_CARE = 5;
+	public static final int NUMBER_OF_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE = 5;
 	
 	/**
 	 * Constants used to configure UI of environment
@@ -206,4 +211,22 @@ public interface ISimulationSettings {
 	public static final String IDLE_AT_THIRD_PLACE_FOR_WORK = "Idle at 3rd for work";
 	public static final String IDLE_AT_THIRD_PLACE_FOR_LEISURE = "Idle at 3rd for leisure";
 	public static final String TRAVEL = "Travel";
+	public static final String TITLE_OF_BARCHART = "Activities";
+	
+	/**
+	 * Activities
+	 */
+	// TODO: use empirical values
+	public static final double MEAN_OF_LEISURE_ACTIVITY_DURATION = 120;
+	public static final double STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION = 60;
+	public static final NormalDistribution DISTRIBUTION_OF_LEISURE_DURATION = new NormalDistribution(MEAN_OF_LEISURE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION);
+	public static final double MEAN_OF_WORK_ACTIVITY_DURATION = 180;
+	public static final double STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION = 30;
+	public static final NormalDistribution DISTRIBUTION_OF_WORK_DURATION = new NormalDistribution(MEAN_OF_WORK_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION);
+	public static final double MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION = 90;
+	public static final double STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION = 30;
+	public static final NormalDistribution DISTRIBUTION_OF_PERSONAL_CARE_DURATION = new NormalDistribution(MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION);
+	public static final double MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 90;
+	public static final double STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 45;
+	public static final NormalDistribution DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION = new NormalDistribution(MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION);
 }
