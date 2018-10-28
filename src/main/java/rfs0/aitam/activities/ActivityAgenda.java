@@ -79,6 +79,15 @@ public class ActivityAgenda implements Cloneable {
 		return null;
 	}
 	
+	public Node getNodeForDateTime(DateTime time) {
+		for (Interval key: m_locations.keySet()) {
+			if (key.contains(time) || key.getEnd().equals(time)) {
+				return m_locations.get(key);
+			}
+		}
+		return null;
+	}
+	
 	public Set<Interval> getIntervals() {
 		if (!m_agenda.keySet().equals(m_locations.keySet())) {
 			Logger.getLogger(ActivityAgenda.class.getName()).log(Level.SEVERE, "Intervals for activities and locations are not identical. This agenda is invalid!");
