@@ -30,26 +30,14 @@ public class IndividualInitializerTest {
 				.filter(individual -> !(individual.getHomeNode() instanceof Node))
 				.collect(Collectors.toList());
 		assertEquals(0, invalidHomeBuildings.size());
-		List<Individual> invalidThirdPlaceForHouseholdAndFamilyCareBuilding = allIndividuals.stream()
-				.filter(individual -> !(individual.getThirdPlaceForHouseholdAndFamilyCareNode() instanceof Node))
-				.collect(Collectors.toList());
-		assertEquals(0, invalidThirdPlaceForHouseholdAndFamilyCareBuilding.size());
 		List<Individual> invalidWorkPlaces = allIndividuals.stream()
 				.filter(individual -> !(individual.getWorkPlaceNode() instanceof Node))
 				.collect(Collectors.toList());
 		assertEquals(0, invalidWorkPlaces.size());
-		List<Individual> invalidThirdPlacesForWork = allIndividuals.stream()
-				.filter(individual -> !(individual.getThirdPlaceForWorkNode() instanceof Node))
-				.collect(Collectors.toList());
-		assertEquals(0, invalidThirdPlacesForWork.size());
 		List<Individual> invalidPlacesForLeisure = allIndividuals.stream()
 				.filter(individual -> !(individual.getLeisureNode() instanceof Node))
 				.collect(Collectors.toList());
 		assertEquals(0, invalidPlacesForLeisure.size());
-		List<Individual> invalidThirdPlaceForLeisureBuilding = allIndividuals.stream()
-				.filter(individual -> !(individual.getThirdPlaceForLeisureNode() instanceof Node))
-				.collect(Collectors.toList());
-		assertEquals(0, invalidThirdPlaceForLeisureBuilding.size());
 	}
 	
 	private void assertPointsValid(ArrayList<Individual> allIndividuals) {
@@ -57,26 +45,14 @@ public class IndividualInitializerTest {
 				.filter(individual -> !(individual.getCurrentNode() instanceof Node))
 				.collect(Collectors.toList());
 		assertEquals(0, currentLocationPoints.size());
-		List<Individual> invalidThirdPlacesForHouseholdAndFamilyCarePoints = allIndividuals.stream()
-				.filter(individual -> !(individual.getThirdPlaceForHouseholdAndFamilyCareNode() instanceof Node))
-				.collect(Collectors.toList());
-		assertEquals(0, invalidThirdPlacesForHouseholdAndFamilyCarePoints.size());
 		List<Individual> invalidWorkPlacePoints = allIndividuals.stream()
 				.filter(individual -> !(individual.getWorkPlaceNode() instanceof Node))
 				.collect(Collectors.toList());
 		assertEquals(0, invalidWorkPlacePoints.size());
-		List<Individual> invalidThidPlacesForWorkPoints = allIndividuals.stream()
-				.filter(individual -> !(individual.getThirdPlaceForWorkNode() instanceof Node))
-				.collect(Collectors.toList());
-		assertEquals(0, invalidThidPlacesForWorkPoints.size());
 		List<Individual> invalidPlacesForLeisurePoints = allIndividuals.stream()
 				.filter(individual -> !(individual.getLeisureNode() instanceof Node))
 				.collect(Collectors.toList());
 		assertEquals(0, invalidPlacesForLeisurePoints.size());
-		List<Individual> invalidThirdPlacesForLeisurePoints = allIndividuals.stream()
-				.filter(individual -> !(individual.getThirdPlaceForLeisureNode() instanceof Node))
-				.collect(Collectors.toList());
-		assertEquals(0, invalidThirdPlacesForLeisurePoints.size());
 	}
 	
 	private void assertNetworksValid(ArrayList<Individual> allIndividuals) {
