@@ -43,8 +43,13 @@ public final class TimeUtility {
 	
 	public static boolean isIntervalOverlappingAnyAgenda(ArrayList<Individual> networkMembersParticipating, Interval intervalOfInterest) {
 		for (Individual individual: networkMembersParticipating) {
-			for (Interval plannedInterval: individual.getJointActivityAgenda().getIntervals()) {
-				if (plannedInterval.overlaps(intervalOfInterest)) {
+			for (Interval plannedJointActivityInterval: individual.getJointActivityAgenda().getIntervals()) {
+				if (plannedJointActivityInterval.overlaps(intervalOfInterest)) {
+					return true;
+				}
+			}
+			for (Interval plannedIndividualActivityInterval: individual.getActivityAgenda().getIntervals()) {
+				if (plannedIndividualActivityInterval.overlaps(intervalOfInterest)) {
 					return true;
 				}
 			}
