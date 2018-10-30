@@ -9,13 +9,9 @@ import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.joda.time.Interval;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import rfs0.aitam.activities.Activity;
-import rfs0.aitam.activities.ActivityCategory;
-import rfs0.aitam.activities.ActivityLocation;
 import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
@@ -100,19 +96,13 @@ public class ActivityTest {
 	@Test
 	public void testAvailabilityIntervalAtDays() {
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
-		DateTime notAvailableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0);
-		DateTime availableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 59);
-		DateTime notAvailableEndTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 0);
+		DateTime latestAvailableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 59);
+		DateTime notAvailableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 0);
 		
-		Interval available = new Interval(availableStartTime, availableEndTime);
-		Interval notAvailable = new Interval(notAvailableStartTime, notAvailableEndTime);
-		Interval notAvailableStart = new Interval(notAvailableStartTime, availableEndTime);
-		Interval notAvailableEnd = new Interval(availableStartTime, notAvailableEndTime);
-		assertEquals(true, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, available));
-		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.SATURDAY, available));
-		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, notAvailable));
-		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, notAvailableStart));
-		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, notAvailableEnd));
+		assertEquals(true, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, availableStartTime));
+		assertEquals(true, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, latestAvailableStartTime));
+		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.SATURDAY, availableStartTime));
+		assertEquals(false, s_testActivity.isAvailableAt(DateTimeConstants.MONDAY, notAvailableStartTime));
 	}
 	
 	@Test
