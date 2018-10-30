@@ -2,6 +2,7 @@ package rfs0.aitam.individuals;
 
 import java.awt.Font;
 import java.math.BigDecimal;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,7 @@ public class Individual {
 	private int m_id;
 	
 	/**
-	 * Networks
+	 * @category Networks
 	 */
 	private Network m_householdMembersNetwork = new Network(false);
 	private int m_householdMembersNetworkId = -1;
@@ -60,20 +61,21 @@ public class Individual {
 	private int m_numberOfFriendsNetworkActivitiesPlanned = 0;
 
 	/**
-	 * Needs
+	 * @category Needs
 	 */
 	private NeedTimeSplit m_targetNeedTimeSplit;
 	private ActualNeedTimeSplit m_actualNeedTimeSplit = new ActualNeedTimeSplit();
 	
 	/**
-	 * Agendas
+	 * @category Agendas
 	 */
 	private ActivityAgenda m_activityAgenda = new ActivityAgenda();
 	private ActivityAgenda m_jointActivityAgenda = new ActivityAgenda();
 	private HashMap<ActivityAgenda, ActivityAgenda> m_allDayPlans = new HashMap<>();
+	private Activity m_currentActivity = null;
 
 	/**
-	 * Static locations
+	 * @category Static locations
 	 */
 	private Node m_homeNode;
 	private ArrayList<Node> m_otherPlaceForHouseholdAndFamilyCareNodes;
@@ -83,7 +85,7 @@ public class Individual {
 	private ArrayList<Node> m_otherPlaceForLeisureNodes;
 	
 	/**
-	 * Dynamic locations
+	 * @category Dynamic locations
 	 */
 	private MasonGeometry m_currentLocationPoint; // point that represents the agent
 	private LengthIndexedLine m_segment = null; // Used by individual to walk along line segment
@@ -96,9 +98,19 @@ public class Individual {
 	private int m_edgeDirection = 1;
 	private int m_currentIndexOnPathToNextTarget = 0;
 	private Node m_currentNode;
+	private Node m_currentTargetNode = null;
 
 	private Individual() {}
+	
+	@Override
+	public String toString() {
+		return "Id = " + m_id + " | Household Network = " + m_householdMembersNetworkId + " | Work network = " + m_workColleguesNetworkId + " | Friends network = " + m_friendsNetworkId;
+	}
 
+	/**
+	 * @category Builder
+	 */
+	
 	public static class Builder {
 
 		private Individual individualToBuild;
@@ -113,7 +125,7 @@ public class Individual {
 		}
 		
 		public Builder withId(int id) {
-			individualToBuild.setId(id);
+			individualToBuild.m_id = id;
 			return this;
 		}
 
@@ -262,12 +274,9 @@ public class Individual {
 		}
 	}
 	
-	@Override
-	public String toString() {
-		return "Id = " + m_id + " | Household Network = " + m_householdMembersNetworkId + " | Work network = " + m_workColleguesNetworkId + " | Friends network = " + m_friendsNetworkId;
-	}
-	
-	// PLAN JOINT ACTIVITIES
+	/**
+	 * @category Planning of joint activities
+	 */
 	
 	public void planJointActivities() {
 		removeFutureJointActivitiesOfNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK);
@@ -292,9 +301,7 @@ public class Individual {
 		for (Object individualObj: network.getAllNodes()) {
 			Individual individual = (Individual) individualObj;
 			List<Interval> futureIntervals = individual.getJointActivityAgenda().getAgenda().keySet().stream()
-				.filter(interval -> (interval.getStart().isAfter(currentDateTime))
-						|| interval.getStart().equals(currentDateTime)
-						|| interval.getEnd().isAfter(currentDateTime))
+				.filter(interval -> (interval.getStart().isAfter(currentDateTime)))
 				.collect(Collectors.toList());
 			for (Interval futureInterval: futureIntervals) {
 				if (individual.getJointActivityAgenda().getActivityForInterval(futureInterval).getNetworkType() == networkType) {
@@ -360,7 +367,7 @@ public class Individual {
 		if (networkMemberParticipating.size() < 2) { // TODO: make this dependent on network type?
 			return;
 		}
-		Interval baseIntervalOfJointActivity = determineIntervalOfJointActivity(networkMemberParticipating, availableStartTimes);
+		Interval baseIntervalOfJointActivity = determineIntervalOfJointActivity(networkMemberParticipating, availableStartTimes, activityCategory);
 		// no agreement on interval established
 		if (baseIntervalOfJointActivity == null) {
 			return;
@@ -369,11 +376,11 @@ public class Individual {
 		ArrayList<Activity> availableActivities = m_environment.getAllActivities().values().stream()
 				.filter(activity -> activity.isJointActivity())
 				.filter(activity -> activity.getActivityCategory() == activityCategory)
-				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), baseIntervalOfJointActivity))
+				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), baseIntervalOfJointActivity.getStart()))
 				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
 				.collect(Collectors.toCollection(ArrayList::new));
 		if (availableActivities.size() == 0) {
-			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Make sure there is always at least one activity available!", String.valueOf(baseIntervalOfJointActivity)));	
+			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe in category %s for interval interval: %s. Make sure there is always at least one activity available!", String.valueOf(activityCategory), String.valueOf(baseIntervalOfJointActivity)));	
 		}
 		// setup activity for all participating network members
 		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
@@ -432,7 +439,7 @@ public class Individual {
 	}
 	
 	
-	private Interval determineIntervalOfJointActivity(ArrayList<Individual> networkMemberParticipating, ArrayList<DateTime> startTimes) {
+	private Interval determineIntervalOfJointActivity(ArrayList<Individual> networkMemberParticipating, ArrayList<DateTime> startTimes, ActivityCategory activityCategory) {
 		Interval baseIntervalOfInterest;
 		Interval realIntervalOfInterest;
 		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
@@ -446,10 +453,18 @@ public class Individual {
 			return null;
 		}
 		do {
-			DateTime startOfJointActivity = availableStartTimes.get(m_environment.random.nextInt(availableStartTimes.size()));
-			BigDecimal duration = ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.get(m_environment.random.nextInt(ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.size()));
-			DateTime endOfJointActivity = startOfJointActivity.plusMinutes(duration.intValue());
-			baseIntervalOfInterest = new Interval(startOfJointActivity, endOfJointActivity);
+			DateTime startOfJointActivityInBaseTime = availableStartTimes.get(m_environment.random.nextInt(availableStartTimes.size()));
+			// TODO: extract to method
+			double durationSampleForCategory = ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.get(activityCategory).sample();
+			while (durationSampleForCategory < 1) {
+				durationSampleForCategory = ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.get(activityCategory).sample();
+			}
+			int duration = (int) durationSampleForCategory;
+			DateTime endOfJointActivityInBaseTime = startOfJointActivityInBaseTime.plusMinutes(duration);
+			if (endOfJointActivityInBaseTime.isAfter(ISimulationSettings.END_OF_DAY)) {
+				endOfJointActivityInBaseTime = ISimulationSettings.END_OF_DAY;
+			}
+			baseIntervalOfInterest = new Interval(startOfJointActivityInBaseTime, endOfJointActivityInBaseTime);
 			realIntervalOfInterest = TimeUtility.convertToRealInterval(currentDateTime, baseIntervalOfInterest);
 			numberOfTrials++;
 		} 
@@ -463,7 +478,6 @@ public class Individual {
 	}
 	
 	private Node determineActivityNode(Activity activity) {
-		// TODO: decide wheter random choice is ok or not -> alternatively we can retrieve the closest node to current location
 		switch (activity.getActivityLocation()) {
 		case HOME:
 			return m_homeNode;
@@ -483,82 +497,119 @@ public class Individual {
 		}
 	}
 	
-	// PLAN INDIVIDUAL ACTIVITIES
+	/**
+	 * @category Planning of individual activities
+	 */
 	
 	public void planIndividualActivities() {
-		getAllDayPlans().clear();
-		DateTime endOfCurrentDay = TimeUtility.getEndOfCurrentDay(m_environment.getSimulationTime().getCurrentDateTime());
-		for (int i = 0; i < ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE; i++) {
+		m_allDayPlans.clear();
+		while (m_allDayPlans.size() < ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE) {
 			ActivityAgenda randomAgenda = ActivityAgenda.newInstance(m_activityAgenda);
 			while (!TimeUtility.isDayFullyPlanned(m_environment, randomAgenda)) {
 				Interval availableInterval = TimeUtility.getFirstAvailableInterval(m_environment, randomAgenda);
-				int maxDurationInMinutes = (int) availableInterval.toDuration().getStandardMinutes();
-				BigDecimal duration = determineDuration(maxDurationInMinutes);
-				Interval realActivityInterval = determineActivityInterval(availableInterval, duration.intValue(), endOfCurrentDay);
-				Interval baseActivityInterval = TimeUtility.convertToBaseInterval(realActivityInterval);
-				Activity activity = determineActivity(randomAgenda, realActivityInterval, baseActivityInterval);
-				Node activityNode = determineActivityNode(activity);
-				randomAgenda.addActivityForInterval(realActivityInterval, activity);
-				randomAgenda.addNodeForInterval(realActivityInterval, activityNode);
-				for (Need needSatisfiedByRandomActivity: activity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
-					BigDecimal fractionForNeed = activity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity);
+				AbstractMap.SimpleImmutableEntry<Activity, Interval> activityAndIntervalInRealTime = determineActivityAndIntervalInRealTime(availableInterval, randomAgenda);
+				Activity choosenActivity = activityAndIntervalInRealTime.getKey();
+				Interval choosenIntervalInRealTime = activityAndIntervalInRealTime.getValue();
+				BigDecimal duration = CalculationUtility.createBigDecimal(choosenIntervalInRealTime.toDuration().getStandardMinutes());
+				Node activityNode = determineActivityNode(choosenActivity);
+				randomAgenda.addActivityForInterval(choosenIntervalInRealTime, choosenActivity);
+				randomAgenda.addNodeForInterval(choosenIntervalInRealTime, activityNode);
+				for (Need needSatisfiedByRandomActivity: choosenActivity.getNeedTimeSplit().getNeedTimeSplit().keySet()) {
+					BigDecimal fractionForNeed = choosenActivity.getNeedTimeSplit().getFractionForNeed(needSatisfiedByRandomActivity);
 					BigDecimal timeSpentSatisfyingNeed = fractionForNeed.multiply(duration);
 					randomAgenda.getActualNeedTimeSplit().updateNeedTimeSplit(needSatisfiedByRandomActivity, timeSpentSatisfyingNeed);
 				}
 			}
 			ActivityAgenda randomAgendaWithTravelTime = createAgendaWithTravelTime(randomAgenda);
-			m_allDayPlans.put(randomAgendaWithTravelTime, randomAgenda);
+			if (randomAgendaWithTravelTime != null) {
+				m_allDayPlans.put(randomAgendaWithTravelTime, randomAgenda);
+			}
 		}
 	}
 	
-	private BigDecimal determineDuration(int maxDurationInMinutes) {
-		m_environment.random.nextGaussian();
-		List<BigDecimal> availableDurations = ISimulationSettings.ACTIVITY_DURATIONS_IN_MINUTES.stream()
-				.filter(minutes -> minutes.compareTo(CalculationUtility.createBigDecimal(maxDurationInMinutes)) < 0)
+	private AbstractMap.SimpleImmutableEntry<Activity, Interval> determineActivityAndIntervalInRealTime(Interval availableIntervalInRealTime, ActivityAgenda randomAgenda) {
+		DateTime currentDateTime = availableIntervalInRealTime.getStart();
+		int currentDayOfWeek = currentDateTime.getDayOfWeek();
+		Interval availableIntervalInBaseTime = TimeUtility.convertToBaseInterval(availableIntervalInRealTime);
+		DateTime startOfAvailableIntervalInBaseTime = availableIntervalInBaseTime.getStart();
+		HashMap<ActivityCategory, Interval> allCategoriesToIntervalSamples = new HashMap<>();
+		// draw sample duration for each category
+		for (ActivityCategory activityCategory: ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.keySet()) {
+			int sampleDuration = Math.toIntExact(Math.round(ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.get(activityCategory).sample()));
+			while (sampleDuration <= 0) {
+				sampleDuration = Math.toIntExact(Math.round(ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.get(activityCategory).sample()));
+			}
+			Interval intervalOfInterestInBaseTime = new Interval(startOfAvailableIntervalInBaseTime, startOfAvailableIntervalInBaseTime.plusMinutes(sampleDuration));
+			allCategoriesToIntervalSamples.put(activityCategory, intervalOfInterestInBaseTime);
+		}
+		// determine all available activities
+		ArrayList<Activity> availableActivities = new ArrayList<>();
+		// there are some duration samples that fit into available interval
+		for (ActivityCategory availableCategory: allCategoriesToIntervalSamples.keySet()) {
+			Interval sampeledIntervalOfInterestInBaseTime = allCategoriesToIntervalSamples.get(availableCategory);
+			if (sampeledIntervalOfInterestInBaseTime.toDuration().getStandardMinutes() <= availableIntervalInRealTime.toDuration().getStandardMinutes()) {
+				List<Activity> availableActivitiesOfCategory = getAllAvailableActivitiesForCategoryAndInterval(randomAgenda, availableCategory, currentDateTime, currentDayOfWeek, sampeledIntervalOfInterestInBaseTime);
+				availableActivities.addAll(availableActivitiesOfCategory);
+			}
+		}
+		if (availableActivities.size() > 0) {
+			Activity choosenActivity = availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
+			return new AbstractMap.SimpleImmutableEntry<Activity, Interval>(choosenActivity, availableIntervalInRealTime);
+		}
+		// none of the samples fitted
+		for (ActivityCategory availableCategory: allCategoriesToIntervalSamples.keySet()) {
+			List<Activity> availableActivitiesOfCategory = getAllAvailableActivitiesForCategoryAndInterval(randomAgenda, availableCategory, currentDateTime, currentDayOfWeek, availableIntervalInBaseTime);
+			availableActivities.addAll(availableActivitiesOfCategory);
+		}
+		if (availableActivities.size() > 0) {
+			Activity choosenActivity = availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
+			return new AbstractMap.SimpleImmutableEntry<Activity, Interval>(choosenActivity, availableIntervalInRealTime);
+		}
+		else {
+			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval: %s. This can not happen unless something is configured incorrectly. Make sure you initialized all activities correctly!", availableIntervalInRealTime));
+			return null;
+		}
+	}
+	
+	private List<Activity> getAllAvailableActivitiesForCategoryAndInterval(ActivityAgenda randomAgenda, ActivityCategory activityCategory, DateTime currentDateTime, int currentDayOfWeek, Interval intervalOfInterestInBaseTime) {
+		// if smaller than min duration then stay at current location
+		if ((int) intervalOfInterestInBaseTime.toDuration().getStandardMinutes() <= ISimulationSettings.MIN_DURATION && m_currentActivity != null) {
+			return m_environment.getAllActivities().values().stream()
+				.filter(activity -> activity.getActivityCategory() == activityCategory || activity.getActivityCategory() == ActivityCategory.IDLE)
+				.filter(activity -> activity.getActivityLocation() == m_currentActivity.getActivityLocation())
+				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
+				.filter(activity -> !activity.isJointActivity())
+				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), intervalOfInterestInBaseTime.getStart()))
 				.collect(Collectors.toList());
-		if (availableDurations.size() == 0) {
-			return CalculationUtility.createBigDecimal(ISimulationSettings.MIN_DURATION);
 		}
+		// no constraint in terms of location
 		else {
-			return availableDurations.get(m_environment.random.nextInt(availableDurations.size()));
+			return m_environment.getAllActivities().values().stream()
+					.filter(activity -> activity.getActivityCategory() == activityCategory)
+					.filter(activity -> !activity.isJointActivity())
+					.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
+					.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), intervalOfInterestInBaseTime.getStart()))
+					.collect(Collectors.toList());
 		}
-	}
-	
-	private Interval determineActivityInterval(Interval availableInterval, int duration, DateTime endOfCurrentDay) {
-		DateTime end = availableInterval.getStart().plusMinutes(duration);
-		if (end.isAfter(endOfCurrentDay)) { // make sure plan ends at 23:59 of current day
-			end = endOfCurrentDay;
-		}
-		return new Interval(availableInterval.getStart(), end);
-	}
-	
-	private Activity determineActivity(ActivityAgenda randomAgenda, Interval realActivityInterval, Interval baseActivityInterval) {
-		ArrayList<Activity> availableActivities;
-		if ((int) baseActivityInterval.toDuration().getStandardMinutes() <= ISimulationSettings.MIN_DURATION) {
-			ActivityLocation currentLocation = randomAgenda.getActivityForDateTime(realActivityInterval.getStart().minusMinutes(1)).getActivityLocation();
-			availableActivities = m_environment.getAllActivities().values().stream()
-				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), baseActivityInterval))
-				.filter(activity -> activity.getActivityLocation() == currentLocation)
-				.filter(activity -> !activity.isJointActivity())
-				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
-				.collect(Collectors.toCollection(ArrayList::new));
-		}
-		else {
-			availableActivities = m_environment.getAllActivities().values().stream()
-				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), baseActivityInterval))
-				.filter(activity -> !activity.isJointActivity())
-				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
-				.collect(Collectors.toCollection(ArrayList::new));
-		}
-		if (availableActivities.size() == 0) {
-			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval interval: %s. Location is: %s. Make sure there is always at least one activity available!", String.valueOf(realActivityInterval), String.valueOf(randomAgenda.getActivityForDateTime(realActivityInterval.getStart().minusMinutes(1)).getActivityLocation())));	
-		}
-		return availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
 	}
 	
 	private ActivityAgenda createAgendaWithTravelTime(ActivityAgenda agenda) {
 		ActivityAgenda activityAgendaWithTravelTimes = ActivityAgenda.newInstance(agenda);
 		Activity travelActivity = m_environment.getAllActivities().get(ISimulationSettings.TRAVEL);
+		
+		int numberOfDifferentLocations = 0;
+		for (Interval interval: agenda.getIntervals()) {
+			Node activityNode = agenda.getNodeForInterval(interval);
+			Node nextActivityNode = agenda.getNodeForDateTime(interval.getEnd().plusMinutes(1));
+			// there is a next activity (last entry has no next node) and it is conducted at a different location
+			if (nextActivityNode != null && !activityNode.getCoordinate().equals(nextActivityNode.getCoordinate())) {
+				numberOfDifferentLocations++;
+			}
+		}
+		if (numberOfDifferentLocations > ISimulationSettings.MAX_NUMBER_OF_DIFFERENT_LOCATIONS) {
+			System.out.println(String.format("Number of different locations: %d", numberOfDifferentLocations));
+			return null;
+		}
 		for (Interval interval: agenda.getIntervals()) {
 			Activity currentActivity = agenda.getActivityForInterval(interval);
 			Node activityNode = agenda.getNodeForInterval(interval);
@@ -571,15 +622,24 @@ public class Individual {
 					GeomPlanarGraphEdge edge = (GeomPlanarGraphEdge) pathToNextActivity.get(i).getEdge();
 					lengthOfPathToNextActivity += edge.getLine().getLength();
 				}
-				int travelDurationInMinutes = Math.toIntExact(Math.round(lengthOfPathToNextActivity / ISimulationSettings.MAX_VELOCITY));
-				DateTime startOfTravel = interval.getStart();
-				DateTime endOfTravel = startOfTravel.plusMinutes(travelDurationInMinutes);
-				DateTime endOfActivity = interval.getEnd();
-				Interval travelInterval = new Interval(startOfTravel, endOfTravel);
-				Interval effectiveActivityInterval = new Interval(endOfTravel, endOfActivity);
 				activityAgendaWithTravelTimes.getAgenda().remove(interval);
-				activityAgendaWithTravelTimes.getAgenda().put(travelInterval, travelActivity);
-				activityAgendaWithTravelTimes.getAgenda().put(effectiveActivityInterval, currentActivity);
+				int travelDurationInMinutes = Math.toIntExact(Math.round(lengthOfPathToNextActivity / ISimulationSettings.MAX_VELOCITY));
+				// only travel time
+				if (travelDurationInMinutes >= interval.toDuration().getStandardMinutes()) {
+					Interval travelInterval = interval;
+					activityAgendaWithTravelTimes.getAgenda().put(travelInterval, travelActivity);
+				}
+				// travel and activity time
+				else {
+					DateTime endOfActivity = interval.getEnd();
+					DateTime startOfTravel = interval.getStart();
+					DateTime endOfTravel = startOfTravel.plusMinutes(travelDurationInMinutes);
+					Interval travelInterval = new Interval(startOfTravel, endOfTravel);
+					Interval effectiveActivityInterval = new Interval(endOfTravel, endOfActivity);
+					activityAgendaWithTravelTimes.getAgenda().put(travelInterval, travelActivity);
+					activityAgendaWithTravelTimes.getAgenda().put(effectiveActivityInterval, currentActivity);
+					
+				}
 			}
 		}
 		return activityAgendaWithTravelTimes;
@@ -607,13 +667,14 @@ public class Individual {
 		return availableTimePoints.stream().anyMatch(timePoint -> timePoint.equals(m_environment.getSimulationTime().getCurrentTime()));
 	}
 	
+	/**
+	 * @category Carrying over joint activities
+	 */
 	public void carryOverJointActivities() {
 		// remvoe all future activities
 		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
 		List<Interval> futureIntervals = m_activityAgenda.getAgenda().keySet().stream()
-			.filter(interval -> (interval.getStart().isAfter(currentDateTime) 
-					|| interval.getStart().equals(currentDateTime)
-					|| interval.getEnd().isAfter(currentDateTime)))
+			.filter(interval -> (interval.getStart().isAfter(currentDateTime)))
 			.collect(Collectors.toList());
 		for (Interval futureInterval: futureIntervals) {
 			m_activityAgenda.getAgenda().remove(futureInterval);
@@ -621,19 +682,21 @@ public class Individual {
 		}
 		// fill future with joint activities
 		for (Interval interval: m_jointActivityAgenda.getIntervals()) {
-			if (interval.isAfter(m_environment.getSimulationTime().getCurrentDateTime())) {
+			if (interval.getStart().isAfter(m_environment.getSimulationTime().getCurrentDateTime())) {
 				m_activityAgenda.addActivityForInterval(interval, m_jointActivityAgenda.getActivityForInterval(interval));
 				m_activityAgenda.addNodeForInterval(interval, m_jointActivityAgenda.getNodeForInterval(interval));
 			}
 		}
 	}
 	
-	// EXECUTE ACTIVITIES
+	/**
+	 * @category Executing activities
+	 */
 
 	public void executeActivity() {
-		Activity currentActivity = m_activityAgenda.getActivityForDateTime(m_environment.getSimulationTime().getCurrentDateTime());
-		Node targetNode = determineActivityNode(currentActivity);
-			Environment.NODE_TO_CLOSEST_BUILDING_MAP.get(targetNode).getGeometry().setUserData(
+		m_currentActivity = m_activityAgenda.getActivityForDateTime(m_environment.getSimulationTime().getCurrentDateTime());
+		m_currentTargetNode = m_activityAgenda.getNodeForDateTime(m_environment.getSimulationTime().getCurrentDateTime());
+			Environment.NODE_TO_CLOSEST_BUILDING_MAP.get(m_currentTargetNode).getGeometry().setUserData(
 					new LabelledPortrayal2D(
 							new GeomPortrayal(ISimulationSettings.COLOR_OF_TARGET_BUILDING, ISimulationSettings.SIZE_OF_BUILDING_SELCTED, true), 
 							10,
@@ -648,12 +711,12 @@ public class Individual {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public String getLabel(Object object, DrawInfo2D info) {
-							return String.format("Target of %s for activity %s", String.valueOf(m_id), currentActivity.getActivityDescription());
+							return String.format("Target of %s for activity %s", String.valueOf(m_id), m_currentActivity.getActivityDescription());
 						}
 					});
-		if (!m_currentNode.getCoordinate().equals(targetNode.getCoordinate())) {
+		if (!m_currentNode.getCoordinate().equals(m_currentTargetNode.getCoordinate())) {
 			if (m_pathToNextTarget.isEmpty()) {
-				initPathToTarget(m_currentNode, targetNode);
+				initPathToTarget(m_currentNode, m_currentTargetNode);
 			}
 			if (!hasReachedTarget()) {
 				// TODO: decide on mode of transport
@@ -661,19 +724,19 @@ public class Individual {
 			}
 		}
 		if (hasReachedTarget()) {
-			if (!m_currentNode.getCoordinate().equals(targetNode.getCoordinate())) {
-				updatePosition(targetNode.getCoordinate());
-				m_currentNode = new Node(targetNode.getCoordinate(), targetNode.getOutEdges());
+			if (!m_currentNode.getCoordinate().equals(m_currentTargetNode.getCoordinate())) {
+				updatePosition(m_currentTargetNode.getCoordinate());
+				m_currentNode = new Node(m_currentTargetNode.getCoordinate(), m_currentTargetNode.getOutEdges());
 			}
-			if (!currentActivity.isJointActivity()) {
-				updateActualNeedTimeSplit(currentActivity);
+			if (!m_currentActivity.isJointActivity()) {
+				updateActualNeedTimeSplit(m_currentActivity);
 			}
 			else { // joint activity
 				// TODO: how to handle case where individual is the only one currently at target location
-				updateActualNeedTimeSplit(currentActivity);
+				updateActualNeedTimeSplit(m_currentActivity);
 			}
-			m_environment.incrementIntegerValueOfOutputHolder(currentActivity.getActivityCategory().toString());
-			m_environment.incrementIntegerValueOfOutputHolder(currentActivity.getActivityDescription());
+			m_environment.incrementIntegerValueOfOutputHolder(m_currentActivity.getActivityCategory().toString());
+			m_environment.incrementIntegerValueOfOutputHolder(m_currentActivity.getActivityDescription());
 		}
 		else { // traveling towards target
 			m_environment.incrementIntegerValueOfOutputHolder(ActivityCategory.TRAVEL.toString());
@@ -682,6 +745,10 @@ public class Individual {
 		}
 		m_environment.incrementIntegerValueOfOutputHolder(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS);
 	}
+	
+	/**
+	 * @category Moving on paths of the environment
+	 */
 	
 	private void initPathToTarget(Node currentNode, Node targetNode) {
 		m_pathToNextTarget.clear();
@@ -808,16 +875,6 @@ public class Individual {
 	 * @return the travelling distance for this step
 	 */
 	private double calculateTravellingDistance() {
-		// TODO: make this more realistic
-		//		double maxTrafficCapacity = m_currentEdge.getLine().getLength() * Environment.MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT;
-		//		// edge can be occupied by at least 1 individual
-		//		if (maxTrafficCapacity < 1.0) {
-		//			maxTrafficCapacity = 1.0;
-		//		}
-		//		double traffic = m_environment.m_edgeTraffic.get(m_currentEdge).size();
-		//		double trafficFactor = 1.0 - (traffic / maxTrafficCapacity); // TODO: not realistic -> velocity does not depend linearly
-		//																// on traffic...
-		//		trafficFactor = Math.max(trafficFactor, Environment.MAX_SLOW_DOWN_FACTOR);
 		return getEdgeDirection() * ISimulationSettings.MAX_VELOCITY;
 	}
 	
@@ -851,7 +908,9 @@ public class Individual {
 		}
 	}
 	
-	// HELPER FUNCTIONS
+	/**
+	 * @category Helper functions 
+	 */
 	
 	public void updateActualNeedTimeSplit(Need need, BigDecimal timeSpentSatisfyingNeed) {
 		m_actualNeedTimeSplit.updateNeedTimeSplit(need, timeSpentSatisfyingNeed);
@@ -867,7 +926,9 @@ public class Individual {
 		m_allDayPlans.clear();
 	}
 
-	// GETTER & SETTER
+	/**
+	 * @category Getter and setter
+	 */
 	
 	public Environment getEnvironment() {
 		return m_environment;
