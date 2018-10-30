@@ -4,12 +4,16 @@ import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.math3.distribution.AbstractRealDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+
+import rfs0.aitam.activities.ActivityCategory;
 
 public interface ISimulationSettings {
 	
@@ -91,11 +95,6 @@ public interface ISimulationSettings {
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30))
 			.collect(Collectors.toCollection(ArrayList::new));
-	public static final ArrayList<BigDecimal> ACTIVITY_DURATIONS_IN_MINUTES = Stream.of(
-			BigDecimal.valueOf(60), 
-			BigDecimal.valueOf(90), 
-			BigDecimal.valueOf(120))
-			.collect(Collectors.toCollection(ArrayList::new));
 	public static final int MIN_DURATION = 30;
 	public static final int MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY = 5;
 	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
@@ -160,6 +159,7 @@ public interface ISimulationSettings {
 	public static final int MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY = 1;
 	// TODO: maybe used different probability for planning and accepting a request?
 	public static final double PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY = 0.7;
+	public static final int MAX_NUMBER_OF_DIFFERENT_LOCATIONS = 6;
 	
 	/**
 	 * Attributes of buildings
@@ -229,4 +229,18 @@ public interface ISimulationSettings {
 	public static final double MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 90;
 	public static final double STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 45;
 	public static final NormalDistribution DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION = new NormalDistribution(MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION);
+	public static HashMap<ActivityCategory, AbstractRealDistribution> s_ActivityCategoryToDurationDistributionMap = initActivityCategoryToDurationDistributionMap();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static HashMap<ActivityCategory, AbstractRealDistribution> initActivityCategoryToDurationDistributionMap() {
+		HashMap<ActivityCategory, AbstractRealDistribution> activityCategoryToDurationDistributionMap = new HashMap<>();
+		activityCategoryToDurationDistributionMap.put(ActivityCategory.LEISURE, DISTRIBUTION_OF_LEISURE_DURATION);
+		activityCategoryToDurationDistributionMap.put(ActivityCategory.WORK, DISTRIBUTION_OF_WORK_DURATION);
+		activityCategoryToDurationDistributionMap.put(ActivityCategory.PERSONAL_CARE, DISTRIBUTION_OF_PERSONAL_CARE_DURATION);
+		activityCategoryToDurationDistributionMap.put(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION);
+		return activityCategoryToDurationDistributionMap;
+	}
 }
