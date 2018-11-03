@@ -73,7 +73,7 @@ public final class IndividualInitializer {
 						return String.format("Home of: %s ", String.valueOf(householdMembersIndices));
 					}
 			});
-			ArrayList<MasonGeometry> otherPlaceForHouseholdAndFamilyCareBuildings = determineBuildingsForCategoryWithinDistance(environment, availableBuildings, homeBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
+			ArrayList<MasonGeometry> otherPlaceForHouseholdAndFamilyCareBuildings = determineBuildingsForCategoryWithinDistance(environment, availableBuildings, homeBuilding, ISimulationSettings.MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
 			for (Integer houseHoldMemberIndex: householdMembersIndices) {
 				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(houseHoldMemberIndex))
@@ -95,7 +95,7 @@ public final class IndividualInitializer {
 			ArrayList<Integer> workColleguesIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MIN_NUMBER_OF_WORK_COLLEGUES , ISimulationSettings.MAX_NUMBER_OF_WORK_COLLEGUES);
 			Network workColleguesNetwork = createNetworkForMemberIndices(workColleguesIndices);
 			MasonGeometry workBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.WORK);
-			ArrayList<MasonGeometry> otherPlaceForWorkBuildings = determineBuildingsForCategoryWithinDistance(environment, availableBuildings, workBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK, ActivityCategory.WORK);
+			ArrayList<MasonGeometry> otherPlaceForWorkBuildings = determineBuildingsForCategoryWithinDistance(environment, availableBuildings, workBuilding, ISimulationSettings.MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK, ActivityCategory.WORK);
 			for (Integer workCollegueIndex: workColleguesIndices) {
 				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(workCollegueIndex))
@@ -117,7 +117,7 @@ public final class IndividualInitializer {
 			ArrayList<Integer> friendsIndices = determineNetworkMembers(environment, initRange, ISimulationSettings.MIN_NUMBER_OF_FRIENDS, ISimulationSettings.MAX_NUMBER_OF_FRIENDS);
 			Network friendsNetwork = createNetworkForMemberIndices(friendsIndices);
 			MasonGeometry leisureBuilding = determineLocationForCategory(environment, availableBuildings, ActivityCategory.LEISURE);
-			ArrayList<MasonGeometry> otherPlaceForLeisureBuildings = determineBuildingsForCategoryWithinDistance(environment, availableBuildings, leisureBuilding, ISimulationSettings.MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK, ActivityCategory.LEISURE);
+			ArrayList<MasonGeometry> otherPlaceForLeisureBuildings = determineBuildingsForCategoryWithinDistance(environment, availableBuildings, leisureBuilding, ISimulationSettings.MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK, ActivityCategory.LEISURE);
 			for (Integer friendIndex: friendsIndices) {
 				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(friendIndex))
@@ -178,7 +178,7 @@ public final class IndividualInitializer {
 	private static MasonGeometry determineLocationForCategory(Environment environment, ArrayList<MasonGeometry> availableBuildings, ActivityCategory activityCategory) {
 		int indexOfChoosenLocation = environment.random.nextInt(availableBuildings.size());
 		MasonGeometry choosenLocation = availableBuildings.remove(indexOfChoosenLocation);
-		choosenLocation.addAttribute(ISimulationSettings.ATTRIBUTE_ACTIVITY_CATEGORY, activityCategory);
+		choosenLocation.addAttribute(ISimulationSettings.ATTRIBUTE_FOR_ACTIVITY_CATEGORY, activityCategory);
 		return choosenLocation;
 	}
 	
@@ -206,7 +206,7 @@ public final class IndividualInitializer {
 			while (buildingsForCategory.size() < numberOfBuildingsConfiguredForActivityCategory) {
 				int indexOfChoosenLocation = environment.random.nextInt(buildingsWithinDistance.size());
 				MasonGeometry choosenLocation = availableBuildings.remove(indexOfChoosenLocation);
-				choosenLocation.addAttribute(ISimulationSettings.ATTRIBUTE_ACTIVITY_CATEGORY, activityCategory);
+				choosenLocation.addAttribute(ISimulationSettings.ATTRIBUTE_FOR_ACTIVITY_CATEGORY, activityCategory);
 				buildingsForCategory.add(choosenLocation);
 			}
 		} 
@@ -221,7 +221,7 @@ public final class IndividualInitializer {
 		for (Object geometry: environment.getBuildingsField().getGeometries()) {
 			  if (geometry instanceof MasonGeometry) {
 				  MasonGeometry mg = (MasonGeometry) geometry;
-				  if (mg.getAttribute(ISimulationSettings.ATTRIBUTE_ACTIVITY_CATEGORY) == null || mg.getAttribute(ISimulationSettings.ATTRIBUTE_ACTIVITY_CATEGORY) == activityCategory) {
+				  if (mg.getAttribute(ISimulationSettings.ATTRIBUTE_FOR_ACTIVITY_CATEGORY) == null || mg.getAttribute(ISimulationSettings.ATTRIBUTE_FOR_ACTIVITY_CATEGORY) == activityCategory) {
 					  availableBuildings.add(mg);
 				  }
 			  }
