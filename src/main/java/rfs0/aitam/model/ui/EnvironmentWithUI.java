@@ -150,7 +150,7 @@ public class EnvironmentWithUI extends GUIState {
 		m_agentPortrayal.setPortrayalForRemainder(
 				new CircledPortrayal2D(
 						new LabelledPortrayal2D(
-								new GeomPortrayal(ISimulationSettings.COLOR_OF_AGENT, ISimulationSettings.SIZE_OF_AGENT, true), 
+								new GeomPortrayal(ISimulationSettings.COLOR_OF_INDIVIDUAL, ISimulationSettings.SIZE_OF_INDIVIDUAL, true), 
 								10,
 								5,
 								0.5,
@@ -158,7 +158,7 @@ public class EnvironmentWithUI extends GUIState {
 								new Font("SansSerif",Font.BOLD, 15),
 								LabelledPortrayal2D.ALIGN_LEFT,
 								null, 
-								ISimulationSettings.COLOR_OF_AGENT, 
+								ISimulationSettings.COLOR_OF_INDIVIDUAL, 
 								false) {
 							private static final long serialVersionUID = 1L;
 							@Override
