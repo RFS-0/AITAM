@@ -64,7 +64,7 @@ public class ActivityAgendaTest {
 	
 	@Test
 	public void testGetLastPlannedInterval() {
-		assertEquals(s_secondInterval, s_plan.getLastPlannedActivityInterval());
+		assertEquals(s_secondInterval, s_plan.getLastPlannedInterval());
 	}
 	
 	@Test
