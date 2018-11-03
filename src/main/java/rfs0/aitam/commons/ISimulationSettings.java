@@ -13,22 +13,115 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
+import rfs0.aitam.activities.Activity;
 import rfs0.aitam.activities.ActivityCategory;
+import rfs0.aitam.individuals.Individual;
+import rfs0.aitam.model.Environment;
+import rfs0.aitam.model.EnvironmentObserver;
+import rfs0.aitam.model.ui.EnvironmentWithUI;
+import rfs0.aitam.utilities.CalculationUtility;
+import sim.field.network.Network;
+import sim.util.geo.MasonGeometry;
 
 public interface ISimulationSettings {
+		
 	
 	/**
-	 * Constants used to configure environment
+	 * @category Configuration of data representing the {@link Environment}<p>
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to reading in data.</p>
+	 * 
+	 * <p>{@link ISimulationSettings#BUILDINGS_FILE}: The relative path to the shape file representing the buildings in the {@link Environment}. 
+	 * 		<br><b>Note:</b> Replace this file or this path to adapt the simulated environment (or city) to your needs.</p>
+	 * <p>{@link ISimulationSettings#PATHS_FILE}: The relative path to the shape file representing the paths in the {@link Environment}.
+	 * 		<br><b>Note:</b>: Replace this file or this path to adapt the simulated environment (or city) to your needs.</p>
+	 * <p><b>Important:</b> The dimensions of the environment are defined by the coordinate reference system (CRS) used by the shape files. (See <a href="https://en.wikipedia.org/wiki/Spatial_reference_system">CRS</a> for more information). 
+	 * 	  <br>The shape files used to develop the simulation represent the city of Zurich and use the follwoing CRS: <b>EPSG:2056 - CH1903+ / LV95 - Projected</b>. 
+	 *    <br>The unit of this CRS is: <b>metre</b></p>
+	 */
+	public static final String BUILDINGS_FILE = "\\data\\environment\\buildings\\buildings.shp";
+	public static final String PATHS_FILE = "\\data\\environment\\paths\\paths.shp";
+	
+	/**
+	 * @category Configuration of aspects related to buildings in the environment
+	 * 
+	 * <p>This section contains all constatns used to configure or handle aspectes related to buildings ({@link Environment#m_buildingsField}).</p>
+	 * 
+	 * {@link ISimulationSettings#ATTRIBUTE_FOR_ACTIVITY_CATEGORY}: Name of the attribute used to set and get the {@link ActivityCategory} on a {@link MasonGeometry} representing a building in the {@link Environment}.
+	 * 	  <br><b>Note:</b>Each building can only belong to one {@link ActivityCategory}, but it can be used by any number of {@link Individual}'s for conducting {@link Activity}'s.
+	 */
+	public static final String ATTRIBUTE_FOR_ACTIVITY_CATEGORY = "ACTIVITY_CATEGORY";
+	
+	/**
+	 * @category Configuration for writing out data
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to writing out data</p>
+	 * 
+	 * <p>{@link ISimulationSettings#SIMULATION_OUTPUT_FOLDER}: The relative path to the folder where the simulation output is stored. 
+	 *    <br><b>Note:</b> The output is stored in CSV format.</p>
+	 * <p>{@link ISimulationSettings#CHAR_SET}: The char set used to write the output CSV-file to disk</p>
+	 */
+	public static final String SIMULATION_OUTPUT_FOLDER = "\\data\\output\\";
+	public static final String CHAR_SET = "UTF-8";
+	
+	
+	/**
+	 * @category Configuration of UI related aspects
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to the UI.</p>
+	 * 
+	 * <p>{@link ISimulationSettings#ENVIRONMENT_HEIGHT}: The height of the display representing the environment</p>
+	 * <p>{@link ISimulationSettings#ENVIRONMENT_WIDTH}: The width of the display representing the environment</p>
 	 */
 	public static final int ENVIRONMENT_HEIGHT = 1000;
 	public static final int ENVIRONMENT_WIDTH = 1000;
-	public static final String BUILDINGS_FILE = "\\data\\environment\\buildings\\buildings.shp";
-	public static final String PATHS_FILE = "\\data\\environment\\paths\\paths.shp";
-	public static final String SIMULATION_OUTPUT_FOLDER = "\\data\\output\\";
-	public static final String CHAR_SET = "UTF-8";
-	public static final double MAX_TRAFFIC_CAPACITY_PER_UNIT_LENGHT = 0.04; // assuming reaction time of 1.8 s and average velocity of 50 km/h
+	
+	
+	/**
+	 * @category Configuration of traffic related aspects
+	 * 
+	 * This sections contains all constants used to configure or handle aspects related to traffic and travel.
+	 * 
+	 * <p>{@link ISimulationSettings#MAX_VELOCITY}: The maximum velocity an {@link Individual} can travel on the paths of the environment. Additionally, the velocity is used to calculate travel times in {@link Individual#createAgendaWithTravelTime}.
+	 *    <br><b>Note:</b> Currently the simulation does not model traffic and thus all {@link Individual}'s travel constantly at {@link ISimulationSettings#MAX_VELOCITY}</p>
+	 */
 	public static final double MAX_VELOCITY = 500; // max velocity in m/min (equivalent to 30 km/h)
-	public static final double MAX_SLOW_DOWN_FACTOR = 0.2;
+	
+	/**
+	 * @category Configuration of time related aspects
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to simulation time.</p>
+	 * 
+	 * <b>Note:</b> There are two different time scales used in this simulation: <b>base time</b> and <b>real time</b>.
+	 * 		   <br>The <b>base time</b> is used to refer to the time of day on the starting day of the simulation. As such it always has the format BASE_YEAR:CurrentDayOfWeek:hh:mm. 
+	 * 		   Thus it serves as a way to refer to the time of day at the current day of week independet of the date.This is necessary in order to handle the availability of activites,
+	 * 		   which is only defined in terms of days of week and time of day.
+	 * 		   <br>The <b>real time</b> is used to refer to the real time in the simulation. 
+	 * 			
+	 * <p><b>Important:</b> Each step in the simulation corresponds to one minute (in real time). The simulation starts at the following date: BASE_YEAR, BASE_MONTH, BASE_DAY, BASE_HOUR, BASE_MINUTE</p>
+	 * 
+	 * <p>{@link ISimulationSettings#BASE_YEAR}: The base year of the simulation. It is set to 2018.</p>
+	 * <p>{@link ISimulationSettings#BASE_MONTH}: The base month of the simulation. It is set to January.</p>
+	 * <p>{@link ISimulationSettings#BASE_DAY}: The base day of the simulation. It is set to Monday.</p>
+	 * <p>{@link ISimulationSettings#BASE_HOUR}: The base hour of the simulation. It is set to 0.</p>
+	 * <p>{@link ISimulationSettings#BASE_MINUTE}: The base minute of the simulation. It is set to 0.</p>
+	 * <p>{@link ISimulationSettings#LAST_HOUR_OF_DAY}: The last hour of a day i.e. 23.<p>
+	 * <p>{@link ISimulationSettings#LAST_MINUTE_OF_HOUR}: The last minute of an hour, i.e. 59.</p>
+	 * <p>{@link ISimulationSettings#START_OF_DAY}: The start of a day in <b>base time</b>.</p>
+	 * <p>{@link ISimulationSettings#END_OF_DAY}: The end of a day in <b>base time</b>.</p>
+	 * <p>{@link ISimulationSettings#WEEK}: The days of a week, i.e. Monday - Sunday.</p>
+	 * <p>{@link ISimulationSettings#WORK_WEEK}: The days of a work week, i.e. Monday - Friday.</p> 
+	 * <p>{@link ISimulationSettings#WEEKEND}: The day of weekend, i.e. Saturday & Sunday</p>
+	 */
+	public static final int BASE_YEAR = 2018;
+	public static final int BASE_MONTH = 1;
+	public static final int BASE_DAY = DateTimeConstants.MONDAY;
+	public static final int BASE_HOUR = 0;
+	public static final int BASE_MINUTE = 0;
+	public static final int LAST_HOUR_OF_DAY = 23;
+	public static final int LAST_MINUTE_OF_HOUR = 59;
+	public static final DateTime START_OF_DAY = new DateTime(BASE_YEAR, BASE_MONTH, BASE_DAY, BASE_HOUR, BASE_MINUTE);
+	public static final DateTime END_OF_DAY = new DateTime(BASE_YEAR, BASE_MONTH, BASE_DAY, LAST_HOUR_OF_DAY, LAST_MINUTE_OF_HOUR);
 	public static final ArrayList<Integer> WEEK = Stream.of(
 			DateTimeConstants.MONDAY, 
 			DateTimeConstants.TUESDAY, 
@@ -48,8 +141,67 @@ public interface ISimulationSettings {
 	public static final ArrayList<Integer> WEEKEND = Stream.of(
 			DateTimeConstants.SATURDAY, 
 			DateTimeConstants.SUNDAY)
-			.collect(Collectors.toCollection(ArrayList::new));
-	// TODO: write test to ensure that for each start time there is at least one activity that covers it (incl. duration) -> otherwise list of available activities might be empty during planning
+			.collect(Collectors.toCollection(ArrayList::new));	
+	
+	/**
+	 * @category Configuration of aspects related to individuals
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to {@link Individual}s.</p>
+	 * 
+	 * <p>{@link ISimulationSettings#NUMBER_OF_INDIVIDUALS}: The number of {@link Individual}s simulated.</p>
+	 * <p>{@link ISimulationSettings#MIN_NUMBER_OF_HOUSEHOLD_MEMBERS}: The minimum number of {@link Individual}s in each {@link Network} representing a household or family.</p>
+	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_MEMBERS}: The maximum number of {@link Individual}s in each {@link Network} representing a household or family.</p>
+	 * <p>{@link ISimulationSettings#PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY}: The probability of an {@link Individual} participating in an {@link Activity} with household members upon request by some other member of the same household network.</p>
+	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY}: The maximum number of {@link Activity}s with household or family members an {@link Individual} is willing to participate in.</p>
+	 * <p>{@link ISimulationSettings#MIN_NUMBER_OF_WORK_COLLEGUES}: The minimum number of {@link Individual}s in each {@link Network} representing work collegues.</p>
+	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES}: The maximum number of {@link Individual}s in each {@link Network} representing work collegues.</p>
+	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY}: The maximum number of {@link Activity}s with work collegues an {@link Individual} is willing to participate in.</p>
+	 * <p>{@link ISimulationSettings#PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY}: The probability of an {@link Individual} participating in an {@link Activity} with work collegues upon request by some other member of the same household network.</p>
+	 * <p>{@link ISimulationSettings#MIN_NUMBER_OF_FRIENDS}: The minimum number of {@link Individual}s in each {@link Network} representing friends.</p>
+	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS}: The maximum number of {@link Individual}s in each {@link Network} representing friends.</p>
+	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY}: The maximum number of {@link Activity}s with friends an {@link Individual} is willing to participate in.</p>
+	 * <p>{@link ISimulationSettings#PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY}: The probability of an {@link Individual} participating in an {@link Activity} with friends upon request by some other member of the same household network.</p>
+	 */
+	public static final int NUMBER_OF_INDIVIDUALS = 5;
+	public static final int MIN_NUMBER_OF_HOUSEHOLD_MEMBERS = 1;
+	public static final int MAX_NUMBER_OF_HOUSEHOLD_MEMBERS = 4;
+	public static final double PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY = 0.9;
+	public static final int MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY = 3;
+	public static final int MIN_NUMBER_OF_WORK_COLLEGUES = 1;
+	public static final int MAX_NUMBER_OF_WORK_COLLEGUES = 4;
+	public static final int MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY = 1;
+	public static final double PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY = 0.7;
+	public static final int MIN_NUMBER_OF_FRIENDS = 1;
+	public static final int MAX_NUMBER_OF_FRIENDS = 4;
+	public static final int MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY = 1;
+	public static final double PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY = 0.7;
+	
+	
+	/**
+	 * @category Configuration of activity related aspects
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to {@link Activity}s.</p>
+	 * 
+	 * <p>{@link ISimulationSettings#NUMBER_OF_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE}: The number of alternative places to conduct {@link Activity}s of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}.</p>
+	 * <p>{@link ISimulationSettings#NUMBER_OF_OTHER_PLACES_FOR_LEISURE}: The number of alternative places to conduct {@link Activity}s of {@link ActivityCategory#LEISURE}.</p>
+	 * <p>{@link ISimulationSettings#NUMBER_OF_OTHER_PLACES_FOR_WORK}: The number of alternative places to conduct {@link Activity}s of {@link ActivityCategory#WORK}.</p>
+	 * <p>{@link ISimulationSettings#NUMBER_OF_OTHER_PLACES_FOR_PERSONAL_CARE}: The number of alternative places to conduct {@link Activity}s of {@link ActivityCategory#PERSONAL_CARE}.</p>
+	 * <p>{@link ISimulationSettings#AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES}: The possible start times for {@link Activity}s with household members.</p>
+	 * <p>{@link ISimulationSettings#AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES}: The possible start times for {@link Activity}s with work collegues.</p>
+	 * <p>{@link ISimulationSettings#AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES}: The possible start times for {@link Activity}s with friends.</p>
+	 * <p>{@link ISimulationSettings#MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE}: The maxium distance to other places for household and family care. Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForHouseholdAndFamilyCareNodes}.
+	 * <p>{@link ISimulationSettings#MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK}: The maxium distance to other places for work. Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForHouseholdAndFamilyCareNodes}.
+	 * <p>{@link ISimulationSettings#MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE}: The maxium distance to other places for household and family care. Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForHouseholdAndFamilyCareNodes}.
+	 * 	  <br><b>Note:</b> The distance is measured in unites as defined by the CRS (see "Configuration of data representing the" above for more details). The current unit is <b>metre</b>
+	 * <p>{@link ISimulationSettings#MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK}: The maxium distance to other places for work. Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForWorkNodes}.
+	 * 	  <br><b>Note:</b> The distance is measured in unites as defined by the CRS (see "Configuration of data representing the" above for more details). The current unit is <b>metre</b>
+	 * <p>{@link ISimulationSettings#MAX_DISTANCE_TO_OTHER_PLACES_FOR_LEISURE}: The maxium distance to other places for leisure. Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForLeisureNodes}.
+	 * 	  <br><b>Note:</b> The distance is measured in unites as defined by the CRS (see "Configuration of data representing the" above for more details). The current unit is <b>metre</b>
+	 */
+	public static final int NUMBER_OF_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE = 5;
+	public static final int NUMBER_OF_OTHER_PLACES_FOR_LEISURE = 5;
+	public static final int NUMBER_OF_OTHER_PLACES_FOR_WORK = 5;
+	public static final int NUMBER_OF_OTHER_PLACES_FOR_PERSONAL_CARE = 5;
 	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
@@ -66,13 +218,11 @@ public interface ISimulationSettings {
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
-	// TODO: write test to ensure that for each start time there is at least one activity that covers it (incl. duration) -> otherwise list of available activities might be empty during planning
 	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
-	// TODO: write test to ensure that for each start time there is at least one activity that covers it (incl. duration) -> otherwise list of available activities might be empty during planning
 	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
@@ -89,93 +239,107 @@ public interface ISimulationSettings {
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
+	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE = 100;
+	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK = 100;
+	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_LEISURE = 100;
+	
+	
+	/**
+	 * @category Configuration of activity category related aspects
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to {@link ActivityCategory}s.</p>
+	 * 
+	 * <p><b>Note:</b>The values for the mean and standard deviation per {@link ActivityCategory} should be derived from empirical data.</p>
+	 * 
+	 * {@link ISimulationSettings#MEAN_OF_LEISURE_ACTIVITY_DURATION}: The mean duration of activities in {@link ActivityCategory#LEISURE} in minutes.
+	 * {@link ISimulationSettings#STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION}: The standard deviation of the duration of activities in {@link ActivityCategory#LEISURE} in minutes.
+	 * {@link ISimulationSettings#DISTRIBUTION_OF_LEISURE_DURATION}: The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#LEISURE}. It is used to sample durations for this category.
+	 * {@link ISimulationSettings#MEAN_OF_WORK_ACTIVITY_DURATION}: The mean duration of activities in {@link ActivityCategory#WORK} in minutes.
+	 * {@link ISimulationSettings#STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION}: The standard deviation of the duration of activities in {@link ActivityCategory#WORK} in minutes.
+	 * {@link ISimulationSettings#DISTRIBUTION_OF_WORK_DURATION}: The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#WORK}. It is used to sample durations for this category.
+	 * {@link ISimulationSettings#MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION}: The mean duration of activities in {@link ActivityCategory#PERSONAL_CARE} in minutes.
+	 * {@link ISimulationSettings#STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION}: The standard deviation of the duration of activities in {@link ActivityCategory#PERSONAL_CARE} in minutes.
+	 * {@link ISimulationSettings#DISTRIBUTION_OF_PERSONAL_CARE_DURATION}: The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#PERSONAL_CARE}. It is used to sample durations for this category.
+	 * {@link ISimulationSettings#MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION}: The mean duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.
+	 * {@link ISimulationSettings#STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION}: The standard deviation of the duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.
+	 * {@link ISimulationSettings#DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION}: The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}. It is used to sample durations for this category.
+	 */
+	// TODO: use empirical values
+	public static final double MEAN_OF_LEISURE_ACTIVITY_DURATION = 120;
+	public static final double STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION = 60;
+	public static final NormalDistribution DISTRIBUTION_OF_LEISURE_DURATION = new NormalDistribution(MEAN_OF_LEISURE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION);
+	public static final double MEAN_OF_WORK_ACTIVITY_DURATION = 180;
+	public static final double STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION = 30;
+	public static final NormalDistribution DISTRIBUTION_OF_WORK_DURATION = new NormalDistribution(MEAN_OF_WORK_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION);
+	public static final double MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION = 90;
+	public static final double STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION = 30;
+	public static final NormalDistribution DISTRIBUTION_OF_PERSONAL_CARE_DURATION = new NormalDistribution(MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION);
+	public static final double MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 90;
+	public static final double STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 45;
+	public static final NormalDistribution DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION = new NormalDistribution(MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION);
+	public static HashMap<ActivityCategory, AbstractRealDistribution> s_ActivityCategoryToDurationDistributionMap = initActivityCategoryToDurationDistributionMap();
+	
+	/**
+	 * @category Configuration of planning related aspects
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to planning {@link Activity}s.</p>
+	 * 
+	 * <p>{@link ISimulationSettings#NUMBER_OF_PLANS_TO_GENERATE}: The number of plans that each {@link Individual} generates when planning its own {@link Activity}s for the rest of a day (see {@link Individual#planIndividualActivities()}).</p>
+	 * <p>{@link ISimulationSettings#AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES}: The time points an {@link Individual} can plan resp. replan it's activities for the current day (see {@link Environment#start()}).</p>
+	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY}: The maximum number of trials to find a time slot for a joint activity. Since it is possible that one of the network members. 
+	 * participating in the proposed joint activity has already planned some other activity for the proposed time slot, the network member asking others if they would like to participate proposes another time slot until it reached the maximum number of trials.</p>
+	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_DIFFERENT_LOCATIONS}: The maximum number of different locations an {@link Individual} incorporates in the planning of a day. This is used to improve the performance of the simulation since calculating the travel time for plans
+	 *    with many different locations consumes a lot of computing resources to calculate travel times, but those plans are not likely to be selected since travel time decreases the time the individual can spend on satisfying its needs.</p>
+	 * <p>{@link ISimulationSettings#MIN_DURATION_OF_ACTIVITY_TO_TRAVEL_TO_DIFFERENT_LOCATION}: If the duration of an {@link Activity} is smaller than this constant, the {@link Individual} must stay at it's current location, 
+	 *    since traveling would otherwise consume most or all of the time the {@link Individual} intends to spend on the activity.</p>
+	 */
+	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
 	public static final ArrayList<DateTime> AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30))
 			.collect(Collectors.toCollection(ArrayList::new));
-	public static final int MIN_DURATION = 30;
 	public static final int MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY = 5;
-	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
-	public static final int NUMBER_OF_OTHER_PLACES_FOR_LEISURE = 5;
-	public static final int NUMBER_OF_OTHER_PLACES_FOR_WORK = 5;
-	public static final int NUMBER_OF_OTHER_PLACES_FOR_PERSONAL_CARE = 5;
-	public static final int NUMBER_OF_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE = 5;
+	public static final int MAX_NUMBER_OF_DIFFERENT_LOCATIONS = 6;
+	public static final int MIN_DURATION_OF_ACTIVITY_TO_TRAVEL_TO_DIFFERENT_LOCATION = 30;
 	
 	/**
-	 * Constants used to configure UI of environment
+	 * @category Configuration of UI related aspects
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to the user interface of the simulation (see {@link EnvironmentWithUI}).</p>
+	 * 
+	 * <p>{@link ISimulationSettings#SIZE_OF_INDIVIDUAL}: The size of the circle representing an {@link Individual}.</p>
+	 * <p>{@link ISimulationSettings#SIZE_OF_BUILDING}: The size of the circle representing a building.</p>
+	 * <p>{@link ISimulationSettings#SIZE_OF_PATH}: The thickness of the line representing a path.</p>
+	 * <p>{@link ISimulationSettings#COLOR_FOR_DEBUG}: The color used to mark UI elements of interest for debugging. This color is not used by the simulation but provides a mean to facilitate debugging in the UI.</p>
+	 * <p>{@link ISimulationSettings#COLOR_OF_INDIVIDUAL}: The color used to mark {@link Individual}s.</p>
+	 * <p>{@link ISimulationSettings#COLOR_OF_BACKGROUND}: The color used as background color.</p>
+	 * <p>{@link ISimulationSettings#COLOR_OF_BUILDING}: The color used to mark buildings.</p>
+	 * <p>{@link ISimulationSettings#COLOR_OF_TARGET_BUILDING}: The color used to mark the current target building of each {@link Individual}. Is only introduced for debugging purposes.</p>
+	 * <p>{@link ISimulationSettings#COLOR_OF_PATH}: The color used to mark the paths.</p>
 	 */
-	public static final double SIZE_OF_AGENT = 3.0;
-	public static final double SIZE_OF_AGENT_SELECTED = 3.0;
+	public static final double SIZE_OF_INDIVIDUAL = 3.0;
 	public static final double SIZE_OF_BUILDING = 2.5;
-	public static final double SIZE_OF_BUILDING_SELCTED = 5.0; 
 	public static final double SIZE_OF_PATH = 1.0; // TODO: not actually used by portrayal
 	public static final Color COLOR_FOR_DEBUG = new Color(235, 59, 90); // desire (red)
 	public static final Color COLOR_OF_SELECTED_ENTITY = new Color(38, 222, 129); // reptile green
-	public static final Color COLOR_OF_AGENT = new Color(165, 94, 234); // lighter purple
+	public static final Color COLOR_OF_INDIVIDUAL = new Color(165, 94, 234); // lighter purple
 	public static final Color COLOR_OF_BACKGROUND = Color.white;
 	public static final Color COLOR_OF_BUILDING = new Color(69, 170, 242); // high blue
 	public static final Color COLOR_OF_TARGET_BUILDING = new Color(250, 130, 49); // beniukon bronze
 	public static final Color COLOR_OF_PATH = new Color(209, 216, 224); // twinkle blue
 	
 	/**
-	 * Constants used for simulating time
-	 */
-	public static final int BASE_YEAR = 2018;
-	public static final int BASE_MONTH = 1;
-	public static final int BASE_DAY = 1;
-	public static final int BASE_HOUR = 0;
-	public static final int BASE_MINUTE = 0;
-	public static final int LAST_HOUR_OF_DAY = 23;
-	public static final int LAST_MINUTE_OF_HOUR = 59;
-	public static final DateTime START_OF_DAY = new DateTime(BASE_YEAR, BASE_MONTH, BASE_DAY, BASE_HOUR, BASE_MINUTE);
-	public static final DateTime END_OF_DAY = new DateTime(BASE_YEAR, BASE_MONTH, BASE_DAY, LAST_HOUR_OF_DAY, LAST_MINUTE_OF_HOUR);
-	
-	/**
-	 * Constants used for handling numbers & calculations
-	 */
-	public static final int PRECISION_USED_FOR_BIG_DECIMAL = 6;
-	public static final int SCALE_USED_FOR_BIG_DECIMAL = 6;
-	public static final RoundingMode ROUNDING_MODE_USED_FOR_BIG_DECIMAL = RoundingMode.HALF_UP;
-	public static final BigDecimal TOLERATED_ROUNDING_ERROR = BigDecimal.valueOf(0.00001);
-	
-	/**
-	 * Constants used for simulating individuals
-	 */
-	public static final int NUMBER_OF_INDIVIDUALS = 5;
-	public static final int MIN_NUMBER_OF_HOUSEHOLD_MEMBERS = 1;
-	public static final int MAX_NUMBER_OF_HOUSEHOLD_MEMBERS = 4;
-	// TODO: maybe used different probability for planning and accepting a request? -> also justify probablilities
-	public static final double PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY = 0.9;
-	public static final int MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY = 3;
-	public static final int MIN_NUMBER_OF_WORK_COLLEGUES = 1;
-	public static final int MAX_NUMBER_OF_WORK_COLLEGUES = 4;
-	public static final int MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY = 1;
-	// TODO: maybe used different probability for planning and accepting a request?
-	public static final double PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY = 0.7;
-	public static final int MIN_NUMBER_OF_FRIENDS = 1;
-	public static final int MAX_NUMBER_OF_FRIENDS = 4;
-	public static final int MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY = 1;
-	// TODO: maybe used different probability for planning and accepting a request?
-	public static final double PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY = 0.7;
-	public static final int MAX_NUMBER_OF_DIFFERENT_LOCATIONS = 6;
-	
-	/**
-	 * Attributes of buildings
-	 */
-	public static final String ATTRIBUTE_MASON_GEOMETRY_OF_CLOSEST_PATH = "MASON_GEOMETRY_OF_CLOSEST_PATH";
-	public static final String ATTRIBUTE_ACTIVITY_CATEGORY = "ACTIVITY_CATEGORY";
-	
-	/**
-	 * Max distances to related activity locations
-	 */
-	public static final double MAX_DISTANCE_TO_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE = 100;
-	public static final double MAX_DISTANCE_TO_THIRD_PLACE_FOR_WORK = 100;
-	public static final double MAX_DISTANCE_TO_THIRD_PLACE_FOR_LEISURE = 100;
-	
-	/**
-	 * Constants used to describe simulation output
+	 * @category Configuration of aspects related to simulation output 
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to simulation output.</p>
+	 * 
+	 * <p>These constants are used as labels for the simulations output. As sucht they are used by {@link EnvironmentObserver}, {@link Environment#m_outputHolder}, {@link Environment#m_activityCategoryDataset} and {@link Activity#m_activityDescription}
+	 * to ensure consistant referral to information serialzied as CSV to disk.</p>
+	 * 
+	 * <p><b>Note:</b>If you need additional attributes in order to capture the simulation's output make sure to add a corresponding constant here and use it at the aforementioned locations to refer to it.</p>
+	 * 
 	 */
 	public static final String TIME_STAMP = "time stamp";
 	public static final String TOTAL_NUMBER_OF_AGENTS = "total number of agents";
@@ -214,26 +378,29 @@ public interface ISimulationSettings {
 	public static final String TITLE_OF_BARCHART = "Activities";
 	
 	/**
-	 * Activities
+	 * @category Configuration of aspects related to numbers & calculations
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to calculations and numbers output (see {@link CalculationUtility}).</p>
+	 * 
+	 *  <p><b>Note:</b> It is recommended to only create and used {@link BigDecimal}'s via the {@link CalculationUtility} since this it takes issues related
+	 *  to rounding into account and thus ensures that the precision of any {@link BigDecimal} is always as specified by the constants defined here.</p>
+	 * 
+	 * {@link ISimulationSettings#PRECISION_USED_FOR_BIG_DECIMAL}: The precision used when operating with {@link BigDecimal}'s.
+	 * {@link ISimulationSettings#SCALE_USED_FOR_BIG_DECIMAL}: The scale used when operating with {@link BigDecimal}'s.
+	 * {@link ISimulationSettings#ROUNDING_MODE_USED_FOR_BIG_DECIMAL}: The rounding mode used when operating with {@link BigDecimal}'s.
+	 * {@link ISimulationSettings#TOLERATED_ROUNDING_ERROR}: The tolerated rounding error when operating with {@link BigDecimal}'s.
+	 * 
 	 */
-	// TODO: use empirical values
-	public static final double MEAN_OF_LEISURE_ACTIVITY_DURATION = 120;
-	public static final double STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION = 60;
-	public static final NormalDistribution DISTRIBUTION_OF_LEISURE_DURATION = new NormalDistribution(MEAN_OF_LEISURE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION);
-	public static final double MEAN_OF_WORK_ACTIVITY_DURATION = 180;
-	public static final double STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION = 30;
-	public static final NormalDistribution DISTRIBUTION_OF_WORK_DURATION = new NormalDistribution(MEAN_OF_WORK_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION);
-	public static final double MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION = 90;
-	public static final double STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION = 30;
-	public static final NormalDistribution DISTRIBUTION_OF_PERSONAL_CARE_DURATION = new NormalDistribution(MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION);
-	public static final double MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 90;
-	public static final double STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 45;
-	public static final NormalDistribution DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION = new NormalDistribution(MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION);
-	public static HashMap<ActivityCategory, AbstractRealDistribution> s_ActivityCategoryToDurationDistributionMap = initActivityCategoryToDurationDistributionMap();
+	public static final int PRECISION_USED_FOR_BIG_DECIMAL = 6;
+	public static final int SCALE_USED_FOR_BIG_DECIMAL = 6;
+	public static final RoundingMode ROUNDING_MODE_USED_FOR_BIG_DECIMAL = RoundingMode.HALF_UP;
+	public static final BigDecimal TOLERATED_ROUNDING_ERROR = BigDecimal.valueOf(0.00001);
 	
 	/**
+	 * This function is used to initialize the mapping of {@link ActivityCategory}s to {@link AbstractRealDistribution} used to define
+	 * the duration distribution of {@link Activity}s within the respective categories.
 	 * 
-	 * @return
+	 * @return HashMap<ActivityCategory, AbstractRealDistribution> - a mapping with the duration distribution of each activity category.
 	 */
 	public static HashMap<ActivityCategory, AbstractRealDistribution> initActivityCategoryToDurationDistributionMap() {
 		HashMap<ActivityCategory, AbstractRealDistribution> activityCategoryToDurationDistributionMap = new HashMap<>();
