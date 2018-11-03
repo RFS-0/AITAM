@@ -65,7 +65,7 @@ public final class TimeUtility {
 			return false;
 		}
 		// last activity does not end at end of day
-		if (!randomAgenda.getLastPlannedActivityInterval().getEnd().equals(TimeUtility.getEndOfCurrentDay(currentTime))) {
+		if (!randomAgenda.getLastPlannedInterval().getEnd().equals(TimeUtility.getEndOfCurrentDay(currentTime))) {
 			return false;
 		}
 		Interval preceding = null;
@@ -167,11 +167,11 @@ public final class TimeUtility {
 		DateTime baseStart = realInterval.getStart()
 				.withYear(ISimulationSettings.BASE_YEAR)
 				.withMonthOfYear(ISimulationSettings.BASE_MONTH)
-				.withDayOfMonth(ISimulationSettings.BASE_DAY);
+				.withDayOfWeek(realInterval.getStart().getDayOfWeek());
 		DateTime baseEnd = realInterval.getEnd()
 				.withYear(ISimulationSettings.BASE_YEAR)
 				.withMonthOfYear(ISimulationSettings.BASE_MONTH)
-				.withDayOfMonth(ISimulationSettings.BASE_DAY);
+				.withDayOfWeek(realInterval.getStart().getDayOfWeek());
 		return new Interval(baseStart, baseEnd);
 	}
 	
