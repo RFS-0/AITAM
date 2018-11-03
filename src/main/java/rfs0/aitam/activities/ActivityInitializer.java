@@ -8,15 +8,28 @@ import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.utilities.CalculationUtility;
 
+/**
+ * <p>This class is used to initialize all activities of the simulation. As such it contains one method to instantiate 
+ * each of the activities mentioned in the <a href="activity_configuration.xlsx">configuration file</a>. Furtermore, it
+ * relies on the following builders:</p>
+ * 
+ * <p>{@link ActivityInitializer#ACTIVITY_BUILDER}: The builder used to build {@link Activity}s.</p>
+ * <p>{@link ActivityInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to build {@link NeedTimeSplit}s.</p>
+ */
 public final class ActivityInitializer {
 	
 	public static final Activity.Builder ACTIVITY_BUILDER = new Activity.Builder();
 	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder();
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initLeisureAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at home alone")
+				.withActivityDescription(ISimulationSettings.LEISURE_AT_HOME_ALONE_ACTIVITY)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
@@ -32,6 +45,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initLeisureAtHomeWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
@@ -53,6 +71,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initLeisureAtHomeWithFriendsActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
@@ -74,6 +97,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initLeisureAtThirdPlaceForLeisureAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
@@ -93,6 +121,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
@@ -114,6 +147,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initLeisureAtThirdPlaceForLeisureWithFriendsActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
@@ -135,6 +173,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initWorkAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 		.withActivityCategory(ActivityCategory.WORK)
@@ -153,6 +196,11 @@ public final class ActivityInitializer {
 		.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initWorkAtWorkPlaceAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
@@ -171,6 +219,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initWorkAtWorkPlaceWithCoworkers() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
@@ -191,6 +244,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initWorkAtThirdPlaceForWorkAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
@@ -209,6 +267,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initWortAtThirdPlaceForWorkWithCoworkers() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
@@ -229,6 +292,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initWorkDuringTravelAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
@@ -247,6 +315,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initWorkDuringTravelWithCoworkers() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
@@ -267,6 +340,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initPersonalCareAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
@@ -284,6 +362,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initPersonalCareAtHomeWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
@@ -303,6 +386,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initPersonalCareAtHomeWithFriendsActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
@@ -322,6 +410,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initPersonalCareAtWorkPlaceAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
@@ -339,6 +432,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initPersonalCareAtWorkPlaceWithCoworkersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
@@ -358,6 +456,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initPersonalCareAtThirdPlaceForPersonalCareAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
@@ -375,6 +478,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
@@ -394,6 +502,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
@@ -413,6 +526,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initHouseholdAndFamilyCareAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
@@ -430,6 +548,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
@@ -448,6 +571,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
@@ -465,6 +593,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
@@ -483,6 +616,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initIdleAtHomeActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
@@ -498,6 +636,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initIdleAtWorkActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
@@ -513,6 +656,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initIdleAtLeisureActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
@@ -528,6 +676,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initIdleAtThirdPlaceForHouseholdAndFamilyCareActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
@@ -543,6 +696,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initIdleAtThirdPlaceForWorkActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
@@ -558,6 +716,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initIdleAtThirdPlaceForLeisureActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
@@ -573,6 +736,11 @@ public final class ActivityInitializer {
 				.build();
 	}
 	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
 	public static Activity initTravelActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.TRAVEL)
