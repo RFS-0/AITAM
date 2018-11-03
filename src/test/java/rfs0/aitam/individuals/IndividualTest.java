@@ -71,7 +71,7 @@ public class IndividualTest {
 		
 		// the plan covers the whole day
 		assertEquals(startOfFirstDay, activityPlan.getFirstPlannedInterval().getStart());
-		assertEquals(endOfFirstDay, activityPlan.getLastPlannedActivityInterval().getEnd());
+		assertEquals(endOfFirstDay, activityPlan.getLastPlannedInterval().getEnd());
 	
 		// all entries have an activity
 		activityPlan.getIntervals().stream().forEach(interval -> {
