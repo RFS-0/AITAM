@@ -573,7 +573,7 @@ public class Individual {
 	
 	private List<Activity> getAllAvailableActivitiesForCategoryAndInterval(ActivityAgenda randomAgenda, ActivityCategory activityCategory, DateTime currentDateTime, int currentDayOfWeek, Interval intervalOfInterestInBaseTime) {
 		// if smaller than min duration then stay at current location
-		if ((int) intervalOfInterestInBaseTime.toDuration().getStandardMinutes() <= ISimulationSettings.MIN_DURATION && m_currentActivity != null) {
+		if ((int) intervalOfInterestInBaseTime.toDuration().getStandardMinutes() <= ISimulationSettings.MIN_DURATION_OF_ACTIVITY_TO_TRAVEL_TO_DIFFERENT_LOCATION && m_currentActivity != null) {
 			return m_environment.getAllActivities().values().stream()
 				.filter(activity -> activity.getActivityCategory() == activityCategory || activity.getActivityCategory() == ActivityCategory.IDLE)
 				.filter(activity -> activity.getActivityLocation() == m_currentActivity.getActivityLocation())
@@ -698,7 +698,7 @@ public class Individual {
 		m_currentTargetNode = m_activityAgenda.getNodeForDateTime(m_environment.getSimulationTime().getCurrentDateTime());
 			Environment.NODE_TO_CLOSEST_BUILDING_MAP.get(m_currentTargetNode).getGeometry().setUserData(
 					new LabelledPortrayal2D(
-							new GeomPortrayal(ISimulationSettings.COLOR_OF_TARGET_BUILDING, ISimulationSettings.SIZE_OF_BUILDING_SELCTED, true), 
+							new GeomPortrayal(ISimulationSettings.COLOR_OF_TARGET_BUILDING, ISimulationSettings.SIZE_OF_BUILDING, true), 
 							10,
 							5,
 							0.5,
