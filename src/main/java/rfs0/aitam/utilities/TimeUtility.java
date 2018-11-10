@@ -167,11 +167,11 @@ public final class TimeUtility {
 		DateTime baseStart = realInterval.getStart()
 				.withYear(ISimulationSettings.BASE_YEAR)
 				.withMonthOfYear(ISimulationSettings.BASE_MONTH)
-				.withDayOfWeek(realInterval.getStart().getDayOfWeek());
+				.withDayOfMonth(ISimulationSettings.BASE_DAY);
 		DateTime baseEnd = realInterval.getEnd()
 				.withYear(ISimulationSettings.BASE_YEAR)
 				.withMonthOfYear(ISimulationSettings.BASE_MONTH)
-				.withDayOfWeek(realInterval.getStart().getDayOfWeek());
+				.withDayOfMonth(ISimulationSettings.BASE_DAY);
 		return new Interval(baseStart, baseEnd);
 	}
 	
