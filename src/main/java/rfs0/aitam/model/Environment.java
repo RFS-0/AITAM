@@ -270,6 +270,7 @@ public class Environment extends SimState {
 			});
 		}
 		schedule.scheduleRepeating(0.0, 10, m_individualsField.scheduleSpatialIndexUpdater());
+		// update attributes for simulation output
 		schedule.scheduleRepeating(0.0, 11, new Steppable() {
 				private static final long serialVersionUID = 1L;
 				@Override
