@@ -288,8 +288,8 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES}: The time points an {@link Individual} can plan resp. replan it's activities for the current day (see {@link Environment#start()}).</p>
 	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY}: The maximum number of trials to find a time slot for a joint activity. Since it is possible that one of the network members. 
 	 * participating in the proposed joint activity has already planned some other activity for the proposed time slot, the network member asking others if they would like to participate proposes another time slot until it reached the maximum number of trials.</p>
-	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_DIFFERENT_LOCATIONS}: The maximum number of different locations an {@link Individual} incorporates in the planning of a day. This is used to improve the performance of the simulation since calculating the travel time for plans
-	 *    with many different locations consumes a lot of computing resources to calculate travel times, but those plans are not likely to be selected since travel time decreases the time the individual can spend on satisfying its needs.</p>
+	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_TRAVEL_ACTIVITIES}: The maximum number of travel activities an {@link Individual} incorporates in the planning of a day. This is used to improve the performance of the simulation since calculating the travel time for plans
+	 *    with many travel activities consumes a lot of computing resources to calculate travel times, but those plans are not likely to be selected since travel time decreases the time the individual can spend on satisfying its needs.</p>
 	 * <p>{@link ISimulationSettings#MIN_DURATION_OF_ACTIVITY_TO_TRAVEL_TO_DIFFERENT_LOCATION}: If the duration of an {@link Activity} is smaller than this constant, the {@link Individual} must stay at it's current location, 
 	 *    since traveling would otherwise consume most or all of the time the {@link Individual} intends to spend on the activity.</p>
 	 */
@@ -301,7 +301,7 @@ public interface ISimulationSettings {
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30))
 			.collect(Collectors.toCollection(ArrayList::new));
 	public static final int MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY = 5;
-	public static final int MAX_NUMBER_OF_DIFFERENT_LOCATIONS = 6;
+	public static final int MAX_NUMBER_OF_TRAVEL_ACTIVITIES = 6;
 	public static final int MIN_DURATION_OF_ACTIVITY_TO_TRAVEL_TO_DIFFERENT_LOCATION = 30;
 	
 	/**
@@ -395,6 +395,13 @@ public interface ISimulationSettings {
 	public static final int SCALE_USED_FOR_BIG_DECIMAL = 6;
 	public static final RoundingMode ROUNDING_MODE_USED_FOR_BIG_DECIMAL = RoundingMode.HALF_UP;
 	public static final BigDecimal TOLERATED_ROUNDING_ERROR = BigDecimal.valueOf(0.00001);
+	
+	/**
+	 * @category Configuration of aspects related to debugging
+	 * 
+	 * {@link ISimulationSettings#IS_DEBUG}: Flag for whether or not the simulation should show information helpful for debugging.
+	 */
+	public static final boolean IS_DEBUG = true;
 	
 	/**
 	 * This function is used to initialize the mapping of {@link ActivityCategory}s to {@link AbstractRealDistribution} used to define
