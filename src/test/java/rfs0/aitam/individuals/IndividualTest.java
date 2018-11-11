@@ -131,12 +131,19 @@ public class IndividualTest {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void step(SimState state) {
+							individual.move();
+						}
+					});
+					schedule.scheduleRepeating(0.0, 5, new Steppable() {			
+						private static final long serialVersionUID = 1L;
+						@Override
+						public void step(SimState state) {
 							individual.executeActivity();
 						}
 					});
 				}
-				schedule.scheduleRepeating(0.0, 5, getSimulationTime()); // update clock after indivdual have executed their step
-				schedule.scheduleRepeating(0.0, 6, getIndividualsField().scheduleSpatialIndexUpdater());
+				schedule.scheduleRepeating(0.0, 6, getSimulationTime()); // update clock after indivdual have executed their step
+				schedule.scheduleRepeating(0.0, 7, getIndividualsField().scheduleSpatialIndexUpdater());
 			};
 		};
 		environment.start();
