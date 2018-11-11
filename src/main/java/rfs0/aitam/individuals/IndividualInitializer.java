@@ -146,7 +146,7 @@ public final class IndividualInitializer {
 							.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 							.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 							.build())
-					.build();
+					.buildAndValidate();
 		}
 	}
 	
