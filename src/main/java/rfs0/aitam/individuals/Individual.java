@@ -39,8 +39,8 @@ import sim.util.geo.PointMoveTo;
 
 /**
  * <p>This class is used to model an abstraction of real world individuals and their attributes relevant for planning and executing their daily activities based on a set 
- * of needs introduced by Manfred Max-Neef (see <a href="https://en.wikipedia.org/wiki/Fundamental_human_needs">fundamental human needs</a> for more information). In order to do so,
- * the following attributes are required:</p>
+ * of needs introduced by Manfred Max-Neef (see <a href="https://en.wikipedia.org/wiki/Fundamental_human_needs">fundamental human needs</a> for more information). 
+ * In order to do so, the following attributes are required:</p>
  *
  * <p><b>Environment</b></p>
  * 
@@ -760,12 +760,11 @@ public class Individual {
 	 * 		<li>Its likelihood of planning a joint activity for the given network type.</p>
 	 * 	</ol> 
 	 * 
-	 * 
 	 * @param networkType - the type of network for which it is planning or being asked to participate in a joint activity.
 	 * @param probabilityOfPlaningActivityForNetworkType - the probability of planning of or agreeing to a joint activity of the specified network type.
 	 * @return boolean - <code>true</code> if it is willing to participate, <code>false</code> otherwise.
 	 */
-	public boolean isOpenForNetworkActivities(NetworkType networkType, double probabilityOfPlaningActivityForNetworkType) {
+	public boolean isOpenForNetworkActivities(NetworkType networkType, double probabilityOfPlaningActivityForNetworkType) {	
 		boolean hasReachedMaxNumberOfActivitiesForNetworkType = false;
 		switch (networkType) {
 			case FRIENDS_NETWORK:
