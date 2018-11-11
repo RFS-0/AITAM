@@ -117,8 +117,6 @@ public class EnvironmentWithUI extends GUIState {
 		TabbedInspector tabbedInspector = new TabbedInspector(true);
 		tabbedInspector.addInspector(new SimpleInspector(environment.getSimulationTime(), this), "Time");
 		tabbedInspector.addInspector(new SimpleInspector(environment.getIndividuals(), this), "Individuals");
-		tabbedInspector.addInspector(new SimpleInspector(environment.getCurrentLocationPoints(), this), "Current location points");
-		tabbedInspector.addInspector(new SimpleInspector(environment.getCurrentNodes(), this), "Current nodes");
 		tabbedInspector.addInspector(new SimpleInspector(environment.getAllActivities(), this), "Activities");
 		tabbedInspector.addInspector(new SimpleInspector(environment.getEdgeTraffic(), this), "Traffic");
 		tabbedInspector.addInspector(new SimpleInspector(environment.getIndividualsField(), this), "Individuals field");
