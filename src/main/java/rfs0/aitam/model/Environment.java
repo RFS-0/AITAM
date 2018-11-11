@@ -41,6 +41,8 @@ public class Environment extends SimState {
 
 	private static final long serialVersionUID = 1L;
 	
+	public static final ActivityInitializer ACTIVITY_INITIALIZER = new ActivityInitializer();
+	
 	public static final GeometryFactory GEO_FACTORY = new GeometryFactory();
 	public static HashMap<MasonGeometry, Node> BUILDING_TO_CLOSEST_NODE_MAP = new HashMap<>();
 	public static HashMap<Node, MasonGeometry> NODE_TO_CLOSEST_BUILDING_MAP = new HashMap<>();
@@ -138,6 +140,13 @@ public class Environment extends SimState {
 				}
 			});
 			schedule.scheduleRepeating(0.0, 4, new Steppable() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void step(SimState state) {
+					individual.move();
+				}
+			});
+			schedule.scheduleRepeating(0.0, 5, new Steppable() {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
@@ -305,53 +314,53 @@ public class Environment extends SimState {
 	}
 
 	private void initWorkActivities() {
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_HOME_ALONE, ActivityInitializer.initWorkAtHomeAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_WORK_PLACE_ALONE, ActivityInitializer.initWorkAtWorkPlaceAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_WORK_PLACE_WITH_COWORKERS, ActivityInitializer.initWorkAtWorkPlaceWithCoworkers());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_THIRD_PLACE_ALONE, ActivityInitializer.initWorkAtThirdPlaceForWorkAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_THIRD_PLACE_WITH_COWORKERS, ActivityInitializer.initWortAtThirdPlaceForWorkWithCoworkers());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_DURING_TRAVEL_ALONE, ActivityInitializer.initWorkDuringTravelAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_DURING_TRAVEL_WITH_COWORKERS, ActivityInitializer.initWorkDuringTravelWithCoworkers());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_HOME_ALONE, ACTIVITY_INITIALIZER.initWorkAtHomeAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_WORK_PLACE_ALONE, ACTIVITY_INITIALIZER.initWorkAtWorkPlaceAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_WORK_PLACE_WITH_COWORKERS, ACTIVITY_INITIALIZER.initWorkAtWorkPlaceWithCoworkers());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_THIRD_PLACE_ALONE, ACTIVITY_INITIALIZER.initWorkAtThirdPlaceForWorkAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_THIRD_PLACE_WITH_COWORKERS, ACTIVITY_INITIALIZER.initWorkAtThirdPlaceForWorkWithCoworkers());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_DURING_TRAVEL_ALONE, ACTIVITY_INITIALIZER.initWorkDuringTravelAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_DURING_TRAVEL_WITH_COWORKERS, ACTIVITY_INITIALIZER.initWorkDuringTravelWithCoworkers());
 	}
 
 	private void initLeisureActivities() {
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_ALONE_ACTIVITY, ActivityInitializer.initLeisureAtHomeAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initLeisureAtHomeWithHouseholdMembersActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_WITH_FRIENDS, ActivityInitializer.initLeisureAtHomeWithFriendsActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_ALONE, ActivityInitializer.initLeisureAtThirdPlaceForLeisureAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_FRIENDS, ActivityInitializer.initLeisureAtThirdPlaceForLeisureWithFriendsActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_ALONE_ACTIVITY, ACTIVITY_INITIALIZER.initLeisureAtHomeAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initLeisureAtHomeWithHouseholdMembersActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_WITH_FRIENDS, ACTIVITY_INITIALIZER.initLeisureAtHomeWithFriendsActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_ALONE, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_FRIENDS, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureWithFriendsActivity());
 	}
 	
 	private void initPersonalCareActivities() {
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_ALONE, ActivityInitializer.initPersonalCareAtHomeAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initPersonalCareAtHomeWithHouseholdMembersActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_WITH_FRIENDS, ActivityInitializer.initPersonalCareAtHomeWithFriendsActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_WORK_ALONE, ActivityInitializer.initPersonalCareAtWorkPlaceAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_WORK_WITH_COWORKERS, ActivityInitializer.initPersonalCareAtWorkPlaceWithCoworkersActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_ALONE, ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS, ActivityInitializer.initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_ALONE, ACTIVITY_INITIALIZER.initPersonalCareAtHomeAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initPersonalCareAtHomeWithHouseholdMembersActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_WITH_FRIENDS, ACTIVITY_INITIALIZER.initPersonalCareAtHomeWithFriendsActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_WORK_ALONE, ACTIVITY_INITIALIZER.initPersonalCareAtWorkPlaceAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_WORK_WITH_COWORKERS, ACTIVITY_INITIALIZER.initPersonalCareAtWorkPlaceWithCoworkersActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_ALONE, ACTIVITY_INITIALIZER.initPersonalCareAtThirdPlaceForPersonalCareAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS, ACTIVITY_INITIALIZER.initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity());
 	}
 	
 	private void initHouseholdCareActivities() {
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_ALONE, ActivityInitializer.initHouseholdAndFamilyCareAtHomeAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_ALONE, ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ActivityInitializer.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_ALONE, ACTIVITY_INITIALIZER.initHouseholdAndFamilyCareAtHomeAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_ALONE, ACTIVITY_INITIALIZER.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers());
 	}
 	
 	private void initTravelActivities() {
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.TRAVEL, ActivityInitializer.initTravelActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.TRAVEL, ACTIVITY_INITIALIZER.initTravelActivity());
 	}
 	
 	private void initIdleActivities() {
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_HOME, ActivityInitializer.initIdleAtHomeActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_LEISURE, ActivityInitializer.initIdleAtLeisureActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_WORK, ActivityInitializer.initIdleAtWorkActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, ActivityInitializer.initIdleAtThirdPlaceForHouseholdAndFamilyCareActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_LEISURE, ActivityInitializer.initIdleAtThirdPlaceForLeisureActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_WORK, ActivityInitializer.initIdleAtThirdPlaceForWorkActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_HOME, ACTIVITY_INITIALIZER.initIdleAtHomeActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_LEISURE, ACTIVITY_INITIALIZER.initIdleAtLeisureActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_WORK, ACTIVITY_INITIALIZER.initIdleAtWorkActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, ACTIVITY_INITIALIZER.initIdleAtThirdPlaceForHouseholdAndFamilyCareActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_LEISURE, ACTIVITY_INITIALIZER.initIdleAtThirdPlaceForLeisureActivity());
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_WORK, ACTIVITY_INITIALIZER.initIdleAtThirdPlaceForWorkActivity());
 	}
 	
 	private void initIndividuals() {
