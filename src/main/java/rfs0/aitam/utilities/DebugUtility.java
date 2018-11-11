@@ -1,6 +1,7 @@
 package rfs0.aitam.utilities;
 
 import java.awt.Font;
+import java.util.ArrayList;
 
 import rfs0.aitam.activities.Activity;
 import rfs0.aitam.settings.ISimulationSettings;
@@ -35,6 +36,32 @@ public final class DebugUtility {
 			public String getLabel(Object object, DrawInfo2D info) {
 				return String.format("Target of %s for activity %s", String.valueOf(idOfIndividual), currentActivity.getActivityDescription());
 			}
+		};
+	}
+	
+	/**
+	 * <p>This method creates a portrayal which is designed to be helpful for debugging visually issues related to buildings.</p>
+	 * 
+	 * @param householdMembersIndices - a list of all individuals for which this building is their home location.
+	 * @return LabelledPortrayal2D - a portrayal helpful for visual debugging
+	 */
+	public static LabelledPortrayal2D createLabelledPortrayal2DForBuilding(ArrayList<Integer> householdMembersIndices) {
+		return new LabelledPortrayal2D(
+						new GeomPortrayal(ISimulationSettings.COLOR_OF_BUILDING, ISimulationSettings.SIZE_OF_BUILDING, true), 
+					10,
+					5,
+					0.5,
+					0.5,
+					new Font("SansSerif",Font.BOLD, 15),
+					LabelledPortrayal2D.ALIGN_LEFT,
+					null, 
+					ISimulationSettings.COLOR_OF_BUILDING, 
+					false) {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public String getLabel(Object object, DrawInfo2D info) {
+					return String.format("Home of: %s ", String.valueOf(householdMembersIndices));
+				}
 		};
 	}
 	
