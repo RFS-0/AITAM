@@ -26,7 +26,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initLeisureAtHomeAloneActivity() {
+	public Activity initLeisureAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
 				.withActivityDescription(ISimulationSettings.LEISURE_AT_HOME_ALONE_ACTIVITY)
@@ -50,8 +50,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initLeisureAtHomeWithHouseholdMembersActivity() {
+	public Activity initLeisureAtHomeWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initLeisureAtHomeAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.LEISURE)
 				.withActivityDescription("Leisure at home with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -65,7 +67,6 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Sports and recreation, hobbies, reading, TV viewing")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
@@ -76,8 +77,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initLeisureAtHomeWithFriendsActivity() {
+	public Activity initLeisureAtHomeWithFriendsActivity() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initLeisureAtHomeAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.LEISURE)
 				.withActivityDescription("Leisure at home with friends")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -91,7 +94,6 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Sports, TV, reading, video games")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
 				.withNetworkType(NetworkType.FRIENDS_NETWORK)
 				.build();
@@ -102,7 +104,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initLeisureAtThirdPlaceForLeisureAloneActivity() {
+	public Activity initLeisureAtThirdPlaceForLeisureAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
 				.withActivityDescription("Leisure at 3rd place alone")
@@ -116,7 +118,7 @@ public final class ActivityInitializer {
 				.withExamples("Sports and recreation, culture and amusement events, hobbies, shopping, having meals")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_LEISURE)
 				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
@@ -126,8 +128,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity() {
+	public Activity initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initLeisureAtThirdPlaceForLeisureAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.LEISURE)
 				.withActivityDescription("Leisure at 3rd place with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -141,8 +145,7 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Sports and recreation, culture and amusement events, hobbies, shopping, having meals")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_LEISURE)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
@@ -152,8 +155,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initLeisureAtThirdPlaceForLeisureWithFriendsActivity() {
+	public Activity initLeisureAtThirdPlaceForLeisureWithFriendsActivity() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initLeisureAtThirdPlaceForLeisureAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.LEISURE)
 				.withActivityDescription("Leisure at 3rd place with friends")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -167,8 +172,7 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Sports and recreation, culture and amusement events, hobbies, shopping, having meals")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_LEISURE)
 				.withNetworkType(NetworkType.FRIENDS_NETWORK)
 				.build();
 	}
@@ -178,7 +182,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initWorkAtHomeAloneActivity() {
+	public Activity initWorkAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 		.withActivityCategory(ActivityCategory.WORK)
 		.withActivityDescription("Work at home alone")
@@ -201,7 +205,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initWorkAtWorkPlaceAloneActivity() {
+	public Activity initWorkAtWorkPlaceAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
 				.withActivityDescription("Work at work location alone")
@@ -224,8 +228,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initWorkAtWorkPlaceWithCoworkers() {
+	public Activity initWorkAtWorkPlaceWithCoworkers() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initWorkAtHomeAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.WORK)
 				.withActivityDescription("Work at work location with coworkers")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -238,7 +244,6 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Paid work")
 				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.WORK)
 				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
 				.build();
@@ -249,7 +254,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initWorkAtThirdPlaceForWorkAloneActivity() {
+	public Activity initWorkAtThirdPlaceForWorkAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
 				.withActivityDescription("Work at 3rd place for work alone")
@@ -262,7 +267,7 @@ public final class ActivityInitializer {
 				.withExamples("Paid work")
 				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_WORK)
 				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
@@ -272,8 +277,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initWortAtThirdPlaceForWorkWithCoworkers() {
+	public Activity initWorkAtThirdPlaceForWorkWithCoworkers() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initWorkAtThirdPlaceForWorkAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.WORK)
 				.withActivityDescription("Work at 3rd place for work with coworkers")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -286,8 +293,7 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Paid work")
 				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_WORK)
 				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
 				.build();
 	}
@@ -297,7 +303,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initWorkDuringTravelAloneActivity() {
+	public Activity initWorkDuringTravelAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
 				.withActivityDescription("Work during travel alone")
@@ -320,8 +326,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initWorkDuringTravelWithCoworkers() {
+	public Activity initWorkDuringTravelWithCoworkers() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initWorkDuringTravelAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.WORK)
 				.withActivityDescription("Work during travel with coworkers")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -334,7 +342,6 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Paid work")
 				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.TRAVEL)
 				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
 				.build();
@@ -345,7 +352,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initPersonalCareAtHomeAloneActivity() {
+	public Activity initPersonalCareAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
 				.withActivityDescription("Personal care at home alone")
@@ -367,8 +374,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initPersonalCareAtHomeWithHouseholdMembersActivity() {
+	public Activity initPersonalCareAtHomeWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initPersonalCareAtHomeAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
 				.withActivityDescription("Personal care at home with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -380,7 +389,6 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Cooking, having meals, talking, cleaning")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
@@ -391,8 +399,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initPersonalCareAtHomeWithFriendsActivity() {
+	public Activity initPersonalCareAtHomeWithFriendsActivity() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initPersonalCareAtHomeAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
 				.withActivityDescription("Personal care at home with friends")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -404,7 +414,6 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Cooking, having meals, talking")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
 				.withNetworkType(NetworkType.FRIENDS_NETWORK)
 				.build();
@@ -415,7 +424,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initPersonalCareAtWorkPlaceAloneActivity() {
+	public Activity initPersonalCareAtWorkPlaceAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
 				.withActivityDescription("Personal care at work alone")
@@ -437,8 +446,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initPersonalCareAtWorkPlaceWithCoworkersActivity() {
+	public Activity initPersonalCareAtWorkPlaceWithCoworkersActivity() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initPersonalCareAtWorkPlaceAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
 				.withActivityDescription("Personal care at work with coworkers")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -450,7 +461,6 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Having meals")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.WORK)
 				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
 				.build();
@@ -461,7 +471,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initPersonalCareAtThirdPlaceForPersonalCareAloneActivity() {
+	public Activity initPersonalCareAtThirdPlaceForPersonalCareAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
 				.withActivityDescription("Personal care at 3rd place alone")
@@ -473,7 +483,7 @@ public final class ActivityInitializer {
 				.withExamples("Sports")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
@@ -483,8 +493,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity() {
+	public Activity initPersonalCareAtThirdPlaceForPersonalCareWithHouseholdMembersActivity() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initPersonalCareAtThirdPlaceForPersonalCareAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
 				.withActivityDescription("Personal care at 3rd place with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -496,8 +508,7 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Sports")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
@@ -507,8 +518,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity() {
+	public Activity initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initPersonalCareAtThirdPlaceForPersonalCareAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
 				.withActivityDescription("Personal care at 3rd place with friends")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -520,8 +533,7 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Sports")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.withNetworkType(NetworkType.FRIENDS_NETWORK)
 				.build();
 	}
@@ -531,7 +543,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initHouseholdAndFamilyCareAtHomeAloneActivity() {
+	public Activity initHouseholdAndFamilyCareAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
 				.withActivityDescription("Household/family care at home alone")
@@ -553,8 +565,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty() {
+	public Activity initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initHouseholdAndFamilyCareAtHomeAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
 				.withActivityDescription("Household/family care at home with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -565,7 +579,6 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Housework, Shopping, family business, services and civic matters")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
 				.withActivityLocation(ActivityLocation.HOME)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
@@ -576,7 +589,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity() {
+	public Activity initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
 				.withActivityDescription("Household/family care at 3rd place alone")
@@ -587,8 +600,8 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Shopping, family business, services and civic matters")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
@@ -598,8 +611,10 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers() {
+	public Activity initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers() {
 		return ACTIVITY_BUILDER
+				.withAlternativeActivity(initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity())
+				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
 				.withActivityDescription("Household/family care at 3rd place with household members")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -610,8 +625,7 @@ public final class ActivityInitializer {
 						.build())
 				.withExamples("Shopping, family business, services and civic matters")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
-				.withIsJointActivity(true)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
 	}
@@ -621,7 +635,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initIdleAtHomeActivity() {
+	public Activity initIdleAtHomeActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_HOME)
@@ -641,7 +655,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initIdleAtWorkActivity() {
+	public Activity initIdleAtWorkActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_WORK)
@@ -661,7 +675,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initIdleAtLeisureActivity() {
+	public Activity initIdleAtLeisureActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_LEISURE)
@@ -681,7 +695,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initIdleAtThirdPlaceForHouseholdAndFamilyCareActivity() {
+	public Activity initIdleAtThirdPlaceForHouseholdAndFamilyCareActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
@@ -691,7 +705,7 @@ public final class ActivityInitializer {
 				.withExamples("Doing nothing at 3rd place for household and family care")
 				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
@@ -701,7 +715,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initIdleAtThirdPlaceForWorkActivity() {
+	public Activity initIdleAtThirdPlaceForWorkActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_WORK)
@@ -711,7 +725,7 @@ public final class ActivityInitializer {
 				.withExamples("Doing nothing at 3rd place for work")
 				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_WORK)
 				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
@@ -721,7 +735,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initIdleAtThirdPlaceForLeisureActivity() {
+	public Activity initIdleAtThirdPlaceForLeisureActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_LEISURE)
@@ -731,7 +745,7 @@ public final class ActivityInitializer {
 				.withExamples("Doing nothing at 3rd place for leisure")
 				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_LEISURE)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_LEISURE)
 				.withNetworkType(NetworkType.NONE)
 				.build();
 	}
@@ -741,7 +755,7 @@ public final class ActivityInitializer {
 	 * 
 	 * @return - the initialized activity
 	 */
-	public static Activity initTravelActivity() {
+	public Activity initTravelActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.TRAVEL)
 				.withActivityDescription("Travel")
