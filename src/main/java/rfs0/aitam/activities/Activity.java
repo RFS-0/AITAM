@@ -1,7 +1,9 @@
 package rfs0.aitam.activities;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +39,7 @@ public class Activity {
 	private String m_activityDescription;
 	private ActivityLocation m_activityLocation;
 	private boolean m_isJointActivity;
+	private Activity m_alternativeActivity;
 	private HashMap<Integer, ArrayList<Interval>> m_availability = new HashMap<>();
 	private NeedTimeSplit m_needTimeSplit;
 	private String m_examples;
@@ -110,6 +113,11 @@ public class Activity {
 		 */
 		public Builder withIsJointActivity(boolean isJointActivity) {
 			activityToBuild.m_isJointActivity = isJointActivity;
+			return this;
+		}
+		
+		public Builder withAlternativeActivity(Activity alternativeActivity) {
+			activityToBuild.m_alternativeActivity = alternativeActivity;
 			return this;
 		}
 		
@@ -213,7 +221,7 @@ public class Activity {
 		}
 		
 		/**
-		 * <p>This method ensures that all mandatory variables of an {@link Activity} are set i.e. not <code>null</code>.</p>
+		 * <p>This method ensures that all mandatory variables of {@link Activity} are set i.e. not <code>null</code>.</p>
 		 * 
 		 * <p><b>Note:</b> As the default for boolean variables is <code>false</code> we do not cover it here. However, keep in mind that it will be <code>false</code> if not set when building the activity.
 		 * 
@@ -238,11 +246,14 @@ public class Activity {
 			if (activityToBuild.m_needTimeSplit == null) {
 				return "m_needTimeSplit";
 			}
+			if (activityToBuild.m_isJointActivity && activityToBuild.m_alternativeActivity == null) {
+				return "m_alternativeActivity";
+			}
 			return null;
 		}
 		
 		/**
-		 * <p>This method is used to build an {@link Activity} once all the mandatory fields are set and initialize a new {@link Activity} to be built.</p>
+		 * <p>This method builds an {@link Activity} and initializes a new {@link Activity} to be built. It should be called once all the mandatory fields are set</p>
 		 * 
 		 * <p><b>Note:</b> The {@link Activity} will be built independent of wheter it is complete or not, but information about missing attributes will be logged. It is very likely
 		 * that a simulation with not completely inizialized {@link Activity}s will crash at some point or at least lead to unexpected behavior / output. You should therfore prevent such
@@ -315,8 +326,16 @@ public class Activity {
 		return isAvailableAt(weekDay, currentTimeAsInterval);
 	}
 	
-	public NeedTimeSplit getNeedTimeSplit() {
-		return m_needTimeSplit;
+	public HashMap<Need, BigDecimal> getNeedTimeSplit() {
+		return m_needTimeSplit.getNeedTimeSplit();
+	}
+	
+	public Set<Need> getNeeds() {
+		return m_needTimeSplit.getNeedTimeSplit().keySet();
+	}
+	
+	public BigDecimal getFractionForNeed(Need need) {
+		return m_needTimeSplit.getFractionForNeed(need);
 	}
 	
 	public String getExamples() {
@@ -325,5 +344,9 @@ public class Activity {
 
 	public NetworkType getNetworkType() {
 		return m_networkType;
+	}
+
+	public Activity getAlternativeActivity() {
+		return m_alternativeActivity;
 	}
 }
