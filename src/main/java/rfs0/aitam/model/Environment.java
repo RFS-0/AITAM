@@ -25,7 +25,7 @@ import rfs0.aitam.activities.ActivityCategory;
 import rfs0.aitam.activities.ActivityInitializer;
 import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.individuals.IndividualInitializer;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.model.needs.ActualNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;
@@ -36,42 +36,146 @@ import sim.util.Bag;
 import sim.util.geo.GeomPlanarGraph;
 import sim.util.geo.GeomPlanarGraphEdge;
 import sim.util.geo.MasonGeometry;
-
+/**
+ * p>This class is used to model the environment. 
+ * As such it requires the following attributes:</p>
+ * 
+ * <p><b>Initializers</b></p>
+ * 
+ * <p> {@link Environment#ACTIVITY_INITIALIZER}: This initializer is used to create all individuals.</p>
+ * 
+ * <p><b>Factories</b></p>
+ * 
+ * <p> {@link Environment#GEO_FACTORY}: This factory is used to create geometries.</p>
+ * 
+ * <p><b>Buildings and nodes</b></p>
+ * 
+ * <p> {@link Environment#BUILDING_TO_CLOSEST_NODE_MAP}: This map contains the closest node for each of the buildings.</p>
+ * <p> {@link Environment#NODE_TO_CLOSEST_BUILDING_MAP}: This map contains the closest building for each of the nodes.</p>
+ * 
+ * <p><b>Activities</b></p>
+ * 
+ * <p>{@link Environment#m_activityDescriptionToActivityMap}: This map contains the activity for each of the activity descriptions (see {@link ISimulationSettings}).</p>
+ * <p>{@link Environment#m_activityCategoryToActivityMap}: This map contains a list of all activities that belong to each of the activity categories.</p>
+ * <p>{@link Environment#m_activityCategoryDataset}: This represents that dataset which is used to create the bar chart that shows what fraction of individuals execute an activity which belongs to each of the activity categories.</p>
+ * 
+ * <p><b>Time</b></p>
+ * 
+ * <p>{@link Environment#m_simulationTime}: This variable is used to keep track of the current simulation time. It is updated after each simulation step.</p>
+ * 
+ * <p><b>GIS</b></p>
+ * 
+ * <p>{@link Environment#m_buildingsField}: This variable contains all the buildings as defined by the shape file for the buildings.</p>
+ * <p>{@link Environment#m_pathField}: This variable contains all the paths as defined by the shape file for the paths.</p>
+ * <p>{@link Environment#m_pathGraph}: This variable contains a graph representation of the paths.</p>
+ * <p>{@link Environment#m_edgeTraffic}: This variable can be used to store the number of individuals on each of the edges which currently are being traversed (i.e. the traffic on each path).</p>
+ * <p>{@link Environment#m_individualsField}: This variable contains all the geometries for all the individuals.</p>
+ * <p>{@link Environment#m_currentLocationPoints}: This variable contains all current location points of the individuals.</p>
+ * <p>{@link Environment#m_currentNodes}: This variable contains all current nodes of the individuals.</p>
+ *
+ * 
+ * <p><b>Individuals</b></p>
+ * 
+ * <p>{@link Environment#m_individuals}: This variable contains all individuals in the environment.</p>
+ * 
+ * <p><b>Output</b></p>
+ * 
+ * <p>{@link Environment#m_outputHolder}: This variable contains all output variables. It is updated after each simulation step.</p>
+ * <p>{@link Environment#m_environmentObserver}: The environment observer is used record the output by serializing each step as one line in a CSV-File which is generated for the whole simulation run.</p>
+ */
 public class Environment extends SimState {
 
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * @category Initializers
+	 *
+	 * <p>This initializer is used to create all individuals.</p>
+	 */
 	public static final ActivityInitializer ACTIVITY_INITIALIZER = new ActivityInitializer();
 	
+	/**
+	 * @category Factories
+	 * 
+	 * <p>This factory is used to create geometries.</p>
+	 */
 	public static final GeometryFactory GEO_FACTORY = new GeometryFactory();
+	
+	/**
+	 * @category Buildings and nodes
+	 * 
+	 * <p>This map contains the closest node for each of the buildings.</p>
+	 */
 	public static HashMap<MasonGeometry, Node> BUILDING_TO_CLOSEST_NODE_MAP = new HashMap<>();
+	/**
+	 * <p>This map contains the closest building for each of the nodes.</p>
+	 */
 	public static HashMap<Node, MasonGeometry> NODE_TO_CLOSEST_BUILDING_MAP = new HashMap<>();
 	
-	// Activities
+	/**
+	 *  @category Activities
+	 *  
+	 * <p>This map contains the activity for each of the activity descriptions (see {@link ISimulationSettings}).</p>
+	 */
 	private HashMap<String, Activity> m_activityDescriptionToActivityMap = new HashMap<>();
+	/**
+	 * <p>This map contains a list of all activities that belong to each of the activity categories.</p>
+	 */
 	private HashMap<ActivityCategory, ArrayList<Activity>> m_activityCategoryToActivityMap = new HashMap<>();
+	/**
+	 * <p>This represents that dataset which is used to create the bar chart that shows what fraction of individuals execute an activity which belongs to each of the activity categories.</p>
+	 */
 	private DefaultCategoryDataset m_activityCategoryDataset = new DefaultCategoryDataset();
 
-	// Time
+	/**
+	 * @category Time
+	 * 
+	 * <p>This variable is used to keep track of the current simulation time. It is updated after each simulation step.</p>
+	 */
 	private SimulationTime m_simulationTime = new SimulationTime();
 
-	// GIS
-	private GeomVectorField m_buildingsField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of buildings
-	private GeomVectorField m_pathField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // holds GIS data of paths
+	/**
+	 * @category Buildings and nodes
+	 * 
+	 * <p>This variable contains all the buildings as defined by the shape file for the buildings.</p>
+	 */
+	private GeomVectorField m_buildingsField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT);
+	/**
+	 * <p>This variable contains all the paths as defined by the shape file for the paths.</p>
+	 */
+	private GeomVectorField m_pathField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT);
+	/**
+	 * <p>This variable contains a graph representation of the paths.</p>
+	 */
 	private GeomPlanarGraph m_pathGraph = new GeomPlanarGraph();
-	private HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> m_edgeTraffic = new HashMap<>(); // used to capture the
-	
-	// Individuals
-	private GeomVectorField m_individualsField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT); // used to represent the individuals
+	/**
+	 * <p>This variable can be used to store the number of individuals on each of the edges which currently are being traversed (i.e. the traffic on each path).</p>
+	 */
+	private HashMap<GeomPlanarGraphEdge, ArrayList<Individual>> m_edgeTraffic = new HashMap<>(); 
+	/**
+	 * <p>This variable contains all the geometries for all the individuals.</p>
+	 */
+	private GeomVectorField m_individualsField = new GeomVectorField(ISimulationSettings.ENVIRONMENT_WIDTH, ISimulationSettings.ENVIRONMENT_HEIGHT);
+
+	/**
+	 * @category Activities
+	 * 
+	 * <p>This variable contains all individuals in the environment.</p>
+	 */
 	private ArrayList<Individual> m_individuals = new ArrayList<>();
-	private ArrayList<MasonGeometry> m_currentLocationPoints = new ArrayList<>();
-	private ArrayList<Node> m_currentNodes = new ArrayList<>();
 	
-	// Output
+	/**
+	 * @category Output
+	 * 
+	 * <p>This variable contains all output variables. It is updated after each simulation step.</p>
+	 */
 	private LinkedHashMap<String, Object> m_outputHolder = new LinkedHashMap<>();
+	/**
+	 * <p>The environment observer is used record the output by serializing each step as one line in a CSV-File which is generated for the whole simulation run.</p>
+	 */
 	private EnvironmentObserver m_environmentObserver;
 	
-	public Environment(long seed) { // TODO: seed is only for dev purposes
+	public Environment(long seed) { 
 		super(seed); 
 		random.setSeed(seed); 
 		initEnvironment();
@@ -90,7 +194,8 @@ public class Environment extends SimState {
 	 * 		<li>Carry over joint activities to {@link Individual}'s individual {@link ActivityAgenda}, if planning is possible</li>
 	 * 		<li>Plan individual activities, if planning is possible.</li>
 	 * 		<li>Choose the best of the generated {@link ActivityAgenda}'s</li>
-	 * 		<li>At each point in time: execute the actvitiy scheduled for the interval overlapping the current point in time. <b>Note:</b> This includes traveling to the {@link Activity}'s location, updating the {@link NeedTimeSplit} etc.
+	 * 		<li>At each point in time: Moving, if necessary.</li>
+	 * 		<li>At each point in time: execute the actvitiy scheduled for the interval overlapping the current point in time. <b>Note:</b> This includes in particular updating the {@link ActualNeedTimeSplit}.
 	 * 		<li>Finally, if the beginning of a new day is reached, reset (only) variables which are used to generate a new {@link ActivityAgenda}</li>
 	 * 	</ol>
 	 * 	<li>Schedule the {@link GeomVectorField} containing all {@link Point}'s wrapped in a {@link MasonGeometry}. These represent the {@link Individual}'s as dots.</li>
@@ -185,24 +290,10 @@ public class Environment extends SimState {
 		});
 		schedule.scheduleRepeating(0.0, 12, m_environmentObserver);
 		schedule.scheduleRepeating(0.0, 13, m_simulationTime);
-		// TODO: this is only for dev purposes. Remove this once simulation is complete
-		schedule.scheduleRepeating(0.0, 14, new Steppable() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void step(SimState state) {
-				Environment environment = (Environment) state;
-				environment.getCurrentLocationPoints().clear();
-				environment.getCurrentNodes().clear();
-				for (Individual individual: environment.getIndividuals()) {
-					environment.getCurrentNodes().add(individual.getCurrentNode());
-					environment.getCurrentLocationPoints().add(individual.getCurrentLocationPoint());
-				}
-			}
-		});
 	}
 	
 	/**
-	 * Additionally close the {@link CSVPrinter}.
+	 * <p>This method additionally closes the {@link CSVPrinter} once the simulation is finished.</p>
 	 */
 	@Override
 	public void finish() {
@@ -216,7 +307,7 @@ public class Environment extends SimState {
 	}
 	
 	/**
-	 * Loop which executes the simulation.
+	 * <p>This method executes the simulation.</p>
 	 * 
 	 * @param args - See {@link SimState#doLoop(sim.engine.MakesSimState, String[])} for details on args.
 	 */
@@ -226,7 +317,7 @@ public class Environment extends SimState {
 	}
 	
 	/**
-	 * Initializes the environment by reading the shape files for the buildings and the paths layer.
+	 * <p>This method initializes the environment by reading the shape files for the buildings and the paths layer.</p>
 	 */
 	private void initEnvironment() {
 		System.out.println("Initializing the environment...");
@@ -238,6 +329,11 @@ public class Environment extends SimState {
 		System.out.println(String.format("Initialized environment in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
+	/**
+	 * <p>This method read the shape files used to represent GIS-data and expands the global MBR accordingly.</p>
+	 * 
+	 * @param globalMBR - the global minimum bounding rectangle.
+	 */
 	private void readShapeFiles(Envelope globalMBR) {
 		try {
 			System.out.println("Reading building layer...");
@@ -252,6 +348,14 @@ public class Environment extends SimState {
 		}
 	}
 	
+	/**
+	 * <p>This method initializes the attributes of the buildings as a provided via shape file.</p>
+	 * 
+	 * <p><b>Important:</b> This is specific to the shape file currently used for the buildings and the attributes are therefore the attributes are currently not used in the simulation.
+	 * Thus it can either be removed if not needed or adapted to fit other attributes of another shape file.</p> 
+	 * 
+	 * @return Bag - all attributes that can be read out form the shape file for buildings.
+	 */
 	private Bag initAttributesOfBuildings() {
 		Bag attributesOfBuildings = new Bag();
 		attributesOfBuildings.add("OBJECTID");
@@ -272,6 +376,15 @@ public class Environment extends SimState {
 		return attributesOfBuildings;
 	}
 
+	
+	/**
+	 * <p>This method initializes the attributes of the paths as a provided via shape file.</p>
+	 * 
+	 * <p><b>Important:</b> This is specific to the shape file currently used for the paths and the attributes are therefore the attributes are currently not used in the simulation.
+	 * Thus it can either be removed if not needed or adapted to fit other attributes of another shape file.</p> 
+	 * 
+	 * @return Bag - all attributes that can be read out from the shape file for paths.
+	 */
 	private Bag initializeAttributesOfPaths() {
 		Bag attributesOfPaths = new Bag();
 		attributesOfPaths.add("OBJECTID");
@@ -284,6 +397,16 @@ public class Environment extends SimState {
 		return attributesOfPaths;
 	}
 
+	/**
+	 * <p>This method reads the shape file which is located under the provided path into the provided geometry and expands the provided MBR to include this new geometry.
+	 * Furthermore, it read out all the attributes as provided by the bag with attributes.</p>
+	 * 
+	 * 
+	 * @param relativePathToFile - the relative path to the shape file.
+	 * @param geometry - the gemoetry into which the shape file is read into.
+	 * @param minimumBoundingRectangle - the minimum bounding rectangle which represents the boundaries of the simulation.
+	 * @param attributes - a bag with attributes which are provided by the shape file. It can be empty if not needed or if the attributes are not relevant for the simulation.
+	 */
 	private void readShapeFile(String relativePathToFile, GeomVectorField geometry, Envelope minimumBoundingRectangle, Bag attributes) {
 		try {
 			URL url = new File(System.getProperty("user.dir") + relativePathToFile).toURI().toURL();
@@ -295,12 +418,20 @@ public class Environment extends SimState {
 		}
 	}
 	
+	/**
+	 * <p>This method synchronizes the MBR for all the fields, such that they all use the same boundaries.</p>
+	 * 
+	 * @param minimumBoundingRectangle - the simulation's boundaries.
+	 */
 	private void synchronizeMinimumBoundingRectangles(Envelope minimumBoundingRectangle) {
 		m_buildingsField.setMBR(minimumBoundingRectangle);
 		m_pathField.setMBR(minimumBoundingRectangle);
 		m_individualsField.setMBR(minimumBoundingRectangle);
 	}
 	
+	/**
+	 * 
+	 */
 	private void initActivities() {
 		System.out.println("Initializing activities...");
 		long start = System.nanoTime();
@@ -313,6 +444,9 @@ public class Environment extends SimState {
 		System.out.println(String.format("Initialized activities in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
+	/**
+	 * <p>This method initializes all activities that belong to the {@link ActivityCategory#WORK}.</p>
+	 */
 	private void initWorkActivities() {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_HOME_ALONE, ACTIVITY_INITIALIZER.initWorkAtHomeAloneActivity());
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_WORK_PLACE_ALONE, ACTIVITY_INITIALIZER.initWorkAtWorkPlaceAloneActivity());
@@ -323,6 +457,9 @@ public class Environment extends SimState {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_DURING_TRAVEL_WITH_COWORKERS, ACTIVITY_INITIALIZER.initWorkDuringTravelWithCoworkers());
 	}
 
+	/**
+	 * <p>This method initializes all activities that belong to the {@link ActivityCategory#LEISURE}.</p>
+	 */
 	private void initLeisureActivities() {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_ALONE_ACTIVITY, ACTIVITY_INITIALIZER.initLeisureAtHomeAloneActivity());
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initLeisureAtHomeWithHouseholdMembersActivity());
@@ -332,6 +469,9 @@ public class Environment extends SimState {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_FRIENDS, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureWithFriendsActivity());
 	}
 	
+	/**
+	 * <p>This method initializes all activities that belong to the {@link ActivityCategory#PERSONAL_CARE}.</p>
+	 */
 	private void initPersonalCareActivities() {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_ALONE, ACTIVITY_INITIALIZER.initPersonalCareAtHomeAloneActivity());
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initPersonalCareAtHomeWithHouseholdMembersActivity());
@@ -343,6 +483,9 @@ public class Environment extends SimState {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS, ACTIVITY_INITIALIZER.initPersonalCareAtThirdPlaceForPersonalCareWithFriendsActivity());
 	}
 	
+	/**
+	 * <p>This method initializes all activities that belong to the {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}.</p>
+	 */
 	private void initHouseholdCareActivities() {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_ALONE, ACTIVITY_INITIALIZER.initHouseholdAndFamilyCareAtHomeAloneActivity());
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initHouseholdAndFamilyCareAtHomeWithHousholdMembersActivty());
@@ -350,10 +493,16 @@ public class Environment extends SimState {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareWithHouseholdMembers());
 	}
 	
+	/**
+	 * <p>This method initializes all activities that belong to the {@link ActivityCategory#TRAVEL}.</p>
+	 */
 	private void initTravelActivities() {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.TRAVEL, ACTIVITY_INITIALIZER.initTravelActivity());
 	}
 	
+	/**
+	 * <p>This method initializes all activities that belong to the {@link ActivityCategory#IDLE}.</p>
+	 */
 	private void initIdleActivities() {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_HOME, ACTIVITY_INITIALIZER.initIdleAtHomeActivity());
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_LEISURE, ACTIVITY_INITIALIZER.initIdleAtLeisureActivity());
@@ -363,6 +512,9 @@ public class Environment extends SimState {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_WORK, ACTIVITY_INITIALIZER.initIdleAtThirdPlaceForWorkActivity());
 	}
 	
+	/**
+	 * <p>This method initializes all individuals.</p>
+	 */
 	private void initIndividuals() {
 		System.out.println("Initializing individuals...");
 		long start = System.nanoTime();
@@ -377,6 +529,9 @@ public class Environment extends SimState {
 		System.out.println(String.format("Initialized individuals in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
+	/**
+	 * <p>This method initializes all buildings.</p>
+	 */
 	private void initBuildings() {
 		System.out.println("Initializing buildings...");
 		long start = System.nanoTime();
@@ -384,6 +539,9 @@ public class Environment extends SimState {
 		System.out.println(String.format("Initialized buildings in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 	
+	/**
+	 * <p>This method initializes the maps related to buildings and nodes.</p>
+	 */
 	private void initBuildingToClosestNodeMap() {
 		for (Object buildingObject: m_buildingsField.getGeometries()) {
 			MasonGeometry building = (MasonGeometry) buildingObject;
@@ -399,6 +557,9 @@ public class Environment extends SimState {
 		}
 	}
 	
+	/**
+	 * <p>This method initializes the simulations output.</p>
+	 */
 	private void initOutput() {
 		m_outputHolder.put(ISimulationSettings.TIME_STAMP, m_simulationTime.getCurrentDateTime());
 		m_outputHolder.put(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS, 0);
@@ -418,6 +579,13 @@ public class Environment extends SimState {
 		m_environmentObserver = new EnvironmentObserver(m_outputHolder.keySet());
 	}
 	
+	/**
+	 * <p>This method gets the closest node to the provided building based on the provided candidate paths.</p>
+	 * 
+	 * @param building
+	 * @param candidatePaths
+	 * @return
+	 */
 	private Node getClosestNodeToBuilding(MasonGeometry building, Bag candidatePaths) {
 		Coordinate buildingCoordinate = building.getGeometry().getCoordinate();
 		double minDistance = Double.MAX_VALUE;
@@ -436,6 +604,9 @@ public class Environment extends SimState {
 		return closestNodeToBuilding;
 	}
 	
+	/**
+	 * @category Getters and setters
+	 */
 	public HashMap<String, Activity> getAllActivities() {
 		return m_activityDescriptionToActivityMap;
 	}
@@ -491,21 +662,5 @@ public class Environment extends SimState {
 
 	public HashMap<ActivityCategory, ArrayList<Activity>> getCategoryToActivities() {
 		return m_activityCategoryToActivityMap;
-	}
-
-	public ArrayList<MasonGeometry> getCurrentLocationPoints() {
-		return m_currentLocationPoints;
-	}
-
-	public void setCurrentPoints(ArrayList<MasonGeometry> currentPoints) {
-		m_currentLocationPoints = currentPoints;
-	}
-
-	public ArrayList<Node> getCurrentNodes() {
-		return m_currentNodes;
-	}
-
-	public void setCurrentNodes(ArrayList<Node> currentNodes) {
-		m_currentNodes = currentNodes;
 	}
 }
