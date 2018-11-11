@@ -11,7 +11,7 @@ import org.joda.time.DateTimeConstants;
 import org.joda.time.Interval;
 import org.junit.Test;
 
-import rfs0.aitam.commons.ISimulationSettings;
+import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.TimeUtility;
 
 public class TimeUtilityTest {

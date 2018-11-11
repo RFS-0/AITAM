@@ -13,7 +13,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
-import rfs0.aitam.commons.ISimulationSettings;
+import rfs0.aitam.settings.ISimulationSettings;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 

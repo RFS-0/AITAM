@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import rfs0.aitam.commons.ISimulationSettings;
+import rfs0.aitam.settings.ISimulationSettings;
 import sim.engine.SimState;
 
 public class EnvironmentTest {

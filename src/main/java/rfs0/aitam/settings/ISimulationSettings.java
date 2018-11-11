@@ -1,4 +1,4 @@
-package rfs0.aitam.commons;
+package rfs0.aitam.settings;
 
 import java.awt.Color;
 import java.math.BigDecimal;

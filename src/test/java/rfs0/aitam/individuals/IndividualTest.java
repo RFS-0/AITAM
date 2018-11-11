@@ -8,9 +8,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import rfs0.aitam.activities.ActivityAgenda;
-import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.model.Environment;
+import rfs0.aitam.settings.ISimulationSettings;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 

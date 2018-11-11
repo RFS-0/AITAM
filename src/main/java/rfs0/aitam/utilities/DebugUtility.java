@@ -3,7 +3,7 @@ package rfs0.aitam.utilities;
 import java.awt.Font;
 
 import rfs0.aitam.activities.Activity;
-import rfs0.aitam.commons.ISimulationSettings;
+import rfs0.aitam.settings.ISimulationSettings;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.geo.GeomPortrayal;
 import sim.portrayal.simple.CircledPortrayal2D;

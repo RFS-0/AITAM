@@ -9,9 +9,9 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import rfs0.aitam.activities.ActivityAgenda;
-import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.model.Environment;
+import rfs0.aitam.settings.ISimulationSettings;
 
 public final class TimeUtility {
 	

@@ -2,10 +2,10 @@ package rfs0.aitam.activities;
 
 import java.math.BigDecimal;
 
-import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.individuals.NetworkType;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 
 /**

@@ -7,9 +7,9 @@ import java.util.HashMap;
 
 import ec.util.MersenneTwisterFast;
 import rfs0.aitam.activities.ActivityAgenda;
-import rfs0.aitam.commons.ISimulationSettings;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.settings.ISimulationSettings;
 
 public final class CalculationUtility {
 		
