@@ -17,12 +17,28 @@ import rfs0.aitam.settings.ISimulationSettings;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
+/**
+ * <p>This class is to store all relevant attributes of the simulation.
+ * Those attributes have to be provided upon instantiation of the observer.
+ * However the handling of what is being is stored and how the values are updated after each simulation step is entirely handled by the {@link Environment#start()} (see comment in start).
+ * The observer writes the values of all attributes to a CSV-File which is stored in the file as defined by {@link ISimulationSettings#SIMULATION_OUTPUT_FOLDER}.
+ * The following attributes are used to do this:</p>
+ * 
+ * <p>{@link EnvironmentObserver#m_header}: The header of the CSV-File for the simulations output.</p>
+ * <p>{@link EnvironmentObserver#m_csvPrinter}: A writer that writes all values currently hold in the output holder of the provided {@link Environment} to disk as one line in the CSV-File.</p>
+ */
 public class EnvironmentObserver implements Steppable {
 	
 	private static final long serialVersionUID = 1L;
 
-	private CSVPrinter m_csvPrinter;
+	/**
+	 * <p>The header of the CSV-File for the simulations output.</p>
+	 */
 	private Collection<String> m_header;
+	/**
+	 * <p>{@link EnvironmentObserver#m_csvPrinter}: A writer that writes all values currently hold in the output holder of the provided {@link Environment} to disk as one line in the CSV-File.</p>
+	 */
+	private CSVPrinter m_csvPrinter;
 	
 	public EnvironmentObserver(Collection<String> header) {
 		m_header = header;
@@ -39,6 +55,9 @@ public class EnvironmentObserver implements Steppable {
 		}
 	}
 
+	/**
+	 * <p>This method writes a new line to the simulation's CSV-File based on the simulations current state resp. the state captured in {@link Environment#m_outputHolder}.</p>
+	 */
 	@Override
 	public void step(SimState state) {
 		Environment environment = (Environment) state;
@@ -48,12 +67,23 @@ public class EnvironmentObserver implements Steppable {
 		resetValues(environment);
 	}
 
+	/**
+	 * <p>This method fills all attributes as defined by the header ({@link EnvironmentObserver#m_header}) into the provided list.</p>
+	 * 
+	 * @param environment - the environment resp. its current state.
+	 * @param values - a list with objects which will be filled with all the values defined in the header.
+	 */
 	private void fillValues(Environment environment, LinkedList<Object> values) {
 		for (String column: m_header) {
 			values.add(environment.getOutputHolder().get(column));
 		}
 	}
 	
+	/**
+	 * <p>This method writes the a new line to the CSV-File of the current simulation run containing all the provided values.</p>
+	 * 
+	 * @param values - the values which should be written in the line for the current simulation step. <b>Important:</b> The ordering of those values must be alinged with the header.
+	 */
 	private void recordValues(LinkedList<Object> values) {
 		try {
 			getCsvPrinter().printRecord(values);
@@ -64,6 +94,11 @@ public class EnvironmentObserver implements Steppable {
 		}
 	}
 
+	/**
+	 * <p>This method resets all the values of the environment's output holder ({@link Environment#m_outputholder}).</p>
+	 * 
+	 * @param environment - the environment
+	 */
 	private void resetValues(Environment environment) {
 		for (String colum: m_header) {
 			Object value = environment.getOutputHolder().get(colum);
@@ -75,6 +110,9 @@ public class EnvironmentObserver implements Steppable {
 		}
 	}
 
+	/**
+	 * @category Getters and setters
+	 */
 	public CSVPrinter getCsvPrinter() {
 		return m_csvPrinter;
 	}
