@@ -10,8 +10,8 @@ import rfs0.aitam.utilities.CalculationUtility;
 
 /**
  * <p>This class is used to initialize all activities of the simulation. As such it contains one method to instantiate 
- * each of the activities mentioned in the <a href="activity_configuration.xlsx">configuration file</a>. Furtermore, it
- * relies on the following builders:</p>
+ * each of the activities mentioned in the <a href="activity_configuration.xlsx">configuration file</a>. 
+ * Furthermore, it relies on the following builders:</p>
  * 
  * <p>{@link ActivityInitializer#ACTIVITY_BUILDER}: The builder used to build {@link Activity}s.</p>
  * <p>{@link ActivityInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to build {@link NeedTimeSplit}s.</p>
