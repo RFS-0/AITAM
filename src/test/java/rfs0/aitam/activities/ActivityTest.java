@@ -53,7 +53,7 @@ public class ActivityTest {
 		s_testEndHourOfDay = 18;
 		s_testEndMinuteOfDay = 59;
 		s_testIsJointActivity = true;
-		s_testActivityLocation = ActivityLocation.THIRD_PLACE_FOR_WORK;
+		s_testActivityLocation = ActivityLocation.OTHER_PLACE_FOR_WORK;
 
 		s_testActivity = ACTIVITY_BUILDER.withActivityCategory(ActivityCategory.WORK)
 				.withActivityDescription(s_testActivityDescription)
@@ -62,7 +62,7 @@ public class ActivityTest {
 				.withAvailabilityIntervalAtDays(s_testStartHourOfDay, s_testStartMinuteOfDay, s_testEndHourOfDay,
 						s_testEndMinuteOfDay, ISimulationSettings.WORK_WEEK)
 				.withIsJointActivity(s_testIsJointActivity)
-				.withActivityLocation(ActivityLocation.THIRD_PLACE_FOR_WORK)
+				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_WORK)
 				.build();
 	}
 
@@ -79,13 +79,13 @@ public class ActivityTest {
 	@Test
 	public void testNeedTimeSplit() {
 		assertEquals(s_testNeedTimeSplit, s_testActivity.getNeedTimeSplit());
-		assertEquals(s_testNeeds, s_testActivity.getNeedTimeSplit().getNeeds());
+		assertEquals(s_testNeeds, s_testActivity.getNeeds());
 		Activity incompleteNeedTimeSplitActivity = ACTIVITY_BUILDER
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER.withNeedTimeSplit(Need.AFFECTION, BigDecimal.valueOf(0.5)).build())
 				.build();
-		assertEquals(Stream.of(Need.AFFECTION, Need.NOT_DEFINED).collect(Collectors.toSet()), incompleteNeedTimeSplitActivity.getNeedTimeSplit().getNeeds());
-		assertEquals(CalculationUtility.createBigDecimal(0.5), incompleteNeedTimeSplitActivity.getNeedTimeSplit().getFractionForNeed(Need.NOT_DEFINED));
-		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE), s_testActivity.getNeedTimeSplit().getFractionForNeed(Need.SUBSISTENCE));
+		assertEquals(Stream.of(Need.AFFECTION, Need.NOT_DEFINED).collect(Collectors.toSet()), incompleteNeedTimeSplitActivity.getNeeds());
+		assertEquals(CalculationUtility.createBigDecimal(0.5), incompleteNeedTimeSplitActivity.getFractionForNeed(Need.NOT_DEFINED));
+		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE), s_testActivity.getFractionForNeed(Need.SUBSISTENCE));
 	}
 	
 	@Test
