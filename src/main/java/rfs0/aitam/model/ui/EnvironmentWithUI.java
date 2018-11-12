@@ -33,13 +33,48 @@ import sim.portrayal.simple.CircledPortrayal2D;
 import sim.portrayal.simple.LabelledPortrayal2D;
 import sim.util.geo.MasonGeometry;
 
+/**
+ * <p>This class is used to visalize the {@link Environment}.
+ * As such it requires the following attributes:</p>
+ * 
+ * <p><b>Visualization</b></p>
+ * 
+ * <p>{@link EnvironmentWithUI#m_display}: The display used to visualize the model.</p>
+ * <p>{@link EnvironmentWithUI#m_displayFrame}: The frame used to visualize the model.</p>
+ * 
+ * <p><b>Portrayals</b></p>
+ * 
+ * <p>{@link EnvironmentWithUI#m_buildingsPortrayal}: The portrayal that holds all buildings.</p>
+ * <p>{@link EnvironmentWithUI#m_pathsPortrayal}: The portrayal that holds all paths.</p>
+ * <p>{@link EnvironmentWithUI#m_agentPortrayal}: The portrayal that holds all agents.</p>
+ * 
+ */
 public class EnvironmentWithUI extends GUIState {
 
+	/**
+	 * @category Visualization
+	 * 
+	 * <p>The display used to visualize the model.</p>
+	 */
 	private Display2D m_display;
+	/**
+	 * <p>The frame used to visualize the model.</p>
+	 */
 	private JFrame m_displayFrame;
 
+	/**
+	 * @category Portrayals
+	 * 
+	 * <p>{@link EnvironmentWithUI#m_buildingsPortrayal}: The portrayal that holds all buildings.</p>
+	 */
 	private GeomVectorFieldPortrayal m_buildingsPortrayal = new GeomVectorFieldPortrayal();
+	/**
+	 * <p>The portrayal that holds all paths.</p>
+	 */
 	private GeomVectorFieldPortrayal m_pathsPortrayal = new GeomVectorFieldPortrayal();
+	/**
+	 * <p>The portrayal that holds all agents.</p>
+	 */
 	private GeomVectorFieldPortrayal m_agentPortrayal = new GeomVectorFieldPortrayal();
 
 	public EnvironmentWithUI() throws ParseException {
@@ -54,6 +89,9 @@ public class EnvironmentWithUI extends GUIState {
 		super(new Environment(seed));
 	}
 
+	/**
+	 * <p>This methdod initializes all aspects related to the visualitzation of the {@link Environment}.</p>
+	 */
 	@Override
 	public void init(Controller controller) {
 		super.init(controller);
@@ -90,6 +128,9 @@ public class EnvironmentWithUI extends GUIState {
 		m_displayFrame.setVisible(true);
 	}
 
+	/**
+	 * <p>This method starts the UI.</p>
+	 */
 	@Override
 	public void start() {
 		super.start();
@@ -100,17 +141,27 @@ public class EnvironmentWithUI extends GUIState {
 		m_display.repaint();
 	}
 	
+	/**
+	 * <p>This method finshes the visualization.</p>
+	 */
 	@Override
 	public void finish() {
 		super.finish();
 		m_display.quit();
 	}
 	
+	/**
+	 * <p>This method declares the state (i.e. the {@link Environment}) as the object to be inspected.
+	 * Most of the properties of the simulation state can be inspected during the execution of the simulation.</p>
+	 */
 	@Override
 	public Object getSimulationInspectedObject() {
 		return state;
 	}
 	
+	/**
+	 * <p>This method adds additional inspectors for all of the properties of interest.</p>
+	 */
 	@Override
 	public Inspector getInspector() {
 		Environment environment = (Environment) state;
@@ -125,6 +176,11 @@ public class EnvironmentWithUI extends GUIState {
 		return tabbedInspector;
 	}
 
+	/**
+	 * <p>This method starts the UI.</p>
+	 * 
+	 * @param args - not used.
+	 */
 	public static void main(String[] args) {
 		EnvironmentWithUI environmentGui = null;
 		try {
@@ -136,6 +192,9 @@ public class EnvironmentWithUI extends GUIState {
 		console.setVisible(true);
 	}
 
+	/**
+	 * <p>This method sets up all the portrayals.</p>
+	 */
 	private void setupPortrayals() {
 		Environment environment = (Environment) state;
 		setupPortrayalForBuildings(environment);
@@ -143,6 +202,11 @@ public class EnvironmentWithUI extends GUIState {
 		setupPortrayalForAgents(environment);
 	}
 
+	/**
+	 * <p>This method sets up the portrayal for agents.</p>
+	 * 
+	 * @param environment - the environment to be visualized.
+	 */
 	private void setupPortrayalForAgents(Environment environment) {
 		m_agentPortrayal.setField(environment.getIndividualsField());
 		m_agentPortrayal.setPortrayalForRemainder(
@@ -179,6 +243,11 @@ public class EnvironmentWithUI extends GUIState {
 				);
 	}
 
+	/**
+	 * <p>This method sets up the portrayal for paths.</p>
+	 * 
+	 * @param environment - the environment to be visualized.
+	 */
 	private void setupPortrayalForPaths(Environment environment) {
 		m_pathsPortrayal.setField(environment.getPathField());
 		m_pathsPortrayal.setPortrayalForRemainder(
@@ -189,6 +258,11 @@ public class EnvironmentWithUI extends GUIState {
 				);
 	}
 
+	/**
+	 * <p>This method sets up the portrayal for buildings.</p>
+	 * 
+	 * @param environment - the environment to be visualized.
+	 */
 	private void setupPortrayalForBuildings(Environment environment) {
 		m_buildingsPortrayal.setField(environment.getBuildingsField());
 		m_buildingsPortrayal.setPortrayalForRemainder(
@@ -201,16 +275,6 @@ public class EnvironmentWithUI extends GUIState {
 						ISimulationSettings.COLOR_OF_BUILDING, 
 						true) {
 					private static final long serialVersionUID = 1L;
-					@Override
-					public String getLabel(Object object, DrawInfo2D info) {
-						if (object instanceof MasonGeometry) {
-							MasonGeometry mg = (MasonGeometry) object;
-							return mg.getStringAttribute("Strassenna") + ": " + mg.getStringAttribute("Hausnummer").toString();
-						}
-						else {
-							return "";
-						}
-					}
 				});
 	}
 }
