@@ -320,7 +320,7 @@ public class ActivityInitializerTest {
 		Activity initTravelActivity = ACTIVITY_INITIALIZER.initTravelActivity();
 		assertEquals(ActivityCategory.TRAVEL, initTravelActivity.getActivityCategory());
 		assertEquals("Travel", initTravelActivity.getActivityDescription());
-		assertEquals(BigDecimal.ONE, initTravelActivity.getFractionForNeed(Need.NOT_DEFINED));
+		assertEquals(BigDecimal.ONE, initTravelActivity.getFractionForNeed(Need.NONE));
 		assertEquals("Travel with any mode of transport", initTravelActivity.getExamples());		
 		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
 		assertEquals(true, initTravelActivity.isAvailableAt(DateTimeConstants.MONDAY, availableStartTime));
