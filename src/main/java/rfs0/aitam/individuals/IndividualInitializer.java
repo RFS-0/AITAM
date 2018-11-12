@@ -11,7 +11,7 @@ import rfs0.aitam.activities.ActivityCategory;
 import rfs0.aitam.activities.ActivityInitializer;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.model.needs.TargetNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 import rfs0.aitam.utilities.DebugUtility;
@@ -32,7 +32,7 @@ import sim.util.geo.MasonGeometry;
  * <p><b>Builders</b></p>
  * 
  * <p> {@link IndividualInitializer#INDIVIDUAL_BUILDER}: The builder used to construct individuals.</p>
- * <p> {@link IndividualInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to construct {@link NeedTimeSplit}s.</p>
+ * <p> {@link IndividualInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to construct {@link TargetNeedTimeSplit}s.</p>
  * 
  * <p><b>Individuals</b></p>
  * 
@@ -58,9 +58,9 @@ public final class IndividualInitializer {
 	 */
 	public static final Individual.Builder INDIVIDUAL_BUILDER = new Individual.Builder();
 	/**
-	 * <p> {@link IndividualInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to construct {@link NeedTimeSplit}s.</p>
+	 * <p> {@link IndividualInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to construct {@link TargetNeedTimeSplit}s.</p>
 	 */
-	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder(); 
+	public static final TargetNeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new TargetNeedTimeSplit.Builder(); 
 	
 	/**
 	 * @category Individuals
