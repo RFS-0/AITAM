@@ -4,22 +4,28 @@ import java.math.BigDecimal;
 
 import rfs0.aitam.individuals.NetworkType;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.model.needs.TargetNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 
 /**
- * <p>This class is used to initialize all activities of the simulation. As such it contains one method to instantiate 
- * each of the activities mentioned in the <a href="activity_configuration.xlsx">configuration file</a>. 
+ * <p>This class is used to initialize all activities of the simulation. 
+ * As such it contains one method to instantiate each of the activities mentioned in the <a href="activity_configuration.xlsx">configuration file</a>. 
  * Furthermore, it relies on the following builders:</p>
  * 
  * <p>{@link ActivityInitializer#ACTIVITY_BUILDER}: The builder used to build {@link Activity}s.</p>
- * <p>{@link ActivityInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to build {@link NeedTimeSplit}s.</p>
+ * <p>{@link ActivityInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to build {@link TargetNeedTimeSplit}s.</p>
  */
 public final class ActivityInitializer {
 	
+	/**
+	 * <p>The builder used to build {@link Activity}s.</p>
+	 */
 	public static final Activity.Builder ACTIVITY_BUILDER = new Activity.Builder();
-	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder();
+	/**
+	 * <p>The builder used to build {@link TargetNeedTimeSplit}s.</p>
+	 */
+	public static final TargetNeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new TargetNeedTimeSplit.Builder();
 	
 	/**
 	 * Initializes the activity.
@@ -640,7 +646,7 @@ public final class ActivityInitializer {
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_HOME)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.withNeedTimeSplit(Need.NONE, BigDecimal.ONE)
 						.build())
 				.withExamples("Doing nothing at home")
 				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
@@ -660,7 +666,7 @@ public final class ActivityInitializer {
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_WORK)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.withNeedTimeSplit(Need.NONE, BigDecimal.ONE)
 						.build())
 				.withExamples("Doing nothing at work")
 				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
@@ -680,7 +686,7 @@ public final class ActivityInitializer {
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_LEISURE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.withNeedTimeSplit(Need.NONE, BigDecimal.ONE)
 						.build())
 				.withExamples("Doing nothing at leisure")
 				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
@@ -700,7 +706,7 @@ public final class ActivityInitializer {
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.withNeedTimeSplit(Need.NONE, BigDecimal.ONE)
 						.build())
 				.withExamples("Doing nothing at 3rd place for household and family care")
 				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
@@ -720,7 +726,7 @@ public final class ActivityInitializer {
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_WORK)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.withNeedTimeSplit(Need.NONE, BigDecimal.ONE)
 						.build())
 				.withExamples("Doing nothing at 3rd place for work")
 				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
@@ -740,7 +746,7 @@ public final class ActivityInitializer {
 				.withActivityCategory(ActivityCategory.IDLE)
 				.withActivityDescription(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_LEISURE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.withNeedTimeSplit(Need.NONE, BigDecimal.ONE)
 						.build())
 				.withExamples("Doing nothing at 3rd place for leisure")
 				.withAvailabilityIntervalAtDays(0, 0, 23, 59, ISimulationSettings.WEEK)
@@ -760,7 +766,7 @@ public final class ActivityInitializer {
 				.withActivityCategory(ActivityCategory.TRAVEL)
 				.withActivityDescription("Travel")
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.NOT_DEFINED, BigDecimal.ONE)
+						.withNeedTimeSplit(Need.NONE, BigDecimal.ONE)
 						.build())
 				.withExamples("Travel with any mode of transport")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
