@@ -21,9 +21,9 @@ import rfs0.aitam.activities.ActivityAgenda;
 import rfs0.aitam.activities.ActivityCategory;
 import rfs0.aitam.activities.ActivityLocation;
 import rfs0.aitam.model.Environment;
-import rfs0.aitam.model.needs.ActualNeedTimeSplit;
+import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.model.needs.TargetNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 import rfs0.aitam.utilities.DebugUtility;
@@ -177,11 +177,11 @@ public class Individual {
 	/**
 	 * The target need time split defines the individual's ideal relative distribution of time in regards to it's different needs. Thus, it is used as a benchmark to evaluate activity plans. The closer a plan is to the target need time split, the better it is at satisfying the individuals needs and thus the more an individual prefers it.<p>
 	 */
-	private NeedTimeSplit m_targetNeedTimeSplit;
+	private TargetNeedTimeSplit m_targetNeedTimeSplit;
 	/**
 	 * The actual need time split is used to record the time the individual spends on satisfying each of its needs. Thus, it can be used to compare the individuals actual need satisfaction to it's ideal (i.e. target) need satisfaction at any given point in time.</p>
 	 */
-	private ActualNeedTimeSplit m_actualNeedTimeSplit = new ActualNeedTimeSplit();
+	private AbsoluteNeedTimeSplit m_actualNeedTimeSplit = new AbsoluteNeedTimeSplit();
 	
 	/**
 	 * @category Agendas
@@ -348,7 +348,7 @@ public class Individual {
 		 * @param targetNeedTimeSplit - the target need time split.
 		 * @return {@link Builder} - builder with the target need time split set for {@link Builder#individualToBuild}.
 		 */
-		public Builder withTargetNeedTimeSplit(NeedTimeSplit targetNeedTimeSplit) {
+		public Builder withTargetNeedTimeSplit(TargetNeedTimeSplit targetNeedTimeSplit) {
 			String warningMessage = "Target need  time split is invalid. The built individual may be unusable!";
 			validate(targetNeedTimeSplit, warningMessage);
 			individualToBuild.m_targetNeedTimeSplit = targetNeedTimeSplit;
@@ -1221,7 +1221,7 @@ public class Individual {
 		for (Need needSatisfiedByActivity: activity.getNeedTimeSplit().keySet()) {
 			BigDecimal fractionForNeed = activity.getFractionForNeed(needSatisfiedByActivity);
 			BigDecimal timeSpentSatisfyingNeed = fractionForNeed.multiply(CalculationUtility.createBigDecimal(interval.toDuration().getStandardMinutes()));
-			agenda.getActualNeedTimeSplit().updateNeedTimeSplit(needSatisfiedByActivity, timeSpentSatisfyingNeed);
+			agenda.getAbsoluteNeedTimeSplit().updateNeedTimeSplit(needSatisfiedByActivity, timeSpentSatisfyingNeed);
 		}
 	}
 
@@ -1229,7 +1229,7 @@ public class Individual {
 	/**
 	 * <p>This method models how an an individuals chooses the agenda that fits its target need time split best.
 	 * Best in this context means that the actual need time split of an agenda perfectly fits the targe need time split of the individual.</p>
-	 * <p>To quantify the deviation form the optimal plan we use (resp. adapt) the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error (MSE)</a> (see {@link CalculationUtility#calculateMeanSquaredError(ActivityAgenda, NeedTimeSplit)} for implementation details).
+	 * <p>To quantify the deviation form the optimal plan we use (resp. adapt) the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error (MSE)</a> (see {@link CalculationUtility#calculateMeanSquaredError(ActivityAgenda, TargetNeedTimeSplit)} for implementation details).
 	 * <b>Note:</b> The MSE heavily weights outliers, which in our context is what we want. 
 	 * The underlying assumption is that individuals prefer some minor deviations over one (or a few) large deviation(s).</p>
 	 * 
@@ -1240,7 +1240,7 @@ public class Individual {
 		ActivityAgenda bestAgenda = null;
 		BigDecimal minimumSquaredMeanError = new BigDecimal(Integer.MAX_VALUE);
 		for (ActivityAgenda randomAgendaWithTravelActivities: m_allDayPlans.keySet()) {
-			BigDecimal meanSquaredError = CalculationUtility.calculateMeanSquaredError(randomAgendaWithTravelActivities, getTargetNeedTimeSplit());
+			BigDecimal meanSquaredError = CalculationUtility.calculateMeanSquaredError(randomAgendaWithTravelActivities.getAbsoluteNeedTimeSplit(), getTargetNeedTimeSplit());
 			if (meanSquaredError.compareTo(minimumSquaredMeanError) < 0) {
 				minimumSquaredMeanError = meanSquaredError;
 				bestAgenda = randomAgendaWithTravelActivities;
@@ -1419,7 +1419,7 @@ public class Individual {
 	/**
 	 * @category Moving on paths of the environment
 	 * 
-	 * <b>Note:</b> Most of the code for the movement stems from the <a href="https://github.com/eclab/mason/">Mason repository on GitHub</a> repository. 
+	 * <b>Note:</b>The code for the movement partly stems from the <a href="https://github.com/eclab/mason/">Mason repository on GitHub</a> repository. 
 	 * More specifically from a package called <a href="https://github.com/eclab/mason/tree/master/contrib/geomason/sim/app/geo/gridlock">"GridLock"</a>. 
 	 * It has been adapted to fit this simulation's purpose. </b> 
 	 *
@@ -1761,19 +1761,19 @@ public class Individual {
 		m_numberOfFriendsNetworkActivitiesPlanned--;
 	}
 
-	public NeedTimeSplit getTargetNeedTimeSplit() {
+	public TargetNeedTimeSplit getTargetNeedTimeSplit() {
 		return m_targetNeedTimeSplit;
 	}
 
-	public void setTargetNeedTimeSplit(NeedTimeSplit targetNeedTimeSplit) {
+	public void setTargetNeedTimeSplit(TargetNeedTimeSplit targetNeedTimeSplit) {
 		m_targetNeedTimeSplit = targetNeedTimeSplit;
 	}
 
-	public ActualNeedTimeSplit getActualNeedTimeSplit() {
+	public AbsoluteNeedTimeSplit getActualNeedTimeSplit() {
 		return m_actualNeedTimeSplit;
 	}
 
-	public void setActualNeedTimeSplit(ActualNeedTimeSplit actualNeedTimeSplit) {
+	public void setActualNeedTimeSplit(AbsoluteNeedTimeSplit actualNeedTimeSplit) {
 		m_actualNeedTimeSplit = actualNeedTimeSplit;
 	}
 
