@@ -13,6 +13,9 @@ import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.settings.ISimulationSettings;
 
+/**
+ * <p>This class is used to handle all operations related to time.</p>
+ */
 public final class TimeUtility {
 	
 	public TimeUtility() {}
