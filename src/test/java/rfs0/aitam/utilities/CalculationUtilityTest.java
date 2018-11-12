@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import rfs0.aitam.activities.ActivityAgenda;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.model.needs.TargetNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
 public class CalculationUtilityTest {
@@ -57,15 +57,15 @@ public class CalculationUtilityTest {
 	@Test
 	public void testCalculateMeanSquaredError() {
 		ActivityAgenda activityAgenda = new ActivityAgenda();
-		HashMap<Need,BigDecimal> relativeNeedTimeSplit = activityAgenda.getActualNeedTimeSplit().getRelativeNeedTimeSplit();
+		HashMap<Need,BigDecimal> relativeNeedTimeSplit = activityAgenda.getAbsoluteNeedTimeSplit().getRelativeNeedTimeSplit();
 		relativeNeedTimeSplit.put(Need.AFFECTION, CalculationUtility.createBigDecimal(0.15));
 		relativeNeedTimeSplit.put(Need.CREATION, CalculationUtility.createBigDecimal(0.05));
 		relativeNeedTimeSplit.put(Need.FREEDOM, CalculationUtility.createBigDecimal(0.25));
-		NeedTimeSplit targetNeedTimeSplit = new NeedTimeSplit.Builder()
+		TargetNeedTimeSplit targetNeedTimeSplit = new TargetNeedTimeSplit.Builder()
 				.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.createBigDecimal(0.10))
 				.withNeedTimeSplit(Need.CREATION, CalculationUtility.createBigDecimal(0.10))
 				.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.createBigDecimal(0.10))
 				.build();
-		assertEquals(BigDecimal.valueOf(0.0275000).setScale(7), CalculationUtility.calculateMeanSquaredError(activityAgenda, targetNeedTimeSplit));
+		assertEquals(BigDecimal.valueOf(0.0275000).setScale(7), CalculationUtility.calculateMeanSquaredError(activityAgenda.getAbsoluteNeedTimeSplit(), targetNeedTimeSplit));
 	}
 }
