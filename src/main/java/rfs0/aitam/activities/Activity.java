@@ -15,7 +15,7 @@ import org.joda.time.Interval;
 import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.individuals.NetworkType;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.model.needs.TargetNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
 /**
@@ -24,25 +24,59 @@ import rfs0.aitam.settings.ISimulationSettings;
  * <p>{@link Activity#m_activityCategory}: The category of an activity. This classification serves as main means to group similar activities.</p>
  * <p>{@link Activity#m_activityDescription}: A description of the activity, which is also used to refer to simulation output related to it.</p>
  * <p>{@link Activity#m_activityLocation}: The location where the activity can be executed. This does not refer to the exact location but the type of location.</p>
- * <p>{@link Activity#m_isJointActivity}: This attribute is used to declare an activity as either being an individual or joint activity. Joint activities can only be executed.</p>
- * <p>together with other individuals.</p>
- * <p>{@link Activity#m_availability}: The availability in terms of days of week and time of day referring to possible start times of an activity. This serves as a way.</p>
- * <p>of constraining when an activity can be started.</p>
+ * <p>{@link Activity#m_isJointActivity}: This attribute is used to declare an activity as either being an individual or joint activity. 
+ * Joint activities can only be executed together with other individuals.</p>
+ * <p> {@link Activity#m_alternativeActivity}: An alternative activity which can be executed instead of a joint activity if none of the participating member are present at the target location.</p>
+ * <p>{@link Activity#m_availability}: The availability in terms of days of week and time of day referring to possible start times of an activity. 
+ * This serves as a way of constraining when an activity can be started.</p>
  * <p>{@link Activity#m_needTimeSplit}: The need time split is a construct that allows to define what needs an activity satisfies for each unit of time it is being executed.</p>
- * <p>{@link Activity#m_examples}: Some examples of this activity. This allows to make abstractions of activities more concrete. However, it serves only as information to </p>
- * <p>the modeler and is not being used in any functionality.</p>
+ * <p>{@link Activity#m_examples}: Some examples of this activity. 
+ * This allows to make abstractions of activities more concrete. 
+ * However, it serves only as information to the modeler and is not being used in any functionality.</p>
  * <p>{@link Activity#m_networkType}: The network type determines with which members of a network an activity must be conducted with.</p>
  */
 public class Activity {
 
+	/**
+	 * <p>The category of an activity. 
+	 * This classification serves as main means to group similar activities.</p>
+	 */
 	private ActivityCategory m_activityCategory;
+	/**
+	 * <p>A description of the activity, which is also used to refer to simulation output related to it.</p>
+	 */
 	private String m_activityDescription;
+	/**
+	 * <p>The location where the activity can be executed. 
+	 * This does not refer to the exact location but the type of location.</p>
+	 */
 	private ActivityLocation m_activityLocation;
+	/**
+	 * <p>This attribute is used to declare an activity as either being an individual or joint activity. 
+	 * Joint activities can only be executed.</p>
+	 */
 	private boolean m_isJointActivity;
+	/**
+	 * <p>An alternative activity which can be executed instead of a joint activity if none of the participating member are present at the target location.</p>
+	 */
 	private Activity m_alternativeActivity;
+	/**
+	 * <p>The availability in terms of days of week and time of day referring to possible start times of an activity. 
+	 * This serves as a way.</p>
+	 */
 	private HashMap<Integer, ArrayList<Interval>> m_availability = new HashMap<>();
-	private NeedTimeSplit m_needTimeSplit;
+	/**
+	 * <p>The need time split is a construct that allows to define what needs an activity satisfies for each unit of time it is being executed.</p>
+	 */
+	private TargetNeedTimeSplit m_needTimeSplit;
+	/**
+	 * <p>Some examples of this activity. This allows to make abstractions of activities more concrete. 
+	 * However, it serves only as information to </p>
+	 */
 	private String m_examples;
+	/**
+	 * <p>The network type determines with which members of a network an activity must be conducted with.</p>
+	 */
 	private NetworkType m_networkType;
 
 	private Activity() {}
@@ -54,10 +88,9 @@ public class Activity {
 	
 	/**
 	 * @category Builder
-	 */
-
-	/**
-	 * <p>This builder must be used to instantiate {@link Activity}'s. In addition to making creation of instances easier it ensures the object to be built has all relevant attributes set (see {@link Builder#activityToBuild}).</p>
+	 * 
+	 * <p>This builder must be used to instantiate {@link Activity}s. 
+	 * In addition to making creation of instances easier it ensures the object to be built has all relevant attributes set (see {@link Builder#activityToBuild}).</p>
 	 */
 	public static class Builder {
 
@@ -105,8 +138,8 @@ public class Activity {
 		/**
 		 * <p>Each {@link Activity} must be declared as either a joint or an individual activity and this method sets this information for {@link Builder#activityToBuild}.</p>
 		 * 
-		 * <p><b>Note:</b> If you declare an activity as being a joint activity, then make sure to set the correct {@link NetworkType} in {@link Builder#withNetworkType(NetworkType)} as well. Otherwise,
-		 * i.e. if it is an individual activity it is suggested to set the network type to {@link NetworkType#NONE}.</p>
+		 * <p><b>Note:</b> If you declare an activity as being a joint activity, then make sure to set the correct {@link NetworkType} in {@link Builder#withNetworkType(NetworkType)} as well. 
+		 * Otherwise, i.e. if it is an individual activity it is suggested to set the network type to {@link NetworkType#NONE}.</p>
 		 * 
 		 * @param isJointActivity - indication whether this activity is a joint or a individual activity.
 		 * @return {@link Builder} - builder with an indication on whether {@link Builder#activityToBuild} is a joint or individual activity.
@@ -116,6 +149,16 @@ public class Activity {
 			return this;
 		}
 		
+		
+		/**
+		 * <p>Each <b>joint</b> {@link Activity} must have an alternative activity and this method sets this information for {@link Builder#activityToBuild}.</p>
+		 * 
+		 * <p><b>Note:</b> This activity is executed if the joint activity can not be executed.
+		 * This happens if an individual is the only one at the target location for a joint activity.</p>
+		 * 
+		 * @param isJointActivity - indication whether this activity is a joint or a individual activity.
+		 * @return {@link Builder} - builder with an indication on whether {@link Builder#activityToBuild} is a joint or individual activity.
+		 */
 		public Builder withAlternativeActivity(Activity alternativeActivity) {
 			activityToBuild.m_alternativeActivity = alternativeActivity;
 			return this;
@@ -124,12 +167,14 @@ public class Activity {
 		/**
 		 * <p>Each {@link Activity} must have the time defined in terms of day of week and time of day (referring to its start time) it is available and this method sets this information for {@link Builder#activityToBuild}.</p>
 		 * 
-		 * <p><b>Note:</b>The parameters of this methods allow you to define an interval for a given day of week which represents all <b>start times</b> on which the activity to be initialized can be <b>started</b>. E.g. by using
-		 * (1, 8, 0, 9, 0) as parameters you allow individuals to start this activity on any monday from 08:00 until 09:00 independent of how long its duration will be. Use {@link DateTimeConstants} to indicate the day of week.
-		 * You can call this method any number of times to declare different intervals of available start times. Alternatively, use any of the other methods to set the availability.</p>
+		 * <p><b>Note:</b>The parameters of this methods allow you to define an interval for a given day of week which represents all <b>start times</b> on which the activity to be initialized can be <b>started</b>. 
+		 * E.g. by using (1, 8, 0, 9, 0) as parameters you allow individuals to start this activity on any Monday from 08:00 until 09:00 independent of how long its duration will be. 
+		 * Use {@link DateTimeConstants} to indicate the day of week.
+		 * You can call this method any number of times to declare different intervals of available start times. 
+		 * Alternatively, use any of the other methods to set the availability.</p>
 		 * 
-		 * <p><b>Important:</b>Ideally you should not declare overlapping intervals in order to prevent confusion and improve performance. It is also recommended to take the empirical duration (in terms of mean and standard deviation) 
-		 * of an activity into consideration when defining its availability.</p>
+		 * <p><b>Important:</b>Ideally you should not declare overlapping intervals in order to prevent confusion and improve performance. 
+		 * It is also recommended to take the empirical duration (in terms of mean and standard deviation) of an activity into consideration when defining its availability.</p>
 		 * 
 		 * @param dayOfWeek - day of week the interval of start times is being declared for.
 		 * @param startHourOfDay - hour of day representing the start of the interval representing possible start times.
@@ -156,8 +201,8 @@ public class Activity {
 		 * 
 		 * <p><b>Note:</b> This methods works the same as {@link Builder#withAvailabilityInterval(int, int, int, int, int)} except that it allows you to define an interval for more than day of week at once.
 		 * 
-		 * <p><b>Important:</b>Ideally you should not declare overlapping intervals in order to prevent confusion and improve performance. It is also recommended to take the empirical duration (in terms of mean and standard deviation) 
-		 * of an activity into consideration when defining its availability.</p>
+		 * <p><b>Important:</b>Ideally you should not declare overlapping intervals in order to prevent confusion and improve performance. 
+		 * It is also recommended to take the empirical duration (in terms of mean and standard deviation) of an activity into consideration when defining its availability.</p>
 		 * 
 		 * @param startHourOfDay - hour of day representing the start of the interval representing possible start times.
 		 * @param startMinuteOfDay - minute of day representing the start of the interval representing possible start times.
@@ -182,16 +227,16 @@ public class Activity {
 		}
 		
 		/**
-		 * <p>Each {@link Activity} must have defined a {@link NeedTimeSplit} and this method sets it for {@link Builder#activityToBuild}. See {@link NeedTimeSplit} for more information about the concept of a
-		 * need time split. In the context of an activity the {@link NeedTimeSplit} defines how the time an {@link Individual} spends on executing the activity is allocated resp. split to the variouse needs 
-		 * fulfilled by the activity for each unit of time (i.e. minute). E.g. suppose the {@link NeedTimeSplit} for an activity is defined as {@link Need#LEISURE}=0.75 and {@link Need#FREEDOM}=0.25 then for each
-		 * minute the {@link Individual} spends executing the activity 45s will be added to the total (i.e. absolute) time spent satisfying {@link Need#LEISURE} and 15s will be added to the total time spent 
-		 * satisfying {@link Need#FREEDOM}.</p>
+		 * <p>Each {@link Activity} must have defined a {@link TargetNeedTimeSplit} and this method sets it for {@link Builder#activityToBuild}. 
+		 * See {@link TargetNeedTimeSplit} for more information about the concept of a need time split.
+		 * In the context of an activity the {@link TargetNeedTimeSplit} defines how the time an {@link Individual} spends on executing the activity is allocated resp. split to the various needs fulfilled by the activity for each unit of time (i.e. minute). 
+		 * E.g. suppose the {@link TargetNeedTimeSplit} for an activity is defined as {@link Need#LEISURE}=0.75 and {@link Need#FREEDOM}=0.25.
+		 * Then for each minute the {@link Individual} spends executing the activity 45s will be added to the total (i.e. absolute) time spent satisfying {@link Need#LEISURE} and 15s will be added to the total time spent satisfying {@link Need#FREEDOM}.</p>
 		 * 
 		 * @param needTimeSplit - the need time split defining how each unit of time spent executing this activity is allocated to the respective needs satisfied by this activity.
 		 * @return {@link Builder} - builder with information about need time split of the {@link Builder#activityToBuild}.
 		 */
-		public Builder withNeedTimeSplit(NeedTimeSplit needTimeSplit) {
+		public Builder withNeedTimeSplit(TargetNeedTimeSplit needTimeSplit) {
 			activityToBuild.m_needTimeSplit = needTimeSplit;
 			return this;
 		}
@@ -208,9 +253,10 @@ public class Activity {
 		}
 		
 		/**
-		 * <p>Each {@link Activity} must have a {@link NetworkType} and this method sets this information for {@link Builder#activityToBuild}. The network type determines with what network this activity
-		 * must be executed. E.g. if the {@link NetworkType} is set to {@link NetworkType#HOUSEHOLD_NETWORK} then it can only be executed together with members of the household. If the type is set to
-		 * {@link NetworkType#NONE} then it can only be executed alone.</p>
+		 * <p>Each {@link Activity} must have a {@link NetworkType} and this method sets this information for {@link Builder#activityToBuild}. 
+		 * The network type determines with what network this activity must be executed. 
+		 * E.g. if the {@link NetworkType} is set to {@link NetworkType#HOUSEHOLD_NETWORK} then it can only be executed together with members of the household. 
+		 * If the type is set to {@link NetworkType#NONE} then it can only be executed alone.</p>
 		 * 
 		 * @param networkType - the network type with members of which this activity must be executed together with, or none if the activity must be executed alone.
 		 * @return {@link Builder} - builder with information about the network type of the {@link Builder#activityToBuild}.
@@ -223,7 +269,8 @@ public class Activity {
 		/**
 		 * <p>This method ensures that all mandatory variables of {@link Activity} are set i.e. not <code>null</code>.</p>
 		 * 
-		 * <p><b>Note:</b> As the default for boolean variables is <code>false</code> we do not cover it here. However, keep in mind that it will be <code>false</code> if not set when building the activity.
+		 * <p><b>Note:</b> As the default for boolean variables is <code>false</code> we do not cover it here. 
+		 * However, keep in mind that it will be <code>false</code> if not set when building the activity.
 		 * 
 		 * @return The string of the first field that is not set. <code>null</code> if all mandatory fields are set.
 		 */
@@ -253,11 +300,12 @@ public class Activity {
 		}
 		
 		/**
-		 * <p>This method builds an {@link Activity} and initializes a new {@link Activity} to be built. It should be called once all the mandatory fields are set</p>
+		 * <p>This method builds an {@link Activity} and initializes a new {@link Activity} to be built. 
+		 * It should be called once all the mandatory fields are set</p>
 		 * 
-		 * <p><b>Note:</b> The {@link Activity} will be built independent of wheter it is complete or not, but information about missing attributes will be logged. It is very likely
-		 * that a simulation with not completely inizialized {@link Activity}s will crash at some point or at least lead to unexpected behavior / output. You should therfore prevent such
-		 * situations by keeping an eye on the log and fix all of the logged errors before evaluating the simulations output.</p>
+		 * <p><b>Note:</b> The {@link Activity} will be built independent of whether it is complete or not, but information about missing attributes will be logged. 
+		 * It is very likely that a simulation with not completely initialized {@link Activity}s will crash at some point or at least lead to unexpected behavior / output. 
+		 * You should therefore prevent such situations by keeping an eye on the log and fix all of the logged errors before evaluating the simulations output.</p>
 		 * 
 		 * @return builtActivity - the activity built
 		 */
