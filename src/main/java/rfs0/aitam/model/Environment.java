@@ -25,7 +25,7 @@ import rfs0.aitam.activities.ActivityCategory;
 import rfs0.aitam.activities.ActivityInitializer;
 import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.individuals.IndividualInitializer;
-import rfs0.aitam.model.needs.ActualNeedTimeSplit;
+import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;
@@ -195,7 +195,7 @@ public class Environment extends SimState {
 	 * 		<li>Plan individual activities, if planning is possible.</li>
 	 * 		<li>Choose the best of the generated {@link ActivityAgenda}'s</li>
 	 * 		<li>At each point in time: Moving, if necessary.</li>
-	 * 		<li>At each point in time: execute the actvitiy scheduled for the interval overlapping the current point in time. <b>Note:</b> This includes in particular updating the {@link ActualNeedTimeSplit}.
+	 * 		<li>At each point in time: execute the actvitiy scheduled for the interval overlapping the current point in time. <b>Note:</b> This includes in particular updating the {@link AbsoluteNeedTimeSplit}.
 	 * 		<li>Finally, if the beginning of a new day is reached, reset (only) variables which are used to generate a new {@link ActivityAgenda}</li>
 	 * 	</ol>
 	 * 	<li>Schedule the {@link GeomVectorField} containing all {@link Point}'s wrapped in a {@link MasonGeometry}. These represent the {@link Individual}'s as dots.</li>
