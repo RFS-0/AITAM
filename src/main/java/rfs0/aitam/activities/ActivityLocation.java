@@ -1,8 +1,8 @@
 package rfs0.aitam.activities;
 
 /**
- * This enumeration contains all types of activity locations. As sucht its primary purpose is to indicate
- * at which type of location an {@link Activity} is available.
+ * This enumeration contains all types of activity locations. 
+ * As such its primary purpose is to indicate at which type of location an {@link Activity} is available.
  */
 public enum ActivityLocation {
 	HOME,
