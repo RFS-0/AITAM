@@ -12,23 +12,46 @@ import org.joda.time.Interval;
 
 import com.vividsolutions.jts.planargraph.Node;
 
-import rfs0.aitam.model.needs.ActualNeedTimeSplit;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
+import rfs0.aitam.model.needs.TargetNeedTimeSplit;
 
 /**
  * <p>This class is used to model agendas of activities. As such it is described by the following information:</p>
  * 
- * <p>{@link ActivityAgenda#m_agenda}: The actual agenda containing all the activities planned sorted by their starting points. The key is an interval describing what time of day each activity of the agenda is executed. The values are the activities themselves.</p>
- * <p>{@link ActivityAgenda#m_locations}: Information about where exactly each activity is executed. Thus, the key is again an interval and it has to match exactly one of the intervals in the agenda. The values are the actual locations where the activity is executed.</p> 
- * <p>{@link ActivityAgenda#m_actualNeedTimeSplit}: The actual need time spilt is composed of two {@link NeedTimeSplit}s. In the context of an agenda this data structure allows to record the absolute time (measured in minutes) spent on satisfying each need during when executing an activity. Furthermore, it allows to convert those absolute recordings to be converted into relative measures i.e. percentages. (See {@link ActualNeedTimeSplit} for more details).</p>
+ * <p>{@link ActivityAgenda#m_agenda}: The actual agenda containing all the activities planned sorted by their starting points. 
+ * The key is an interval describing what time of day each activity of the agenda is executed. 
+ * The values are the activities themselves.</p>
+ * <p>{@link ActivityAgenda#m_locations}: Information about where exactly each activity is executed. 
+ * Thus, the key is again an interval and it has to match exactly one of the intervals in the agenda. 
+ * The values are the actual locations where the activity is executed.</p> 
+ * <p>{@link ActivityAgenda#m_actualNeedTimeSplit}: The actual need time spilt is composed of two {@link TargetNeedTimeSplit}s. 
+ * In the context of an agenda this data structure allows to record the absolute time (measured in minutes) spent on satisfying each need during when executing an activity. 
+ * Furthermore, it allows to convert those absolute recordings to be converted into relative measures i.e. percentages. (See {@link AbsoluteNeedTimeSplit} for more details).</p>
  * 
- * <p><b>Important:</b> The intervals used as keys for {@link ActivityAgenda#m_agenda} and {@link ActivityAgenda#m_locations} must always be abutting each other and must never be overlapping each other. This is <b>not</b> checked by the method to add new intervals because of its negative impact on performance. (The check has been removed and could be added once again by checking earlier versions of this class via VCS).</p>
+ * <p><b>Important:</b> The intervals used as keys for {@link ActivityAgenda#m_agenda} and {@link ActivityAgenda#m_locations} must always be abutting each other and must never be overlapping each other. 
+ * This is <b>not</b> checked by the method to add new intervals because of its negative impact on performance. 
+ * (The check has been removed and could be added once again by checking earlier versions of this class via VCS).</p>
  */
 public class ActivityAgenda implements Cloneable {
 	
+	/**
+	 * <p>{@link ActivityAgenda#m_agenda}: The actual agenda containing all the activities planned sorted by their starting points. 
+	 * The key is an interval describing what time of day each activity of the agenda is executed. 
+	 * The values are the activities themselves.</p>
+	 */
 	private TreeMap<Interval, Activity> m_agenda = new TreeMap<>(new IntervalComparator());
+	/**
+	 * <p>{@link ActivityAgenda#m_locations}: Information about where exactly each activity is executed. 
+	 * Thus, the key is again an interval and it has to match exactly one of the intervals in the agenda. 
+	 * The values are the actual locations where the activity is executed.</p> 
+	 */
 	private TreeMap<Interval, Node> m_locations = new TreeMap<>(new IntervalComparator());
-	private ActualNeedTimeSplit m_actualNeedTimeSplit = new ActualNeedTimeSplit();
+	/**
+	 * <p>{@link ActivityAgenda#m_actualNeedTimeSplit}: The actual need time spilt is composed of two {@link TargetNeedTimeSplit}s. 
+	 * In the context of an agenda this data structure allows to record the absolute time (measured in minutes) spent on satisfying each need during when executing an activity. 
+	 * Furthermore, it allows to convert those absolute recordings to be converted into relative measures i.e. percentages. (See {@link AbsoluteNeedTimeSplit} for more details).</p>
+	 */
+	private AbsoluteNeedTimeSplit m_actualNeedTimeSplit = new AbsoluteNeedTimeSplit();
 	
 	public ActivityAgenda() {}
 	
@@ -64,7 +87,9 @@ public class ActivityAgenda implements Cloneable {
 	/**
 	 * This method is used to add a new activity for some interval to the agenda.
 	 * 
-	 * <p><b>Important:</b> The intervals used as keys must always be abutting each other and must never be overlapping each other. This is <b>not</b> checked by the method to add new intervals because of its negative impact on performance. (The check has been removed and could be added once again by checking earlier versions of this class via VCS).</p>
+	 * <p><b>Important:</b> The intervals used as keys must always be abutting each other and must never be overlapping each other. 
+	 * This is <b>not</b> checked by the method to add new intervals because of its negative impact on performance. 
+	 * (The check has been removed and could be added once again by checking earlier versions of this class via VCS).</p>
 	 * 
 	 * @param activityInterval - the interval during which the activity is executed.
 	 * @param activity - the activity which is being executed during the specified interval.
@@ -74,9 +99,10 @@ public class ActivityAgenda implements Cloneable {
 	}
 	
 	/**
-	 * This method is used to retrieve the activity executed during the specified interval.
+	 * <p>This method is used to retrieve the activity executed during the specified interval.</p>
 	 * 
-	 * <p><b>Important:</b> Make sure to only use intervals smaller than or equal to those you used when adding the activities. For more details on how retrieving works check out {@link Interval#contains(org.joda.time.ReadableInterval)}.</p>
+	 * <p><b>Important:</b> Make sure to only use intervals smaller than or equal to those you used when adding the activities. 
+	 * For more details on how retrieving works check out {@link Interval#contains(org.joda.time.ReadableInterval)}.</p>
 	 * 
 	 * @param interval - the interval for which the activity should be retrieved.
 	 * @return - the activity executed during the specified interval or <code>null</code> if there is no entry for it.
@@ -91,7 +117,7 @@ public class ActivityAgenda implements Cloneable {
 	}
 	
 	/**
-	 * This method is used to retrieve the activity executed at the specified point in time. 
+	 * <p>This method is used to retrieve the activity executed at the specified point in time.</p> 
 	 * 
 	 * @param time - the point in time for which the activity should be retrieved.
 	 * @return - the activity executed during the specified point in time or <code>null</code> if there is no entry for it.
@@ -106,9 +132,11 @@ public class ActivityAgenda implements Cloneable {
 	}
 	
 	/**
-	 * This method is used to add a new activity location i.e. node for some interval to the agenda.
+	 * <p>This method is used to add a new activity location i.e. node for some interval to the agenda.</p>
 	 * 
-	 * <p><b>Important:</b> The intervals used as keys must always be abutting each other and must never be overlapping each other. This is <b>not</b> checked by the method to add new intervals because of its negative impact on performance. (The check has been removed and could be added once again by checking earlier versions of this class via VCS).</p>
+	 * <p><b>Important:</b> The intervals used as keys must always be abutting each other and must never be overlapping each other. 
+	 * This is <b>not</b> checked by the method to add new intervals because of its negative impact on performance. 
+	 * (The check has been removed and could be added once again by checking earlier versions of this class via VCS).</p>
 	 * 
 	 * @param activityInterval - the interval during which the activity is executed.
 	 * @param targetNode - the activity location at which the activity is being executed during the specified interval.
@@ -121,7 +149,7 @@ public class ActivityAgenda implements Cloneable {
 	}
 	
 	/**
-	 * This method is used to retrieve the activity location for the activity executed at the specified point in time.
+	 * <p>This method is used to retrieve the activity location for the activity executed at the specified point in time.</p>
 	 * 
 	 * @param interval - the interval for which the activity location should be retrieved.
 	 * @return - the activity location for the activity executed during the specified interval or <code>null</code> if there is no entry for it.
@@ -136,7 +164,7 @@ public class ActivityAgenda implements Cloneable {
 	}
 	
 	/**
-	 * This method is used to retrieve the activity location for the activity executed at the specified point in time. 
+	 * <p>This method is used to retrieve the activity location for the activity executed at the specified point in time.</p> 
 	 * 
 	 * @param time - the point in time for which the activity location should be retrieved.
 	 * @return - the activity location of the activity executed during the specified point in time or <code>null</code> if there is no entry for it.
@@ -151,9 +179,10 @@ public class ActivityAgenda implements Cloneable {
 	}
 	
 	/**
-	 * This method returns the intervals for which the activity agenda has defined activities. As such it represents the key set for both, the activities and their locations.
-	 * Thus it can be used to iterate over both, the activities as well as the locations. For this reason the method also ensures that the key sets are indeed equal, otherwise
-	 * an error is logged, since the agenda is not valid.
+	 * <p>This method returns the intervals for which the activity agenda has defined activities. 
+	 * As such it represents the key set for both, the activities and their locations.
+	 * Thus it can be used to iterate over both, the activities as well as the locations. 
+	 * For this reason the method also ensures that the key sets are indeed equal, otherwise an error is logged, since the agenda is not valid.</p>
 	 * 
 	 * @return - the set of intervals representing the key set for both {@link ActivityAgenda#m_agenda} and {@link ActivityAgenda#m_locations}.
 	 */
@@ -165,7 +194,7 @@ public class ActivityAgenda implements Cloneable {
 	}
 	
 	/**
-	 * This method returns the first {@link Interval} planned i.e. the interval with the earliest start time or <code>null</code> if there is no interval planned yet.
+	 * <p>This method returns the first {@link Interval} planned i.e. the interval with the earliest start time or <code>null</code> if there is no interval planned yet.</p>
 	 * 
 	 * <b>Note:</b>: This is possible since the agendas keys are at any point in time sorted by their start times (see {@link TreeMap} and {@link IntervalComparator} for more details).
 	 * 
@@ -179,7 +208,7 @@ public class ActivityAgenda implements Cloneable {
 	}
 	
 	/**
-	 * This method returns the last {@link Interval} planned i.e. the interval with the latest start time or <code>null</code> if there is no interval planned yet.
+	 * <p>This method returns the last {@link Interval} planned i.e. the interval with the latest start time or <code>null</code> if there is no interval planned yet.</p>
 	 * 
 	 * <b>Note:</b>: This is possible since the agendas keys are at any point in time sorted by their start times (see {@link TreeMap} and {@link IntervalComparator} for more details).
 	 * 
@@ -193,7 +222,7 @@ public class ActivityAgenda implements Cloneable {
 	}
 	
 	/**
-	 * This method resets the activity agenda by resetting both the agenda and the locations.
+	 * <p>This method resets the activity agenda by resetting both the agenda and the locations.</p>
 	 */
 	public void clear() {
 		m_agenda = new TreeMap<>(new IntervalComparator());
@@ -203,7 +232,7 @@ public class ActivityAgenda implements Cloneable {
 	/**
 	 * @category Getter
 	 */
-	public ActualNeedTimeSplit getActualNeedTimeSplit() {
+	public AbsoluteNeedTimeSplit getAbsoluteNeedTimeSplit() {
 		return m_actualNeedTimeSplit;
 	}
 	
@@ -216,9 +245,7 @@ public class ActivityAgenda implements Cloneable {
 	}
 
 	/**
-	 * @author Remo Schenker
-	 *
-	 * This class is used to define the ordering of both {@link ActivityAgenda#m_agenda} and {@link ActivityAgenda#m_locations}.
+	 * <p>This class is used to define the ordering of both {@link ActivityAgenda#m_agenda} and {@link ActivityAgenda#m_locations}.</p>
 	 */
 	public class IntervalComparator implements Comparator<Interval> {
 
