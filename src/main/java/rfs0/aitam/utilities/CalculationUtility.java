@@ -6,11 +6,15 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import ec.util.MersenneTwisterFast;
-import rfs0.aitam.activities.ActivityAgenda;
+import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.model.needs.TargetNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
+/**
+ * <p>This class is used to handle all calculations within the simulation.
+ * Thus it is ensured that all operations use the same {@link MathContext}.</p>
+ */
 public final class CalculationUtility {
 		
 	public static final MathContext MATH_CONTEXT = new MathContext(ISimulationSettings.PRECISION_USED_FOR_BIG_DECIMAL, ISimulationSettings.ROUNDING_MODE_USED_FOR_BIG_DECIMAL);
@@ -67,9 +71,17 @@ public final class CalculationUtility {
 		return result;
 	}
 	
-	public static BigDecimal calculateMeanSquaredError(ActivityAgenda activityAgenda, NeedTimeSplit targetNeedTimeSplit) {
+	/**
+	 * <p>Calculates the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error (MSE)</a> of the absolute need time split using the target need time split as a reference.
+	 * <b>Note:</b> The MSE heavily weights outliers, which in our context is what we want.</p>
+	 * 
+	 * @param absoluteNeedTimeSplit - the absolute need time split for which the MSE is calculated.
+	 * @param targetNeedTimeSplit - the target need time split.
+	 * @return
+	 */
+	public static BigDecimal calculateMeanSquaredError(AbsoluteNeedTimeSplit absoluteNeedTimeSplit, TargetNeedTimeSplit targetNeedTimeSplit) {
 		BigDecimal meanSquaredError = BigDecimal.ZERO;
-		HashMap<Need,BigDecimal> actualRelativeNeedTimeSplit = activityAgenda.getActualNeedTimeSplit().getRelativeNeedTimeSplit();
+		HashMap<Need,BigDecimal> actualRelativeNeedTimeSplit = absoluteNeedTimeSplit.getRelativeNeedTimeSplit();
 		for (Need need: targetNeedTimeSplit.getNeedTimeSplit().keySet()) {
 			BigDecimal targetFractionForNeed = targetNeedTimeSplit.getFractionForNeed(need);
 			BigDecimal actualFractionForNeed = actualRelativeNeedTimeSplit.get(need);
