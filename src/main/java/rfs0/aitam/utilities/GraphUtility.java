@@ -9,8 +9,25 @@ import com.vividsolutions.jts.planargraph.Node;
 
 import sim.util.geo.GeomPlanarGraphDirectedEdge;
 
+/**
+ * <p>This class is used to handle all operations related to graphs.
+ * In particular it provides a method for finding the shortest path between two nodes.
+ * This method is an implementation of the <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">A* search algorithm</a>.</p>
+ * 
+ * <p><b>Note:</b> The code for the A*-Algorithm stems from the <a href="https://github.com/eclab/mason/">Mason repository on GitHub</a> repository. 
+ * More specifically from a package called <a href="https://github.com/eclab/mason/tree/master/contrib/geomason/sim/app/geo/gridlock">"GridLock"</a>. 
+ * It has been adapted to fit this simulation's purpose. </b></p> 
+ */
 public class GraphUtility {
 
+	/**
+	 * <p>This method finds the shortest path between two nodes using the <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">A* search algorithm</a>.</p>
+	 * 
+	 * @param start - the node at which the path starts.
+	 * @param goal - the node to which the path should lead.
+	 * @return ArrayList<GeomPlanarGraphDirectedEdge> - a list of edges which make up the path from the start node to the target node. 
+	 * The indices represent the order in which each of the edges of the path have to be traversed.
+	 */
 	public static ArrayList<GeomPlanarGraphDirectedEdge> astarPath(Node start, Node goal) {
 		// initial check
 		if (start == null || goal == null) {
@@ -20,7 +37,7 @@ public class GraphUtility {
 		// set up the containers for the result
 		ArrayList<GeomPlanarGraphDirectedEdge> result = new ArrayList<GeomPlanarGraphDirectedEdge>();
 
-		// containers for the metainformation about the Nodes relative to the
+		// containers for the meta information about the Nodes relative to the
 		// A* search
 		HashMap<Node, AStarNodeWrapper> foundNodes = new HashMap<Node, AStarNodeWrapper>();
 
@@ -94,12 +111,13 @@ public class GraphUtility {
 	}
 
 	/**
-	 * Measure of the estimated distance between two Nodes. Extremely basic, just
-	 * Euclidean distance as implemented here.
+	 * <p>Helper method for the A* search algorithm.
+	 * Calculates the euclidean distance between two nodes.
+	 * Is used as a heuristic for the real distance.</p>
 	 * 
-	 * @param startNode
-	 * @param endNode
-	 * @return notional "distance" between the given nodes.
+	 * @param startNode - the start node.
+	 * @param endNode - the end node.
+	 * @return double - a heuristic number for the distance between the two nodes.
 	 */
 	private static double heuristic(Node startNode, Node endNode) {
 		Coordinate startCoordinate = startNode.getCoordinate();
@@ -108,11 +126,11 @@ public class GraphUtility {
 	}
 
 	/**
-	 * Considers the list of Nodes open for consideration and returns the node with
-	 * minimum fx value
+	 *<p>Helper method for the A* search algorithm.
+	 * Find wrapper with minimal value for m_fx.</p>
 	 * 
-	 * @param set list of open Nodes
-	 * @return
+	 * @param set list of open nodes.
+	 * @return AStarNodeWrapper - the wrapper with the min value for m_fx.
 	 */
 	private static AStarNodeWrapper findMin(ArrayList<AStarNodeWrapper> set) {
 		double min = 100000;
@@ -127,12 +145,10 @@ public class GraphUtility {
 	}
 
 	/**
-	 * Takes the information about the given node n and returns the path that found
-	 * it.
+	 * <p>Takes the information about the given node n and returns the path that found it.</p>
 	 * 
-	 * @param n the end point of the path
-	 * @return an ArrayList of GeomPlanarGraphDirectedEdges that lead from the given
-	 *         Node to the Node from which the serach began
+	 * @param n - the end point of the path.
+	 * @return ArrayList - a list of edges that lead from the given node to the node from which the search began.
 	 */
 	private static ArrayList<GeomPlanarGraphDirectedEdge> reconstructPath(AStarNodeWrapper n) {
 		ArrayList<GeomPlanarGraphDirectedEdge> result = new ArrayList<GeomPlanarGraphDirectedEdge>();
@@ -146,8 +162,10 @@ public class GraphUtility {
 	}
 
 	/**
-	 * @param e
-	 * @return The length of an edge
+	 * <p>This method calculates an approximation of the length of an edge.</p>
+	 * 
+	 * @param e - an edge
+	 * @return double - an approximation of the length of an edge.
 	 */
 	private static double length(GeomPlanarGraphDirectedEdge e) {
 		Coordinate xnode = e.getFromNode().getCoordinate();
