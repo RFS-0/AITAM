@@ -23,7 +23,7 @@ import rfs0.aitam.activities.ActivityLocation;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 import rfs0.aitam.utilities.DebugUtility;
@@ -38,7 +38,7 @@ import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
 
 /**
- * <p>This class is used to model an abstraction of real world individuals and their attributes relevant for planning and executing their daily activities based on a set 
+ * <p>This class is used to model an abstraction of real-world individuals and their attributes relevant for planning and executing their daily activities based on a set 
  * of needs introduced by Manfred Max-Neef (see <a href="https://en.wikipedia.org/wiki/Fundamental_human_needs">fundamental human needs</a> for more information). 
  * In order to do so, the following attributes are required:</p>
  *
@@ -56,13 +56,13 @@ import sim.util.geo.PointMoveTo;
  *    via {@link ISimulationSettings#MIN_NUMBER_OF_HOUSEHOLD_MEMBERS} and {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_MEMBERS}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
  * <p>{@link Individual#m_householdMembersNetworkId}: The id of the household members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a household network.</p>
  * <p>{@link Individual#m_numberOfHouseholdNetworkActivitiesPlanned}: The number of household activities planned for the current day. It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY} to limit the number of household activities.</p>
- * <p>{@link Individual#m_workColleaguesNetwork}: The individuals work colleagues network. It contains references to all the individual's work colleagues. The number of work collegues can be configured
+ * <p>{@link Individual#m_workColleaguesNetwork}: The individuals work colleagues network. It contains references to all the individual's work colleagues. The number of work colleagues can be configured
  *    via {@link ISimulationSettings#MIN_NUMBER_OF_WORK_COLLEGUES} and {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
- * <p>{@link Individual#m_workColleaguesNetworkId}: The id of the work colleagues members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work collegues network.</p>
+ * <p>{@link Individual#m_workColleaguesNetworkId}: The id of the work colleagues members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work colleagues network.</p>
  * <p>{@link Individual#m_numberOfWorkColleguesNetworkActivitiesPlanned}: The number of activities together with work colleagues planned for the current day. It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with work colleagues.</p>
  * <p>{@link Individual#m_friendsNetwork}: The individuals friends network. It contains references to all the individual's friends. The number of friends can be configured
  *    via {@link ISimulationSettings#MIN_NUMBER_OF_FRIENDS} and {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
- * <p>{@link Individual#m_friendsNetworkId}: The id of the friends members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work collegues network.</p>
+ * <p>{@link Individual#m_friendsNetworkId}: The id of the friends members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work colleagues network.</p>
  * <p>{@link Individual#m_numberOfFriendsNetworkActivitiesPlanned}: The number of activities together with friends planned for the current day. It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with friends.</p>
  *
  * <p><b>Needs</b></p>
@@ -85,24 +85,24 @@ import sim.util.geo.PointMoveTo;
  * Furthermore, you can use {@link Environment#NODE_TO_CLOSEST_BUILDING_MAP} to retrieve the building which is closest to some node you are interested in.</p>
  * 
  * <p>{@link Individual#m_homeNode}: The node on the path network which is closest to the individuals home building. It serves as a proxy for the individuals home.</p>
- * <p>{@link Individual#m_otherPlaceForHouseholdAndFamilyCareNodes}: A list of all other places (in addtion to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
+ * <p>{@link Individual#m_otherPlacesForHouseholdAndFamilyCareNodes}: A list of all other places (in addition to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
  * <p>{@link Individual#m_workPlaceNode}: The node on the path network which is closest to the individuals work place building. It serves as a proxy for the individuals work place.</p>
- * <p>{@link Individual#m_otherPlaceForWorkNodes}: A list of all other places (in addition to the work place) where activities of {@link ActivityCategory#WORK} can be executed.</p>
+ * <p>{@link Individual#m_otherPlacesForWorkNodes}: A list of all other places (in addition to the work place) where activities of {@link ActivityCategory#WORK} can be executed.</p>
  * <p>{@link Individual#m_leisureNode}: The node on the path network which is closest to the individuals preferred building for executing leisure activities. It serves as a proxy for this building.</p>
- * <p>{@link Individual#m_otherPlaceForLeisureNodes}: A list of all other places (in addition to the preferred place for leisure) where activities of {@link ActivityCategory#LEISURE} can be executed.</p>
+ * <p>{@link Individual#m_otherPlacesForLeisureNodes}: A list of all other places (in addition to the preferred place for leisure) where activities of {@link ActivityCategory#LEISURE} can be executed.</p>
  * 
  * <p><b>Dynamic locations</b></p>
  * 
  * <p>{@link Individual#m_currentLocationPoint}: The current location of the individual.</p>
- * <p>{@link Individual#m_lengthIndexedLineOfEdge}: The line of the edge the individual is currently travelling on.</p>
+ * <p>{@link Individual#m_lengthIndexedLineOfEdge}: The line of the edge the individual is currently traveling on.</p>
  * <p>{@link Individual#m_endIndexOfCurrentEdge}: The end index of the current edge.</p>
  * <p>{@link Individual#m_startIndexOfCurrentEdge}: The start index of the current edge.</p>
  * <p>{@link Individual#m_currentIndexOnLineOfEdge}: The current index i.e. the position of the individual on the current edge.</p>
  * <p>{@link Individual#m_pointMoveTo}: A helper class to move a point to a new Coordinate.</p>
  * <p>{@link Individual#m_pathToNextTarget}: The path to the next target.</p>
- * <p>{@link Individual#m_currentEdge}: The edge on which the individual currently is travelling on.</p>
+ * <p>{@link Individual#m_currentEdge}: The edge on which the individual currently is traveling on.</p>
  * <p>{@link Individual#m_edgeDirection}: The direction which the individual is traveling on the current edge. It can either be positive or negative and indicates how the edge is traversed by the individual.</p>
- * <p>{@link Individual#m_currentIndexOnPathToNextTarget}: The index of the edge the individual is currently traveling on. If this value is equal to the size of {@link Individual#m_pathToNextTarget}, then the individual has reached its traget.</p>
+ * <p>{@link Individual#m_currentIndexOnPathToNextTarget}: The index of the edge the individual is currently traveling on. If this value is equal to the size of {@link Individual#m_pathToNextTarget}, then the individual has reached its target.</p>
  * <p>{@link Individual#m_currentNode}: The node of the path network the individual is currently on.</p>
  * <p>{@link Individual#m_currentTargetNode}: The node of the path network that represents the next target.</p>
  */
@@ -177,7 +177,7 @@ public class Individual {
 	/**
 	 * The target need time split defines the individual's ideal relative distribution of time in regards to it's different needs. Thus, it is used as a benchmark to evaluate activity plans. The closer a plan is to the target need time split, the better it is at satisfying the individuals needs and thus the more an individual prefers it.<p>
 	 */
-	private TargetNeedTimeSplit m_targetNeedTimeSplit;
+	private NeedTimeSplit m_targetNeedTimeSplit;
 	/**
 	 * The actual need time split is used to record the time the individual spends on satisfying each of its needs. Thus, it can be used to compare the individuals actual need satisfaction to it's ideal (i.e. target) need satisfaction at any given point in time.</p>
 	 */
@@ -215,7 +215,7 @@ public class Individual {
 	/**
 	 * <p>A list of all other places (in addtion to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
 	 */
-	private ArrayList<Node> m_otherPlaceForHouseholdAndFamilyCareNodes;
+	private ArrayList<Node> m_otherPlacesForHouseholdAndFamilyCareNodes;
 	/**
 	 * The node on the path network which is closest to the individuals work place building. It serves as a proxy for the individuals work place.</p>
 	 */
@@ -223,7 +223,7 @@ public class Individual {
 	/**
 	 * <p>A list of all other places (in addition to the work place) where activities of {@link ActivityCategory#WORK} can be executed.</p>
 	 */
-	private ArrayList<Node> m_otherPlaceForWorkNodes;
+	private ArrayList<Node> m_otherPlacesForWorkNodes;
 	/**
 	 * <p>The node on the path network which is closest to the individuals preferred building for executing leisure activities. It serves as a proxy for this building.</p>
 	 */
@@ -231,7 +231,7 @@ public class Individual {
 	/**
 	 * <p>A list of all other places (in addition to the preferred place for leisure) where activities of {@link ActivityCategory#LEISURE} can be executed.</p>
 	 */
-	private ArrayList<Node> m_otherPlaceForLeisureNodes;
+	private ArrayList<Node> m_otherPlacesForLeisureNodes;
 	
 	/**
 	 * @category Dynamic locations
@@ -348,7 +348,7 @@ public class Individual {
 		 * @param targetNeedTimeSplit - the target need time split.
 		 * @return {@link Builder} - builder with the target need time split set for {@link Builder#individualToBuild}.
 		 */
-		public Builder withTargetNeedTimeSplit(TargetNeedTimeSplit targetNeedTimeSplit) {
+		public Builder withTargetNeedTimeSplit(NeedTimeSplit targetNeedTimeSplit) {
 			String warningMessage = "Target need  time split is invalid. The built individual may be unusable!";
 			validate(targetNeedTimeSplit, warningMessage);
 			individualToBuild.m_targetNeedTimeSplit = targetNeedTimeSplit;
@@ -393,7 +393,7 @@ public class Individual {
 				Node thirdPlaceForHouseholdAndFamilyCareNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(otherPlaceForHouseholdAndFamilyCareBuilding);
 				otherPlaceForHouseholdAndFamilyCareNodes.add(thirdPlaceForHouseholdAndFamilyCareNode);
 			}
-			individualToBuild.m_otherPlaceForHouseholdAndFamilyCareNodes = otherPlaceForHouseholdAndFamilyCareNodes;
+			individualToBuild.m_otherPlacesForHouseholdAndFamilyCareNodes = otherPlaceForHouseholdAndFamilyCareNodes;
 			return this;
 		}
 		
@@ -429,7 +429,7 @@ public class Individual {
 				Node otherPlaceForWorkNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(otherPlaceForWorkBuilding);
 				otherPlaceForWorkNodes.add(otherPlaceForWorkNode);
 			}
-			individualToBuild.m_otherPlaceForWorkNodes = otherPlaceForWorkNodes;
+			individualToBuild.m_otherPlacesForWorkNodes = otherPlaceForWorkNodes;
 			return this;
 		}
 		
@@ -462,7 +462,7 @@ public class Individual {
 				Node thirdPlaceForLeisureNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(otherPlaceForLeisureBuilding);
 				otherPlaceForLeisureNodes.add(thirdPlaceForLeisureNode);
 			}
-			individualToBuild.m_otherPlaceForLeisureNodes = otherPlaceForLeisureNodes;
+			individualToBuild.m_otherPlacesForLeisureNodes = otherPlaceForLeisureNodes;
 			return this;
 		}
 		
@@ -614,19 +614,19 @@ public class Individual {
 			if (individualToBuild.m_homeNode == null) {
 				return "m_homeNode";
 			}
-			if (individualToBuild.m_otherPlaceForHouseholdAndFamilyCareNodes == null) {
+			if (individualToBuild.m_otherPlacesForHouseholdAndFamilyCareNodes == null) {
 				return "m_otherPlaceForHouseholdAndFamilyCareNodes";
 			}
 			if (individualToBuild.m_workPlaceNode == null) {
 				return "m_workPlaceNode";
 			}
-			if (individualToBuild.m_otherPlaceForWorkNodes == null) {
+			if (individualToBuild.m_otherPlacesForWorkNodes == null) {
 				return "m_otherPlaceForWorkNodes";
 			}
 			if (individualToBuild.m_leisureNode == null) {
 				return "m_leisureNode";
 			}
-			if (individualToBuild.m_otherPlaceForLeisureNodes == null) {
+			if (individualToBuild.m_otherPlacesForLeisureNodes == null) {
 				return "m_otherPlaceForLeisureNodes";
 			}
 			if (individualToBuild.m_householdMembersNetworkId == -1) {
@@ -662,11 +662,11 @@ public class Individual {
 		
 		/**
 		 * <p>This method validates and builds an {@link Individual}, then it initializes a new {@link Individual} to be built. 
-		 * It is meant to be called once all the mandatory fields are set and ensures that the build indivdiual is valid.</p>
+		 * It is meant to be called once all the mandatory fields are set and ensures that the build individual is valid.</p>
 		 * 
-		 * <p><b>Note:</b> The {@link Activity} will be built independent of wheter it is complete or not, but information about missing attributes will be logged. 
-		 * It is very likely that a simulation with not completely inizialized {@link Activity}s will crash at some point or at least lead to unexpected behavior / output. 
-		 * You should therfore prevent such situations by keeping an eye on the log and fix all of the logged errors before evaluating the simulations output.</p>
+		 * <p><b>Note:</b> The {@link Activity} will be built independent of whether it is complete or not, but information about missing attributes will be logged. 
+		 * It is very likely that a simulation with not completely initialized {@link Activity}s will crash at some point or at least lead to unexpected behavior / output. 
+		 * You should therefore prevent such situations by keeping an eye on the log and fix all of the logged errors before evaluating the simulations output.</p>
 		 * 
 		 * @return builtIndividual - validated and built individual
 		 */
@@ -715,7 +715,7 @@ public class Individual {
 	
 	/**
 	 * <p>This method removes all future joint activities for the specified combination of network and network type. 
-	 * All activiites with a start time after the current simulation time are future activities.
+	 * All activities with a start time after the current simulation time are future activities.
 	 * <br><b>Note:</b> All future activities for all members of the specified network are removed.</p>
 	 * 
 	 * @param network - The network for which all future activities should be removed.
@@ -985,13 +985,13 @@ public class Individual {
 		case HOME:
 			return m_homeNode;
 		case OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE:
-			return m_otherPlaceForHouseholdAndFamilyCareNodes.get(m_environment.random.nextInt(m_otherPlaceForHouseholdAndFamilyCareNodes.size()));
+			return m_otherPlacesForHouseholdAndFamilyCareNodes.get(m_environment.random.nextInt(m_otherPlacesForHouseholdAndFamilyCareNodes.size()));
 		case LEISURE:
 			return m_leisureNode;
 		case OTHER_PLACE_FOR_LEISURE:
-			return m_otherPlaceForLeisureNodes.get(m_environment.random.nextInt(m_otherPlaceForLeisureNodes.size()));
+			return m_otherPlacesForLeisureNodes.get(m_environment.random.nextInt(m_otherPlacesForLeisureNodes.size()));
 		case OTHER_PLACE_FOR_WORK:
-			return m_otherPlaceForWorkNodes.get(m_environment.random.nextInt(m_otherPlaceForWorkNodes.size()));
+			return m_otherPlacesForWorkNodes.get(m_environment.random.nextInt(m_otherPlacesForWorkNodes.size()));
 		case WORK:
 			return m_workPlaceNode;
 		default:
@@ -1229,7 +1229,7 @@ public class Individual {
 	/**
 	 * <p>This method models how an an individuals chooses the agenda that fits its target need time split best.
 	 * Best in this context means that the actual need time split of an agenda perfectly fits the targe need time split of the individual.</p>
-	 * <p>To quantify the deviation form the optimal plan we use (resp. adapt) the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error (MSE)</a> (see {@link CalculationUtility#calculateMeanSquaredError(ActivityAgenda, TargetNeedTimeSplit)} for implementation details).
+	 * <p>To quantify the deviation form the optimal plan we use (resp. adapt) the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error (MSE)</a> (see {@link CalculationUtility#calculateMeanSquaredError(ActivityAgenda, NeedTimeSplit)} for implementation details).
 	 * <b>Note:</b> The MSE heavily weights outliers, which in our context is what we want. 
 	 * The underlying assumption is that individuals prefer some minor deviations over one (or a few) large deviation(s).</p>
 	 * 
@@ -1761,11 +1761,11 @@ public class Individual {
 		m_numberOfFriendsNetworkActivitiesPlanned--;
 	}
 
-	public TargetNeedTimeSplit getTargetNeedTimeSplit() {
+	public NeedTimeSplit getTargetNeedTimeSplit() {
 		return m_targetNeedTimeSplit;
 	}
 
-	public void setTargetNeedTimeSplit(TargetNeedTimeSplit targetNeedTimeSplit) {
+	public void setTargetNeedTimeSplit(NeedTimeSplit targetNeedTimeSplit) {
 		m_targetNeedTimeSplit = targetNeedTimeSplit;
 	}
 
@@ -1809,12 +1809,12 @@ public class Individual {
 		m_homeNode = homeNode;
 	}
 
-	public ArrayList<Node> getOtherPlaceForHouseholdAndFamilyCareNodes() {
-		return m_otherPlaceForHouseholdAndFamilyCareNodes;
+	public ArrayList<Node> getOtherPlacesForHouseholdAndFamilyCareNodes() {
+		return m_otherPlacesForHouseholdAndFamilyCareNodes;
 	}
 
-	public void setOtherPlaceForHouseholdAndFamilyCareNodes(ArrayList<Node> otherPlaceForHouseholdAndFamilyCareNodes) {
-		m_otherPlaceForHouseholdAndFamilyCareNodes = otherPlaceForHouseholdAndFamilyCareNodes;
+	public void setOtherPlacesForHouseholdAndFamilyCareNodes(ArrayList<Node> otherPlaceForHouseholdAndFamilyCareNodes) {
+		m_otherPlacesForHouseholdAndFamilyCareNodes = otherPlaceForHouseholdAndFamilyCareNodes;
 	}
 
 	public Node getWorkPlaceNode() {
@@ -1825,12 +1825,12 @@ public class Individual {
 		m_workPlaceNode = workPlaceNode;
 	}
 
-	public ArrayList<Node> getOtherPlaceForWorkNodes() {
-		return m_otherPlaceForWorkNodes;
+	public ArrayList<Node> getOtherPlacesForWorkNodes() {
+		return m_otherPlacesForWorkNodes;
 	}
 
-	public void setOtherPlaceForWorkNodes(ArrayList<Node> otherPlaceForWorkNodes) {
-		m_otherPlaceForWorkNodes = otherPlaceForWorkNodes;
+	public void setOtherPlacesForWorkNodes(ArrayList<Node> otherPlaceForWorkNodes) {
+		m_otherPlacesForWorkNodes = otherPlaceForWorkNodes;
 	}
 
 	public Node getLeisureNode() {
@@ -1841,12 +1841,12 @@ public class Individual {
 		m_leisureNode = leisureNode;
 	}
 
-	public ArrayList<Node> getOtherPlaceForLeisureNodes() {
-		return m_otherPlaceForLeisureNodes;
+	public ArrayList<Node> getOtherPlacesForLeisureNodes() {
+		return m_otherPlacesForLeisureNodes;
 	}
 
-	public void setOtherPlaceForLeisureNodes(ArrayList<Node> otherPlaceForLeisureNodes) {
-		m_otherPlaceForLeisureNodes = otherPlaceForLeisureNodes;
+	public void setOtherPlacesForLeisureNodes(ArrayList<Node> otherPlaceForLeisureNodes) {
+		m_otherPlacesForLeisureNodes = otherPlaceForLeisureNodes;
 	}
 
 	public MasonGeometry getCurrentLocationPoint() {
