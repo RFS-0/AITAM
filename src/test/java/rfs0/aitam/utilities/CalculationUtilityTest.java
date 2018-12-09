@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import rfs0.aitam.activities.ActivityAgenda;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
 public class CalculationUtilityTest {
@@ -61,7 +61,7 @@ public class CalculationUtilityTest {
 		relativeNeedTimeSplit.put(Need.AFFECTION, CalculationUtility.createBigDecimal(0.15));
 		relativeNeedTimeSplit.put(Need.CREATION, CalculationUtility.createBigDecimal(0.05));
 		relativeNeedTimeSplit.put(Need.FREEDOM, CalculationUtility.createBigDecimal(0.25));
-		TargetNeedTimeSplit targetNeedTimeSplit = new TargetNeedTimeSplit.Builder()
+		NeedTimeSplit targetNeedTimeSplit = new NeedTimeSplit.Builder()
 				.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.createBigDecimal(0.10))
 				.withNeedTimeSplit(Need.CREATION, CalculationUtility.createBigDecimal(0.10))
 				.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.createBigDecimal(0.10))
