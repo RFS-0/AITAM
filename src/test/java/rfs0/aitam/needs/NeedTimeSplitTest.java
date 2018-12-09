@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import org.junit.Test;
 
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit.Builder;
+import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.model.needs.NeedTimeSplit.Builder;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 
@@ -16,9 +16,9 @@ public class NeedTimeSplitTest {
 
 	@Test
 	public void testEquateNeedTimeSplit() {
-		Builder builder = new TargetNeedTimeSplit.Builder();
+		Builder builder = new NeedTimeSplit.Builder();
 		BigDecimal value = CalculationUtility.createBigDecimal(0.1);
-		TargetNeedTimeSplit needTimeSplit = builder
+		NeedTimeSplit needTimeSplit = builder
 				.withNeedTimeSplit(Need.AFFECTION, value)
 				.withNeedTimeSplit(Need.CREATION, value)
 				.withNeedTimeSplit(Need.FREEDOM, value)
