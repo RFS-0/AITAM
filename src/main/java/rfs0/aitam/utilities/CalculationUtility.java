@@ -8,7 +8,7 @@ import java.util.HashMap;
 import ec.util.MersenneTwisterFast;
 import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
 /**
@@ -79,7 +79,7 @@ public final class CalculationUtility {
 	 * @param targetNeedTimeSplit - the target need time split.
 	 * @return
 	 */
-	public static BigDecimal calculateMeanSquaredError(AbsoluteNeedTimeSplit absoluteNeedTimeSplit, TargetNeedTimeSplit targetNeedTimeSplit) {
+	public static BigDecimal calculateMeanSquaredError(AbsoluteNeedTimeSplit absoluteNeedTimeSplit, NeedTimeSplit targetNeedTimeSplit) {
 		BigDecimal meanSquaredError = BigDecimal.ZERO;
 		HashMap<Need,BigDecimal> actualRelativeNeedTimeSplit = absoluteNeedTimeSplit.getRelativeNeedTimeSplit();
 		for (Need need: targetNeedTimeSplit.getNeedTimeSplit().keySet()) {
