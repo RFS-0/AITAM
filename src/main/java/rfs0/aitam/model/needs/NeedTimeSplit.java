@@ -15,27 +15,27 @@ import rfs0.aitam.utilities.CalculationUtility;
  * As such it is designed to record the relative time spent on each of the needs (i.e. percentage of time spent on each of the needs).
  * It uses the following attributes:</p>
  * 
- * <p> {@link TargetNeedTimeSplit#m_needTimeSplit}: The mapping from need to the ideal relative time spent satisfying it.</p>
+ * <p> {@link NeedTimeSplit#m_needTimeSplit}: The mapping from need to the ideal relative time spent satisfying it.</p>
  */
-public class TargetNeedTimeSplit {
+public class NeedTimeSplit {
 	
 	/**
 	 * <p>The mapping from need to the ideal relative time spent satisfying it.</p>
 	 */
 	private HashMap<Need, BigDecimal> m_needTimeSplit = new HashMap<>();
 	
-	private TargetNeedTimeSplit() {}
+	private NeedTimeSplit() {}
 
 	public static class Builder {
 		
-		private TargetNeedTimeSplit targetNeedTimeSplitToBuild;
+		private NeedTimeSplit targetNeedTimeSplitToBuild;
 		
 		/**
-		 * <p>This builder must be used to instantiate {@link TargetNeedTimeSplit}s. 
+		 * <p>This builder must be used to instantiate {@link NeedTimeSplit}s. 
 		 * Furthermore, it ensures that the fractions all needs add upt to 1.0 (100%).</p>
 		 */
 		public Builder() {
-			targetNeedTimeSplitToBuild = new TargetNeedTimeSplit();
+			targetNeedTimeSplitToBuild = new NeedTimeSplit();
 		}
 
 		/**
@@ -70,7 +70,7 @@ public class TargetNeedTimeSplit {
 			}
 			// handle difference bigger than what can be attributed to rounding behavior
 			else if (difference.abs().compareTo(ISimulationSettings.TOLERATED_ROUNDING_ERROR) > 0) {
-				Logger.getLogger(TargetNeedTimeSplit.class.getName()).log(Level.WARNING, "Check creation of need time split. Detected deviation from correct time allocation of 1.0 taking rounding issues into account: " + difference);
+				Logger.getLogger(NeedTimeSplit.class.getName()).log(Level.WARNING, "Check creation of need time split. Detected deviation from correct time allocation of 1.0 taking rounding issues into account: " + difference);
 				targetNeedTimeSplitToBuild.m_needTimeSplit.put(Need.NONE, difference);
 			}
 			else {
@@ -84,15 +84,15 @@ public class TargetNeedTimeSplit {
 		}
 		
 		/**
-		 * <p>This method builds a {@link TargetNeedTimeSplit} and initializes a new {@link TargetNeedTimeSplit} to be built. 
+		 * <p>This method builds a {@link NeedTimeSplit} and initializes a new {@link NeedTimeSplit} to be built. 
 		 * Furthermore, it ensures that the fractions all needs add up to 1.0 (100%).</p>
 		 * 
 		 * @return RelativeNeedTimeSplit - the relative need time split built.
 		 */
-		public TargetNeedTimeSplit build() {
+		public NeedTimeSplit build() {
 			equateTargetNeedTimeSplit();
-			TargetNeedTimeSplit builtTargetNeedTimeSplit = targetNeedTimeSplitToBuild;
-			targetNeedTimeSplitToBuild = new TargetNeedTimeSplit();
+			NeedTimeSplit builtTargetNeedTimeSplit = targetNeedTimeSplitToBuild;
+			targetNeedTimeSplitToBuild = new NeedTimeSplit();
 			return builtTargetNeedTimeSplit;
 		}
 	}
