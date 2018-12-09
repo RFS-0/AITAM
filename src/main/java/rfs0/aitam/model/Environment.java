@@ -42,7 +42,7 @@ import sim.util.geo.MasonGeometry;
  * 
  * <p><b>Initializers</b></p>
  * 
- * <p> {@link Environment#ACTIVITY_INITIALIZER}: This initializer is used to create all individuals.</p>
+ * <p> {@link Environment#ACTIVITY_INITIALIZER}: This initializer is used to create all activities.</p>
  * 
  * <p><b>Factories</b></p>
  * 
@@ -51,12 +51,12 @@ import sim.util.geo.MasonGeometry;
  * <p><b>Buildings and nodes</b></p>
  * 
  * <p> {@link Environment#BUILDING_TO_CLOSEST_NODE_MAP}: This map contains the closest node for each of the buildings.</p>
- * <p> {@link Environment#NODE_TO_CLOSEST_BUILDING_MAP}: This map contains the closest building for each of the nodes.</p>
+ * <p> {@link Environment#NODE_TO_CLOSEST_BUILDING_MAP}: A reversed mapping form node to their closest building. Contains only nodes that are closest to some building.</p>
  * 
  * <p><b>Activities</b></p>
  * 
  * <p>{@link Environment#m_activityDescriptionToActivityMap}: This map contains the activity for each of the activity descriptions (see {@link ISimulationSettings}).</p>
- * <p>{@link Environment#m_activityCategoryToActivityMap}: This map contains a list of all activities that belong to each of the activity categories.</p>
+ * <p>{@link Environment#m_activityCategoryToActivitiesyMap}: This map contains a list of all activities that belong to each of the activity categories.</p>
  * <p>{@link Environment#m_activityCategoryDataset}: This represents that dataset which is used to create the bar chart that shows what fraction of individuals execute an activity which belongs to each of the activity categories.</p>
  * 
  * <p><b>Time</b></p>
@@ -70,8 +70,6 @@ import sim.util.geo.MasonGeometry;
  * <p>{@link Environment#m_pathGraph}: This variable contains a graph representation of the paths.</p>
  * <p>{@link Environment#m_edgeTraffic}: This variable can be used to store the number of individuals on each of the edges which currently are being traversed (i.e. the traffic on each path).</p>
  * <p>{@link Environment#m_individualsField}: This variable contains all the geometries for all the individuals.</p>
- * <p>{@link Environment#m_currentLocationPoints}: This variable contains all current location points of the individuals.</p>
- * <p>{@link Environment#m_currentNodes}: This variable contains all current nodes of the individuals.</p>
  *
  * 
  * <p><b>Individuals</b></p>
@@ -90,7 +88,7 @@ public class Environment extends SimState {
 	/**
 	 * @category Initializers
 	 *
-	 * <p>This initializer is used to create all individuals.</p>
+	 * <p>This initializer is used to create all activities.</p>
 	 */
 	public static final ActivityInitializer ACTIVITY_INITIALIZER = new ActivityInitializer();
 	
@@ -108,7 +106,7 @@ public class Environment extends SimState {
 	 */
 	public static HashMap<MasonGeometry, Node> BUILDING_TO_CLOSEST_NODE_MAP = new HashMap<>();
 	/**
-	 * <p>This map contains the closest building for each of the nodes.</p>
+	 * <p>A reversed mapping form node to their closest building. Contains only nodes that are closest to some building./p>
 	 */
 	public static HashMap<Node, MasonGeometry> NODE_TO_CLOSEST_BUILDING_MAP = new HashMap<>();
 	
@@ -121,7 +119,7 @@ public class Environment extends SimState {
 	/**
 	 * <p>This map contains a list of all activities that belong to each of the activity categories.</p>
 	 */
-	private HashMap<ActivityCategory, ArrayList<Activity>> m_activityCategoryToActivityMap = new HashMap<>();
+	private HashMap<ActivityCategory, ArrayList<Activity>> m_activityCategoryToActivitiesyMap = new HashMap<>();
 	/**
 	 * <p>This represents that dataset which is used to create the bar chart that shows what fraction of individuals execute an activity which belongs to each of the activity categories.</p>
 	 */
@@ -263,7 +261,7 @@ public class Environment extends SimState {
 				@Override
 				public void step(SimState state) {
 					Environment environment = (Environment) state;
-					if (environment.getSimulationTime().getCurrentTime().equals(ISimulationSettings.START_OF_DAY)) {
+					if (environment.getSimulationTime().getCurrentTime().equals(ISimulationSettings.END_OF_DAY)) {
 						individual.initNewDay();
 					}
 				}
@@ -276,8 +274,8 @@ public class Environment extends SimState {
 				@Override
 				public void step(SimState state) {
 					Integer totalNumberOfAgents = (Integer) m_outputHolder.get(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS);
-					for (ActivityCategory category: m_activityCategoryToActivityMap.keySet()) {
-						ArrayList<Activity> activitiesOfCategory = m_activityCategoryToActivityMap.get(category);
+					for (ActivityCategory category: m_activityCategoryToActivitiesyMap.keySet()) {
+						ArrayList<Activity> activitiesOfCategory = m_activityCategoryToActivitiesyMap.get(category);
 						int totalNumberOfAgentsPerCategory = 0;
 						for (Activity activityOfCategory: activitiesOfCategory) {
 							if (m_outputHolder.get(activityOfCategory.getActivityDescription()) instanceof Integer) {
@@ -403,8 +401,8 @@ public class Environment extends SimState {
 	 * Furthermore, it read out all the attributes as provided by the bag with attributes.</p>
 	 * 
 	 * 
-	 * @param relativePathToFile - the relative path to the shape file.
-	 * @param geometry - the gemoetry into which the shape file is read into.
+	 * @param relativePathToFile - the relative path to the shape file (relative to the users current working directory).
+	 * @param geometry - the geometry into which the shape file is read into.
 	 * @param minimumBoundingRectangle - the minimum bounding rectangle which represents the boundaries of the simulation.
 	 * @param attributes - a bag with attributes which are provided by the shape file. It can be empty if not needed or if the attributes are not relevant for the simulation.
 	 */
@@ -572,10 +570,10 @@ public class Environment extends SimState {
 			for (Activity activity: activitiesOfCategory) {
 				m_outputHolder.put(activity.getActivityDescription(), 0);
 			}
-			if (m_activityCategoryToActivityMap.get(category) == null) {
-				m_activityCategoryToActivityMap.put(category, new ArrayList<>());
+			if (m_activityCategoryToActivitiesyMap.get(category) == null) {
+				m_activityCategoryToActivitiesyMap.put(category, new ArrayList<>());
 			}
-			m_activityCategoryToActivityMap.get(category).addAll(activitiesOfCategory);
+			m_activityCategoryToActivitiesyMap.get(category).addAll(activitiesOfCategory);
 		}
 		m_environmentObserver = new EnvironmentObserver(m_outputHolder.keySet());
 	}
@@ -662,6 +660,6 @@ public class Environment extends SimState {
 	}
 
 	public HashMap<ActivityCategory, ArrayList<Activity>> getCategoryToActivities() {
-		return m_activityCategoryToActivityMap;
+		return m_activityCategoryToActivitiesyMap;
 	}
 }
