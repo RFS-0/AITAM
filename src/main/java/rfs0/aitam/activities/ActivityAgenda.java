@@ -13,7 +13,7 @@ import org.joda.time.Interval;
 import com.vividsolutions.jts.planargraph.Node;
 
 import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 
 /**
  * <p>This class is used to model agendas of activities. As such it is described by the following information:</p>
@@ -24,7 +24,7 @@ import rfs0.aitam.model.needs.TargetNeedTimeSplit;
  * <p>{@link ActivityAgenda#m_locations}: Information about where exactly each activity is executed. 
  * Thus, the key is again an interval and it has to match exactly one of the intervals in the agenda. 
  * The values are the actual locations where the activity is executed.</p> 
- * <p>{@link ActivityAgenda#m_actualNeedTimeSplit}: The actual need time spilt is composed of two {@link TargetNeedTimeSplit}s. 
+ * <p>{@link ActivityAgenda#m_actualNeedTimeSplit}: The actual need time spilt is composed of two {@link NeedTimeSplit}s. 
  * In the context of an agenda this data structure allows to record the absolute time (measured in minutes) spent on satisfying each need during when executing an activity. 
  * Furthermore, it allows to convert those absolute recordings to be converted into relative measures i.e. percentages. (See {@link AbsoluteNeedTimeSplit} for more details).</p>
  * 
@@ -35,19 +35,19 @@ import rfs0.aitam.model.needs.TargetNeedTimeSplit;
 public class ActivityAgenda implements Cloneable {
 	
 	/**
-	 * <p>{@link ActivityAgenda#m_agenda}: The actual agenda containing all the activities planned sorted by their starting points. 
+	 * <p>The actual agenda containing all the activities planned sorted by their starting points. 
 	 * The key is an interval describing what time of day each activity of the agenda is executed. 
 	 * The values are the activities themselves.</p>
 	 */
 	private TreeMap<Interval, Activity> m_agenda = new TreeMap<>(new IntervalComparator());
 	/**
-	 * <p>{@link ActivityAgenda#m_locations}: Information about where exactly each activity is executed. 
-	 * Thus, the key is again an interval and it has to match exactly one of the intervals in the agenda. 
+	 * <p>Information about where exactly each activity is executed. 
+	 * Thus, the key is again an interval and it must match exactly one of the intervals in the agenda. 
 	 * The values are the actual locations where the activity is executed.</p> 
 	 */
 	private TreeMap<Interval, Node> m_locations = new TreeMap<>(new IntervalComparator());
 	/**
-	 * <p>{@link ActivityAgenda#m_actualNeedTimeSplit}: The actual need time spilt is composed of two {@link TargetNeedTimeSplit}s. 
+	 * <p>The actual need time spilt is composed of two {@link NeedTimeSplit}s. 
 	 * In the context of an agenda this data structure allows to record the absolute time (measured in minutes) spent on satisfying each need during when executing an activity. 
 	 * Furthermore, it allows to convert those absolute recordings to be converted into relative measures i.e. percentages. (See {@link AbsoluteNeedTimeSplit} for more details).</p>
 	 */
