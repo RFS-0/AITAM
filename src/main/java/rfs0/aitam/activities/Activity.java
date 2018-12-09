@@ -15,7 +15,7 @@ import org.joda.time.Interval;
 import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.individuals.NetworkType;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
 /**
@@ -26,7 +26,7 @@ import rfs0.aitam.settings.ISimulationSettings;
  * <p>{@link Activity#m_activityLocation}: The location where the activity can be executed. This does not refer to the exact location but the type of location.</p>
  * <p>{@link Activity#m_isJointActivity}: This attribute is used to declare an activity as either being an individual or joint activity. 
  * Joint activities can only be executed together with other individuals.</p>
- * <p> {@link Activity#m_alternativeActivity}: An alternative activity which can be executed instead of a joint activity if none of the participating member are present at the target location.</p>
+ * <p>{@link Activity#m_alternativeActivity}: An alternative activity which can be executed instead of a joint activity if none of the participating member are present at the target location.</p>
  * <p>{@link Activity#m_availability}: The availability in terms of days of week and time of day referring to possible start times of an activity. 
  * This serves as a way of constraining when an activity can be started.</p>
  * <p>{@link Activity#m_needTimeSplit}: The need time split is a construct that allows to define what needs an activity satisfies for each unit of time it is being executed.</p>
@@ -61,14 +61,13 @@ public class Activity {
 	 */
 	private Activity m_alternativeActivity;
 	/**
-	 * <p>The availability in terms of days of week and time of day referring to possible start times of an activity. 
-	 * This serves as a way.</p>
+	 * <p>The availability in terms of days of week and time of day referring to possible start times of an activity.</p>
 	 */
 	private HashMap<Integer, ArrayList<Interval>> m_availability = new HashMap<>();
 	/**
 	 * <p>The need time split is a construct that allows to define what needs an activity satisfies for each unit of time it is being executed.</p>
 	 */
-	private TargetNeedTimeSplit m_needTimeSplit;
+	private NeedTimeSplit m_needTimeSplit;
 	/**
 	 * <p>Some examples of this activity. This allows to make abstractions of activities more concrete. 
 	 * However, it serves only as information to </p>
@@ -227,16 +226,16 @@ public class Activity {
 		}
 		
 		/**
-		 * <p>Each {@link Activity} must have defined a {@link TargetNeedTimeSplit} and this method sets it for {@link Builder#activityToBuild}. 
-		 * See {@link TargetNeedTimeSplit} for more information about the concept of a need time split.
-		 * In the context of an activity the {@link TargetNeedTimeSplit} defines how the time an {@link Individual} spends on executing the activity is allocated resp. split to the various needs fulfilled by the activity for each unit of time (i.e. minute). 
-		 * E.g. suppose the {@link TargetNeedTimeSplit} for an activity is defined as {@link Need#LEISURE}=0.75 and {@link Need#FREEDOM}=0.25.
+		 * <p>Each {@link Activity} must have defined a {@link NeedTimeSplit} and this method sets it for {@link Builder#activityToBuild}. 
+		 * See {@link NeedTimeSplit} for more information about the concept of a need time split.
+		 * In the context of an activity the {@link NeedTimeSplit} defines how the time an {@link Individual} spends on executing the activity is allocated resp. split to the various needs fulfilled by the activity for each unit of time (i.e. minute). 
+		 * E.g. suppose the {@link NeedTimeSplit} for an activity is defined as {@link Need#LEISURE}=0.75 and {@link Need#FREEDOM}=0.25.
 		 * Then for each minute the {@link Individual} spends executing the activity 45s will be added to the total (i.e. absolute) time spent satisfying {@link Need#LEISURE} and 15s will be added to the total time spent satisfying {@link Need#FREEDOM}.</p>
 		 * 
 		 * @param needTimeSplit - the need time split defining how each unit of time spent executing this activity is allocated to the respective needs satisfied by this activity.
 		 * @return {@link Builder} - builder with information about need time split of the {@link Builder#activityToBuild}.
 		 */
-		public Builder withNeedTimeSplit(TargetNeedTimeSplit needTimeSplit) {
+		public Builder withNeedTimeSplit(NeedTimeSplit needTimeSplit) {
 			activityToBuild.m_needTimeSplit = needTimeSplit;
 			return this;
 		}
