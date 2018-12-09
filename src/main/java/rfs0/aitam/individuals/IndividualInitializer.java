@@ -11,7 +11,7 @@ import rfs0.aitam.activities.ActivityCategory;
 import rfs0.aitam.activities.ActivityInitializer;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 import rfs0.aitam.utilities.DebugUtility;
@@ -32,7 +32,7 @@ import sim.util.geo.MasonGeometry;
  * <p><b>Builders</b></p>
  * 
  * <p> {@link IndividualInitializer#INDIVIDUAL_BUILDER}: The builder used to construct individuals.</p>
- * <p> {@link IndividualInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to construct {@link TargetNeedTimeSplit}s.</p>
+ * <p> {@link IndividualInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to construct {@link NeedTimeSplit}s.</p>
  * 
  * <p><b>Individuals</b></p>
  * 
@@ -58,9 +58,9 @@ public final class IndividualInitializer {
 	 */
 	public static final Individual.Builder INDIVIDUAL_BUILDER = new Individual.Builder();
 	/**
-	 * <p> {@link IndividualInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to construct {@link TargetNeedTimeSplit}s.</p>
+	 * <p> {@link IndividualInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to construct {@link NeedTimeSplit}s.</p>
 	 */
-	public static final TargetNeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new TargetNeedTimeSplit.Builder(); 
+	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder(); 
 	
 	/**
 	 * @category Individuals
@@ -168,7 +168,7 @@ public final class IndividualInitializer {
 			ArrayList<Integer> friendsIndices = determineNetworkMembers(initRange, ISimulationSettings.MIN_NUMBER_OF_FRIENDS, ISimulationSettings.MAX_NUMBER_OF_FRIENDS);
 			Network friendsNetwork = createNetworkForMemberIndices(friendsIndices);
 			MasonGeometry leisureBuilding = determineLocationForCategory(availableBuildings, ActivityCategory.LEISURE);
-			ArrayList<MasonGeometry> otherPlaceForLeisureBuildings = determineBuildingsForCategoryWithinDistance(availableBuildings, leisureBuilding, ISimulationSettings.MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK, ActivityCategory.LEISURE);
+			ArrayList<MasonGeometry> otherPlaceForLeisureBuildings = determineBuildingsForCategoryWithinDistance(availableBuildings, leisureBuilding, ISimulationSettings.MAX_DISTANCE_TO_OTHER_PLACES_FOR_LEISURE, ActivityCategory.LEISURE);
 			for (Integer friendIndex: friendsIndices) {
 				INDIVIDUAL_BUILDER
 					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(friendIndex))
