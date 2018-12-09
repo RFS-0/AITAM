@@ -18,7 +18,7 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 
 /**
- * <p>This class is to store all relevant attributes of the simulation.
+ * <p>This class is used to store all relevant attributes of the simulation.
  * Those attributes have to be provided upon instantiation of the observer.
  * However the handling of what is being is stored and how the values are updated after each simulation step is entirely handled by the {@link Environment#start()} (see comment in start).
  * The observer writes the values of all attributes to a CSV-File which is stored in the file as defined by {@link ISimulationSettings#SIMULATION_OUTPUT_FOLDER}.
