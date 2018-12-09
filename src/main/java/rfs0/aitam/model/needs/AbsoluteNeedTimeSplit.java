@@ -22,7 +22,7 @@ public class AbsoluteNeedTimeSplit {
 	 */
 	private HashMap<Need, BigDecimal> m_absoluteNeedTimeSplit = new HashMap<>();
 	/**
-	 * The relative need time split equivalent to the absolute need time split. It captures the relative time spent on each of the needs. E.g. {@link Need#AFFECTION} = 0.5 (50%), {@link Need#CREATION} = 0.5 (50%).</p>
+	 * <p>The relative need time split equivalent to the absolute need time split. It captures the relative time spent on each of the needs. E.g. {@link Need#AFFECTION} = 0.5 (50%), {@link Need#CREATION} = 0.5 (50%).</p>
 	 */
 	private HashMap<Need, BigDecimal> m_relativeNeedTimeSplit = new HashMap<>();
 	/**
