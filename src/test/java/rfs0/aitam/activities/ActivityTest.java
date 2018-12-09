@@ -13,17 +13,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 
 public class ActivityTest {
 
 	public static final Activity.Builder ACTIVITY_BUILDER = new Activity.Builder();
-	public static final TargetNeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new TargetNeedTimeSplit.Builder();
+	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder();
 	public static ActivityCategory s_testActivityCategory;
 	public static String s_testActivityDescription;
-	public static TargetNeedTimeSplit s_testNeedTimeSplit;
+	public static NeedTimeSplit s_testNeedTimeSplit;
 	public static Set<Need> s_testNeeds = Stream.of(Need.SUBSISTENCE, Need.AFFECTION, Need.UNDERSTANDING, Need.PARTICIPATION, Need.CREATION, Need.FREEDOM, Need.NONE)
 			.collect(Collectors.toSet());
 	public static String s_testExamples;
