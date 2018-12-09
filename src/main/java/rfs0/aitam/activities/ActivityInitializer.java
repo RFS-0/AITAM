@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import rfs0.aitam.individuals.NetworkType;
 import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.TargetNeedTimeSplit;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 
@@ -14,7 +14,7 @@ import rfs0.aitam.utilities.CalculationUtility;
  * Furthermore, it relies on the following builders:</p>
  * 
  * <p>{@link ActivityInitializer#ACTIVITY_BUILDER}: The builder used to build {@link Activity}s.</p>
- * <p>{@link ActivityInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to build {@link TargetNeedTimeSplit}s.</p>
+ * <p>{@link ActivityInitializer#NEED_TIME_SPLIT_BUILDER}: The builder used to build {@link NeedTimeSplit}s.</p>
  */
 public final class ActivityInitializer {
 	
@@ -23,9 +23,9 @@ public final class ActivityInitializer {
 	 */
 	public static final Activity.Builder ACTIVITY_BUILDER = new Activity.Builder();
 	/**
-	 * <p>The builder used to build {@link TargetNeedTimeSplit}s.</p>
+	 * <p>The builder used to build {@link NeedTimeSplit}s.</p>
 	 */
-	public static final TargetNeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new TargetNeedTimeSplit.Builder();
+	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder();
 	
 	/**
 	 * Initializes the activity.
