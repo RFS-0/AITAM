@@ -56,7 +56,7 @@ public interface ISimulationSettings {
 	public static final String ATTRIBUTE_FOR_ACTIVITY_CATEGORY = "ACTIVITY_CATEGORY";
 	
 	/**
-	 * @category Configuration for writing out data
+	 * @category Configuration for serializing data
 	 * 
 	 * <p>This section contains all constants used to configure or handle aspects related to writing out data</p>
 	 * 
@@ -76,8 +76,8 @@ public interface ISimulationSettings {
 	 * 
 	 * <p>This section contains all constants used to configure or handle aspects related to the UI.</p>
 	 * 
-	 * <p>{@link ISimulationSettings#ENVIRONMENT_HEIGHT}: The height of the display representing the environment</p>
-	 * <p>{@link ISimulationSettings#ENVIRONMENT_WIDTH}: The width of the display representing the environment</p>
+	 * <p>{@link ISimulationSettings#ENVIRONMENT_HEIGHT}: The height in display units of the display representing the environment</p>
+	 * <p>{@link ISimulationSettings#ENVIRONMENT_WIDTH}: The width in display units of the display representing the environment</p>
 	 */
 	public static final int ENVIRONMENT_HEIGHT = 1000;
 	/**
@@ -105,14 +105,14 @@ public interface ISimulationSettings {
 	 * <b>Note:</b> There are two different time scales used in this simulation: <b>base time</b> and <b>real time</b>.
 	 * <br>The <b>base time</b> is used to refer to the time of day on the starting day of the simulation. 
 	 * As such it always has the format BASE_YEAR:CurrentDayOfWeek:hh:mm. 
-	 * Thus it serves as a way to refer to the time of day at the current day of week independent of the date. 
+	 * It serves as a way to refer to the time of day at the current day of week independent of the date. 
 	 * This is necessary in order to handle the availability of activities, which is only defined in terms of days of week and time of day.
 	 * <br>The <b>real time</b> is used to refer to the real time in the simulation. 
 	 * 			
 	 * <p><b>Important:</b> Each step in the simulation corresponds to one minute (in real time). 
 	 * The simulation starts at the following date: BASE_YEAR, BASE_MONTH, BASE_DAY, BASE_HOUR, BASE_MINUTE</p>
 	 * 
-	 * <p>{@link ISimulationSettings#BASE_YEAR}: The base year of the simulation. It is set to 2018.</p>
+	 * <p>{@link ISimulationSettings#BASE_YEAR}: The base year of the simulation. It is set to 2019.</p>
 	 * <p>{@link ISimulationSettings#BASE_MONTH}: The base month of the simulation. It is set to January.</p>
 	 * <p>{@link ISimulationSettings#BASE_DAY}: The base day of the simulation. It is set to Monday.</p>
 	 * <p>{@link ISimulationSettings#BASE_HOUR}: The base hour of the simulation. It is set to 0.</p>
@@ -123,9 +123,9 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#END_OF_DAY}: The end of a day in <b>base time</b>.</p>
 	 * <p>{@link ISimulationSettings#WEEK}: The days of a week, i.e. Monday - Sunday.</p>
 	 * <p>{@link ISimulationSettings#WORK_WEEK}: The days of a work week, i.e. Monday - Friday.</p> 
-	 * <p>{@link ISimulationSettings#WEEKEND}: The day of weekend, i.e. Saturday & Sunday</p>
+	 * <p>{@link ISimulationSettings#WEEKEND}: The weekend, i.e. Saturday & Sunday</p>
 	 */
-	public static final int BASE_YEAR = 2018;
+	public static final int BASE_YEAR = 2019;
 	/**
 	 * <p>The base month of the simulation. It is set to January.</p>
 	 */
@@ -133,7 +133,7 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The base month of the simulation. It is set to January.</p>
 	 */
-	public static final int BASE_DAY = DateTimeConstants.MONDAY;
+	public static final int BASE_DAY = DateTimeConstants.TUESDAY;
 	/**
 	 * <p>The base hour of the simulation. It is set to 0.</p>
 	 */
@@ -207,7 +207,7 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY}: The maximum number of {@link Activity}s with friends an {@link Individual} is willing to participate in.</p>
 	 * <p>{@link ISimulationSettings#PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY}: The probability of an {@link Individual} participating in an {@link Activity} with friends upon request by some other member of the same household network.</p>
 	 */
-	public static final int NUMBER_OF_INDIVIDUALS = 5;
+	public static final int NUMBER_OF_INDIVIDUALS = 1000;
 	/**
 	 * <p>The minimum number of {@link Individual}s in each {@link Network} representing a household or family.</p>
 	 */
@@ -215,7 +215,7 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The maximum number of {@link Individual}s in each {@link Network} representing a household or family.</p>
 	 */
-	public static final int MAX_NUMBER_OF_HOUSEHOLD_MEMBERS = 4;
+	public static final int MAX_NUMBER_OF_HOUSEHOLD_MEMBERS = 5;
 	/**
 	 * <p>The probability of an {@link Individual} participating in an {@link Activity} with household members upon request by some other member of the same household network.</p>
 	 */
@@ -223,19 +223,19 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The maximum number of {@link Activity}s with household or family members an {@link Individual} is willing to participate in.</p>
 	 */
-	public static final int MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY = 3;
+	public static final int MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY = 5;
 	/**
 	 * <p>The minimum number of {@link Individual}s in each {@link Network} representing work colleagues.</p>
 	 */
-	public static final int MIN_NUMBER_OF_WORK_COLLEGUES = 1;
+	public static final int MIN_NUMBER_OF_WORK_COLLEGUES = 2;
 	/**
 	 * <p>The maximum number of {@link Individual}s in each {@link Network} representing work colleagues.</p>
 	 */
-	public static final int MAX_NUMBER_OF_WORK_COLLEGUES = 4;
+	public static final int MAX_NUMBER_OF_WORK_COLLEGUES = 10;
 	/**
 	 * <p>The maximum number of {@link Activity}s with work colleagues an {@link Individual} is willing to participate in.</p>
 	 */
-	public static final int MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY = 1;
+	public static final int MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY = 3;
 	/**
 	 * <p>The probability of an {@link Individual} participating in an {@link Activity} with work colleagues upon request by some other member of the same household network.</p>
 	 */
@@ -243,15 +243,15 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The minimum number of {@link Individual}s in each {@link Network} representing friends.</p>
 	 */
-	public static final int MIN_NUMBER_OF_FRIENDS = 1;
+	public static final int MIN_NUMBER_OF_FRIENDS = 2;
 	/**
 	 * <p>The maximum number of {@link Individual}s in each {@link Network} representing friends.</p>
 	 */
-	public static final int MAX_NUMBER_OF_FRIENDS = 4;
+	public static final int MAX_NUMBER_OF_FRIENDS = 20;
 	/**
 	 * <p>The maximum number of {@link Activity}s with friends an {@link Individual} is willing to participate in.</p>
 	 */
-	public static final int MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY = 1;
+	public static final int MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY = 5;
 	/**
 	 * <p>The probability of an {@link Individual} participating in an {@link Activity} with friends upon request by some other member of the same household network.</p>
 	 */
@@ -343,26 +343,28 @@ public interface ISimulationSettings {
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
 	/**
-	 * <p>{@link ISimulationSettings#MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE}: The maximum distance to other places for household and family care. 
+	 * <p>The maximum distance to other places for household and family care. 
 	 * Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForHouseholdAndFamilyCareNodes}.
-	 * <br><b>Note:</b> The distance is measured in unites as defined by the CRS (see "Configuration of data representing the" above for more details). 
+	 * <br><b>Note:</b> The distance is measured in units as defined by the CRS (see "Configuration of data representing the" above for more details). 
 	 * The current unit is <b>meter</b></p>
 	 */
-	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE = 100;
+	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE = 300;
 	/**
-	 * <p>{@link ISimulationSettings#MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK}: The maximum distance to other places for work. 
+	 * <p>The maximum distance to other places for work. 
 	 * Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForWorkNodes}.
 	 * <br><b>Note:</b> The distance is measured in unites as defined by the CRS (see "Configuration of data representing the" above for more details). 
 	 * The current unit is <b>meter</b></p>
 	 */
-	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK = 100;
+	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK = 300;
 	/**
-	 * <p>{@link ISimulationSettings#MAX_DISTANCE_TO_OTHER_PLACES_FOR_LEISURE}: The maximum distance to other places for leisure. 
+	 * <p>The maximum distance to other places for leisure. 
 	 * Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForLeisureNodes}.
 	 * <br><b>Note:</b> The distance is measured in unites as defined by the CRS (see "Configuration of data representing the" above for more details). 
 	 * The current unit is <b>meter</b></p>
 	 */
-	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_LEISURE = 100;
+	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_LEISURE = 500;
+	
+	// TODO: check if other place for personal care activities is necessary
 	
 	
 	/**
@@ -392,49 +394,48 @@ public interface ISimulationSettings {
 	// TODO: use empirical values
 	public static final double MEAN_OF_LEISURE_ACTIVITY_DURATION = 120;
 	/**
-	 * <p>{@link ISimulationSettings#MEAN_OF_LEISURE_ACTIVITY_DURATION}: The mean duration of activities in {@link ActivityCategory#LEISURE} in minutes.</p>
+	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#LEISURE} in minutes.</p>
 	 */
 	public static final double STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION = 60;
 	/**
-	 * <p>{@link ISimulationSettings#STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION}: The standard deviation of the duration of activities in {@link ActivityCategory#LEISURE} in minutes.</p>
+	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#LEISURE}.
 	 */
 	public static final NormalDistribution DISTRIBUTION_OF_LEISURE_DURATION = new NormalDistribution(MEAN_OF_LEISURE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION);
 	/**
-	 * <p>{@link ISimulationSettings#DISTRIBUTION_OF_LEISURE_DURATION}: The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#LEISURE}.
-	 * It is used to sample durations for this category.</p>
+	 * <p>The mean duration of activities in {@link ActivityCategory#WORK} in minutes.</p>
 	 */
 	public static final double MEAN_OF_WORK_ACTIVITY_DURATION = 180;
 	/**
-	 * <p>{@link ISimulationSettings#STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION}: The standard deviation of the duration of activities in {@link ActivityCategory#WORK} in minutes.</p>
+	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#WORK} in minutes.</p>
 	 */
 	public static final double STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION = 30;
 	/**
-	 * <p>{@link ISimulationSettings#DISTRIBUTION_OF_WORK_DURATION}: The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#WORK}.
+	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#WORK}.
 	 */
 	public static final NormalDistribution DISTRIBUTION_OF_WORK_DURATION = new NormalDistribution(MEAN_OF_WORK_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION);
 	/**
-	 * <p>{@link ISimulationSettings#MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION}: The mean duration of activities in {@link ActivityCategory#PERSONAL_CARE} in minutes.</p>
+	 * <p>The mean duration of activities in {@link ActivityCategory#PERSONAL_CARE} in minutes.</p>
 	 */
 	public static final double MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION = 90;
 	/**
-	 * <p>{@link ISimulationSettings#STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION}: The standard deviation of the duration of activities in {@link ActivityCategory#PERSONAL_CARE} in minutes.</p>
+	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#PERSONAL_CARE} in minutes.</p>
 	 */
 	public static final double STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION = 30;
 	/**
-	 * <p>{@link ISimulationSettings#DISTRIBUTION_OF_PERSONAL_CARE_DURATION}: The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#PERSONAL_CARE}.
+	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#PERSONAL_CARE}.
 	 * It is used to sample durations for this category.</p>
 	 */
 	public static final NormalDistribution DISTRIBUTION_OF_PERSONAL_CARE_DURATION = new NormalDistribution(MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION);
 	/**
-	 * <p>{@link ISimulationSettings#MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION}: The mean duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.</p>
+	 * <p>The mean duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.</p>
 	 */
 	public static final double MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 90;
 	/**
-	 * <p>{@link ISimulationSettings#STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION}: The standard deviation of the duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.</p>
+	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.</p>
 	 */
 	public static final double STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 45;
 	/**
-	 * <p>{@link ISimulationSettings#DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION}: The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}. It is used to sample durations for this category.</p>
+	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}. It is used to sample durations for this category.</p>
 	 */
 	public static final NormalDistribution DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION = new NormalDistribution(MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION);
 	/**
@@ -457,7 +458,7 @@ public interface ISimulationSettings {
 	 */
 	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
 	/**
-	 * <p>{@link ISimulationSettings#AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES}: The time points an {@link Individual} can plan resp. replan it's activities for the current day (see {@link Environment#start()}).</p>
+	 * <p>The time points an {@link Individual} can plan resp. replan its activities for the current day (see {@link Environment#start()}).</p>
 	 */
 	public static final ArrayList<DateTime> AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0),
@@ -504,13 +505,13 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The thickness of the line representing a path.</p>
 	 */
-	public static final double SIZE_OF_PATH = 1.0; // TODO: not actually used by portrayal
+	public static final double SIZE_OF_PATH = 1.0;
 	/**
 	 * <p>The color used to mark UI elements of interest for debugging. This color is not used by the simulation but provides a mean to facilitate debugging in the UI.</p>
 	 */
 	public static final Color COLOR_FOR_DEBUG = new Color(235, 59, 90); // desire (red)
 	/**
-	 * <p>The color used to mark selected {@link Individual}s.</p>
+	 * <p>The color used to mark selected entities.</p>
 	 */
 	public static final Color COLOR_OF_SELECTED_ENTITY = new Color(38, 222, 129); // reptile green
 	/**
