@@ -207,7 +207,7 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY}: The maximum number of {@link Activity}s with friends an {@link Individual} is willing to participate in.</p>
 	 * <p>{@link ISimulationSettings#PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY}: The probability of an {@link Individual} participating in an {@link Activity} with friends upon request by some other member of the same household network.</p>
 	 */
-	public static final int NUMBER_OF_INDIVIDUALS = 1000;
+	public static final int NUMBER_OF_INDIVIDUALS = 100;
 	/**
 	 * <p>The minimum number of {@link Individual}s in each {@link Network} representing a household or family.</p>
 	 */
@@ -268,7 +268,7 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#NUMBER_OF_OTHER_PLACES_FOR_WORK}: The number of alternative places to conduct {@link Activity}s of {@link ActivityCategory#WORK}.</p>
 	 * <p>{@link ISimulationSettings#NUMBER_OF_OTHER_PLACES_FOR_PERSONAL_CARE}: The number of alternative places to conduct {@link Activity}s of {@link ActivityCategory#PERSONAL_CARE}.</p>
 	 * <p>{@link ISimulationSettings#AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES}: The possible start times for {@link Activity}s with household members.</p>
-	 * <p>{@link ISimulationSettings#AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES}: The possible start times for {@link Activity}s with work colleagues.</p>
+	 * <p>{@link ISimulationSettings#AVAILABLE_START_TIMES_FOR_WORK_COLLEAGUES_NETWORK_ACTIVITIES}: The possible start times for {@link Activity}s with work colleagues.</p>
 	 * <p>{@link ISimulationSettings#AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES}: The possible start times for {@link Activity}s with friends.</p>
 	 * <p>{@link ISimulationSettings#MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE}: The maximum distance to other places for household and family care. 
 	 * Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForHouseholdAndFamilyCareNodes}.
@@ -318,7 +318,7 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The possible start times for {@link Activity}s with work colleagues.</p>
 	 */
-	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES = Stream.of(
+	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_WORK_COLLEAGUES_NETWORK_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0))
@@ -456,7 +456,7 @@ public interface ISimulationSettings {
 	 * This is used to improve the performance of the simulation since calculating the travel time for plans with many travel activities consumes a lot of computing resources to calculate travel times, but those plans are not likely to be selected since travel time decreases the time the individual can spend on satisfying its needs.</p>
 	 * <p>{@link ISimulationSettings#MIN_DURATION_OF_ACTIVITY_TO_TRAVEL_TO_DIFFERENT_LOCATION}: If the duration of an {@link Activity} is smaller than this constant, the {@link Individual} must stay at it's current location, since traveling would otherwise consume most or all of the time the {@link Individual} intends to spend on the activity.</p>
 	 */
-	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
+	public static final int NUMBER_OF_PLANS_TO_GENERATE = 50;
 	/**
 	 * <p>The time points an {@link Individual} can plan resp. replan its activities for the current day (see {@link Environment#start()}).</p>
 	 */

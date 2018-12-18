@@ -33,11 +33,11 @@ public class SimulationTime implements Steppable {
 	 */
 	@Override
 	public void step(SimState state) {
-		((Environment) state).getOutputHolder().put(ISimulationSettings.TIME_STAMP, m_dateTime); // record current value
-		m_dateTime = m_dateTime.plusMinutes(1); // increment time
 		if (m_dateTime.getHourOfDay() == 23 && m_dateTime.getMinuteOfHour() == 59) {
 			System.out.println("Simulated: " + DATE_TIME_FORMATTER.print(m_dateTime));
 		}
+		m_dateTime = m_dateTime.plusMinutes(1); // increment time
+		((Environment) state).getOutputHolder().put(ISimulationSettings.TIME_STAMP, m_dateTime); // record current value
 	}
 	
 	/**

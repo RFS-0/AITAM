@@ -90,7 +90,7 @@ public class EnvironmentWithUI extends GUIState {
 	}
 
 	/**
-	 * <p>This methdod initializes all aspects related to the visualitzation of the {@link Environment}.</p>
+	 * <p>This method initializes all aspects related to the visualization of the {@link Environment}.</p>
 	 */
 	@Override
 	public void init(Controller controller) {

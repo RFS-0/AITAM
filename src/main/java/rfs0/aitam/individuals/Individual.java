@@ -144,12 +144,12 @@ public class Individual {
 	 */
 	private int m_numberOfHouseholdNetworkActivitiesPlanned = 0;
 	/**
-	 * The individuals work colleagues network. It contains references to all the individual's work colleagues. The number of work collegues can be configured
+	 * The individuals work colleagues network. It contains references to all the individual's work colleagues. The number of work colleagues can be configured
 	 * via {@link ISimulationSettings#MIN_NUMBER_OF_WORK_COLLEGUES} and {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
 	 */
 	private Network m_workColleaguesNetwork = new Network(false);
 	/**
-	 * <p>The id of the work colleagues members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work collegues network.</p>
+	 * <p>The id of the work colleagues members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work colleagues network.</p>
 	 */
 	private int m_workColleaguesNetworkId = -1;
 	/**
@@ -162,7 +162,7 @@ public class Individual {
 	 */
 	private Network m_friendsNetwork = new Network(false);
 	/**
-	 * <p>The id of the friends members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work collegues network.</p>
+	 * <p>The id of the friends members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work colleagues network.</p>
 	 */
 	private int m_friendsNetworkId = -1;
 	/**
@@ -213,7 +213,7 @@ public class Individual {
 	 */
 	private Node m_homeNode;
 	/**
-	 * <p>A list of all other places (in addtion to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
+	 * <p>A list of all other places (in addition to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
 	 */
 	private ArrayList<Node> m_otherPlacesForHouseholdAndFamilyCareNodes;
 	/**
@@ -706,7 +706,7 @@ public class Individual {
 			planActivityForNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK , ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
 		}
 		if (isOpenForNetworkActivities(NetworkType.WORK_COLLEGUES_NETWORK, ISimulationSettings.PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY)) {
-			planActivityForNetwork(m_workColleaguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK, ActivityCategory.WORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_WORK_COLLEGUES_NETWORK_ACTIVITIES);
+			planActivityForNetwork(m_workColleaguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK, ActivityCategory.WORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_WORK_COLLEAGUES_NETWORK_ACTIVITIES);
 		}
 		if (isOpenForNetworkActivities(NetworkType.FRIENDS_NETWORK, ISimulationSettings.PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY)) {
 			planActivityForNetwork(m_friendsNetwork, NetworkType.FRIENDS_NETWORK, ActivityCategory.LEISURE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES);
@@ -1005,20 +1005,20 @@ public class Individual {
 	 */
 	
 	/**
-	 * <p>This method models the individual's steps for planing individual activities. 
+	 * <p>This method models the individual's steps for planning individual activities. 
 	 * 
 	 * </p>This works as follows:
 	 * 	<ol>
 	 * 		<li>Reset all daily plans</li>
 	 * 		<li>As long as not the number of plans as defined by {@link ISimulationSettings#NUMBER_OF_PLANS_TO_GENERATE} have been generated, repeat the steps 3 & 4 </li>
 	 * 		<li>Clone the current activity agenda. It is called random agenda because the activities, the intervals and the locations which will be written into it are choosen randomly.
-	 * 			 <b>Note:</b> At this point the agend has to following entries: all activities executed until the current simulation time, the one which is currently being executed and all joint activities planned for the current day.</li>
+	 * 			 <b>Note:</b> At this point the agenda has to following entries: all activities executed until the current simulation time, the one which is currently being executed and all joint activities planned for the current day.</li>
 	 * 		<li>As long as the cloned agenda is not completely filled with activities (i.e. has any gap in the time span from 0:00 - 23:59) do the following:
 	 * 			<ol>
 	 * 				<li>Randomly choose the next activity to be added to the agenda as well as its interval (see {@link Individual#chooseActivityAndIntervalInRealTime(Interval, ActivityAgenda)} for more details.</li>
 	 * 				<li>Randomly choose the activity node for the activity.</li>
 	 * 				<li>Write the activity and its location into the random agenda.</li>
-	 * 				<li>Update the actual need time split of the random agend to reflect the newly added activity.</li>
+	 * 				<li>Update the actual need time split of the random agenda to reflect the newly added activity.</li>
 	 * 			</ol>
 	 * 		<li>Calculate the travel time for each of the generated random plans and store it along with the plan without travel time in {@link Individual#m_allDayPlans}.</li>
 	 * 	</ol>
@@ -1227,9 +1227,9 @@ public class Individual {
 
 	
 	/**
-	 * <p>This method models how an an individuals chooses the agenda that fits its target need time split best.
-	 * Best in this context means that the actual need time split of an agenda perfectly fits the targe need time split of the individual.</p>
-	 * <p>To quantify the deviation form the optimal plan we use (resp. adapt) the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error (MSE)</a> (see {@link CalculationUtility#calculateMeanSquaredError(ActivityAgenda, NeedTimeSplit)} for implementation details).
+	 * <p>This method models how an individual chooses the agenda that fits its target need time split best.
+	 * Best in this context means that the actual need time split of an agenda perfectly fits the target need time split of the individual.</p>
+	 * <p>To quantify the deviation from the optimal plan we use (resp. adapt) the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error (MSE)</a> (see {@link CalculationUtility#calculateMeanSquaredError(ActivityAgenda, NeedTimeSplit)} for implementation details).
 	 * <b>Note:</b> The MSE heavily weights outliers, which in our context is what we want. 
 	 * The underlying assumption is that individuals prefer some minor deviations over one (or a few) large deviation(s).</p>
 	 * 
@@ -1256,7 +1256,7 @@ public class Individual {
 	 * The method uses an argument instead of direct access to {@link ISimulationSettings#AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES} to allow the modeler to define and use other start time points as well.</p> 
 	 * 
 	 * @param availableTimePoints - time points at which planning is possible.
-	 * @return boolean - wheter or not is is possible to plan activities.
+	 * @return boolean - whether or not is is possible to plan activities.
 	 */
 	public boolean isPlanningPossible(ArrayList<DateTime> availableTimePoints) {
 		return availableTimePoints.stream().anyMatch(timePoint -> timePoint.equals(m_environment.getSimulationTime().getCurrentTime()));
@@ -1268,11 +1268,11 @@ public class Individual {
 	
 	/**
 	 * <p>This method carries joint activities in the joint agenda over to the individual agenda ({@link Individual#m_activityAgenda}).
-	 * To make sure that they can always be carried over, all future activities in the indvidual agenda are removed first.
+	 * To make sure that they can always be carried over, all future activities in the individual agenda are removed first.
 	 * A future activity is any activity whose start time is after the current simulation time.</p>
 	 */
 	public void carryOverJointActivities() {
-		// remvoe all future activities
+		// remove all future activities
 		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
 		List<Interval> futureIntervals = m_activityAgenda.getAgenda().keySet().stream()
 			.filter(interval -> (interval.getStart().isAfter(currentDateTime)))
@@ -1283,7 +1283,7 @@ public class Individual {
 		}
 		// fill future with joint activities
 		for (Interval interval: m_jointActivityAgenda.getIntervals()) {
-			if (interval.getStart().isAfter(m_environment.getSimulationTime().getCurrentDateTime())) {
+			if (interval.getStart().isAfter(currentDateTime)) {
 				m_activityAgenda.addActivityForInterval(interval, m_jointActivityAgenda.getActivityForInterval(interval));
 				m_activityAgenda.addNodeForInterval(interval, m_jointActivityAgenda.getNodeForInterval(interval));
 			}
@@ -1308,17 +1308,19 @@ public class Individual {
 	 * 
 	 */
 	public void move() {
-		m_currentActivity = m_activityAgenda.getActivityForDateTime(m_environment.getSimulationTime().getCurrentDateTime());
-		m_currentTargetNode = m_activityAgenda.getNodeForDateTime(m_environment.getSimulationTime().getCurrentDateTime());
+		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
+		m_currentActivity = m_activityAgenda.getActivityForDateTime(currentDateTime);
+		m_currentTargetNode = m_activityAgenda.getNodeForDateTime(currentDateTime);
 		if (ISimulationSettings.IS_DEBUG) {
 			Environment.NODE_TO_CLOSEST_BUILDING_MAP.get(m_currentTargetNode).getGeometry().setUserData(DebugUtility.createLabelledPortrayal2DForBuilding(m_id, m_currentActivity));
 		}
 		// check if target has been reached
 		if (!m_currentNode.getCoordinate().equals(m_currentTargetNode.getCoordinate())) {
-			// check if path has been initialzed
+			// check if path has been initialized
 			if (m_pathToNextTarget.isEmpty()) {
 				initPathToTarget(m_currentNode, m_currentTargetNode);
 			}
+			// TODO: verify that this check is not necessary
 			if (!hasReachedTarget()) {
 				moveTowardsTarget();
 			}
@@ -1331,11 +1333,11 @@ public class Individual {
 	 */
 
 	/**
-	 * <p>This method models the individual's steps for moving.</p>
+	 * <p>This method models the individual's steps for executing the current activity.</p>
 	 * 
 	 * <p>This works as follows:
 	 * 	<ol>
-	 * 		<li>Update the actual need time split according to the current activity (travelling, indvidual activity or joint activity).</li>
+	 * 		<li>Update the actual need time split according to the current activity (traveling, individual activity or joint activity).</li>
 	 * 		<li>Update the output holder according to the current activity.</li>
 	 * 	</ol>
 	 * </p>

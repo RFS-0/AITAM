@@ -10,6 +10,8 @@ public enum ActivityCategory {
 	WORK,
 	PERSONAL_CARE,
 	HOUSEHOLD_AND_FAMILY_CARE,
+	SLEEP_AND_REST,
 	TRAVEL,
-	IDLE
+	IDLE,
+	NONE
 }

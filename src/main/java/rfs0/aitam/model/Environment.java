@@ -189,11 +189,11 @@ public class Environment extends SimState {
 	 * 	<li>Schedule all the steps of the {@link Individual} as anonymous {@link Steppable}'s. <b>Note:</b> This is necessary since each of them must be executed for all {@link Individual}'s in the given order</li>
 	 * 	<ol>
 	 * 		<li>Plan joint {@link Activity}'s, if planning is possible. Write them into {@link Individual}'s joint {@link ActivityAgenda}</li>
-	 * 		<li>Carry over joint activities to {@link Individual}'s individual {@link ActivityAgenda}, if planning is possible</li>
+	 * 		<li>Carry over joint activities to the {@link Individual}'s individual {@link ActivityAgenda}, if planning is possible</li>
 	 * 		<li>Plan individual activities, if planning is possible.</li>
 	 * 		<li>Choose the best of the generated {@link ActivityAgenda}'s</li>
 	 * 		<li>At each point in time: Moving, if necessary.</li>
-	 * 		<li>At each point in time: execute the actvitiy scheduled for the interval overlapping the current point in time. <b>Note:</b> This includes in particular updating the {@link AbsoluteNeedTimeSplit}.
+	 * 		<li>At each point in time: execute the activity scheduled for the interval overlapping the current point in time. <b>Note:</b> This includes in particular updating the {@link AbsoluteNeedTimeSplit}.
 	 * 		<li>Finally, if the beginning of a new day is reached, reset (only) variables which are used to generate a new {@link ActivityAgenda}</li>
 	 * 	</ol>
 	 * 	<li>Schedule the {@link GeomVectorField} containing all {@link Point}'s wrapped in a {@link MasonGeometry}. These represent the {@link Individual}'s as dots.</li>
@@ -329,17 +329,19 @@ public class Environment extends SimState {
 	}
 	
 	/**
-	 * <p>This method read the shape files used to represent GIS-data and expands the global MBR accordingly.</p>
+	 * <p>This method read the shape files used to represent GIS data and expands the global MBR accordingly.</p>
 	 * 
 	 * @param globalMBR - the global minimum bounding rectangle.
 	 */
 	private void readShapeFiles(Envelope globalMBR) {
 		try {
 			System.out.println("Reading building layer...");
+			// use an empty Bag if the shape file for the buildings does not have additional attributes
 			Bag attributesOfBuildings = initAttributesOfBuildings();
 			readShapeFile(ISimulationSettings.BUILDINGS_FILE, m_buildingsField, globalMBR, attributesOfBuildings);
 
 			System.out.println("Reading the path layer...");
+			// use an empty Bag if the shape file for the paths does not have additional attributes
 			Bag attributesOfPaths = initializeAttributesOfPaths();
 			readShapeFile(ISimulationSettings.PATHS_FILE, m_pathField, globalMBR, attributesOfPaths);
 		} catch (Exception e) {
@@ -429,7 +431,7 @@ public class Environment extends SimState {
 	}
 	
 	/**
-	 * 
+	 * <p>This method initializes all activities.</p>
 	 */
 	private void initActivities() {
 		System.out.println("Initializing activities...");
@@ -519,8 +521,6 @@ public class Environment extends SimState {
 		long start = System.nanoTime();
 		m_individuals = IndividualInitializer.initIndividuals(this);
 		for (Individual individual: m_individuals) {
-			MasonGeometry geometryOfIndividual = individual.getCurrentLocationPoint();
-			geometryOfIndividual.setUserData(individual);
 			m_individualsField.addGeometry(individual.getCurrentLocationPoint());
 			
 		}
