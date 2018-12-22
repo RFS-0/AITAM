@@ -553,12 +553,12 @@ public interface ISimulationSettings {
 	public static final String LEISURE_AT_HOME_WITH_FRIENDS = "Leisure at home with friends";
 	public static final String LEISURE_AT_THIRD_PLACE_ALONE = "Leisure at 3rd place alone";
 	public static final String LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS = "Leisure at 3rd place with household members";
-	public static final String LEISURE_AT_THIRD_PLACE_WITH_FRIENDS = "Leisure at home with friends";
+	public static final String LEISURE_AT_THIRD_PLACE_WITH_FRIENDS = "Leisure at 3rd place with friends";
 	public static final String WORK_AT_HOME_ALONE = "Work at home alone";
 	public static final String WORK_AT_WORK_PLACE_ALONE = "Work at work location alone";
 	public static final String WORK_AT_WORK_PLACE_WITH_COWORKERS = "Work at work location with coworkers";
-	public static final String WORK_AT_THIRD_PLACE_ALONE = "Work at 3rd for work alone";
-	public static final String WORK_AT_THIRD_PLACE_WITH_COWORKERS = "Work at 3rd for work with coworkers";
+	public static final String WORK_AT_THIRD_PLACE_ALONE = "Work at 3rd place for work alone";
+	public static final String WORK_AT_THIRD_PLACE_WITH_COWORKERS = "Work at 3rd place for work with coworkers";
 	public static final String WORK_DURING_TRAVEL_ALONE = "Work during travel alone";
 	public static final String WORK_DURING_TRAVEL_WITH_COWORKERS = "Work during travel with coworkers";
 	public static final String PERSONAL_CARE_AT_HOME_ALONE = "Personal care at home alone";
@@ -577,9 +577,10 @@ public interface ISimulationSettings {
 	public static final String IDLE_AT_WORK = "Idle at work";
 	public static final String IDLE_AT_LEISURE = "Idle at leisure";
 	public static final String IDLE_AT_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE = "Idle at 3rd place for household and family care";
-	public static final String IDLE_AT_THIRD_PLACE_FOR_WORK = "Idle at 3rd for work";
-	public static final String IDLE_AT_THIRD_PLACE_FOR_LEISURE = "Idle at 3rd for leisure";
+	public static final String IDLE_AT_THIRD_PLACE_FOR_WORK = "Idle at 3rd place for work";
+	public static final String IDLE_AT_THIRD_PLACE_FOR_LEISURE = "Idle at 3rd place for leisure";
 	public static final String TRAVEL = "Travel";
+	public static final String SLEEP_AT_HOME = "Sleep at home";
 	public static final String TITLE_OF_BARCHART = "Activities";
 	
 	/**

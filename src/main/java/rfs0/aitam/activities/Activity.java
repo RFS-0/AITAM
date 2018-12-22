@@ -229,8 +229,8 @@ public class Activity {
 		 * <p>Each {@link Activity} must have defined a {@link NeedTimeSplit} and this method sets it for {@link Builder#activityToBuild}. 
 		 * See {@link NeedTimeSplit} for more information about the concept of a need time split.
 		 * In the context of an activity the {@link NeedTimeSplit} defines how the time an {@link Individual} spends on executing the activity is allocated resp. split to the various needs fulfilled by the activity for each unit of time (i.e. minute). 
-		 * E.g. suppose the {@link NeedTimeSplit} for an activity is defined as {@link Need#LEISURE}=0.75 and {@link Need#FREEDOM}=0.25.
-		 * Then for each minute the {@link Individual} spends executing the activity 45s will be added to the total (i.e. absolute) time spent satisfying {@link Need#LEISURE} and 15s will be added to the total time spent satisfying {@link Need#FREEDOM}.</p>
+		 * E.g. suppose the {@link NeedTimeSplit} for an activity is defined as {@link Need#IDLENESS}=0.75 and {@link Need#FREEDOM}=0.25.
+		 * Then for each minute the {@link Individual} spends executing the activity 45s will be added to the total (i.e. absolute) time spent satisfying {@link Need#IDLENESS} and 15s will be added to the total time spent satisfying {@link Need#FREEDOM}.</p>
 		 * 
 		 * @param needTimeSplit - the need time split defining how each unit of time spent executing this activity is allocated to the respective needs satisfied by this activity.
 		 * @return {@link Builder} - builder with information about need time split of the {@link Builder#activityToBuild}.

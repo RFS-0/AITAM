@@ -39,12 +39,12 @@ public final class ActivityInitializer {
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Sports and recreation, hobbies, reading, TV viewing, phone calls")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(6,0,23,0, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.HOME)
 				.withNetworkType(NetworkType.NONE)
@@ -61,18 +61,18 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initLeisureAtHomeAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at home with household members")
+				.withActivityDescription(ISimulationSettings.LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
 				.withExamples("Sports and recreation, hobbies, reading, TV viewing")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(6,0,23,0, ISimulationSettings.WEEK)
 				.withActivityLocation(ActivityLocation.HOME)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
@@ -88,13 +88,13 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initLeisureAtHomeAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at home with friends")
+				.withActivityDescription(ISimulationSettings.LEISURE_AT_HOME_WITH_FRIENDS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
@@ -113,16 +113,16 @@ public final class ActivityInitializer {
 	public Activity initLeisureAtThirdPlaceForLeisureAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at 3rd place alone")
+				.withActivityDescription(ISimulationSettings.LEISURE_AT_THIRD_PLACE_ALONE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Sports and recreation, culture and amusement events, hobbies, shopping, having meals")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(6,0,23,0, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_LEISURE)
 				.withNetworkType(NetworkType.NONE)
@@ -139,18 +139,18 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initLeisureAtThirdPlaceForLeisureAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at 3rd place with household members")
+				.withActivityDescription(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
 				.withExamples("Sports and recreation, culture and amusement events, hobbies, shopping, having meals")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(6,0,23,0, ISimulationSettings.WEEK)
 				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_LEISURE)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
@@ -166,18 +166,18 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initLeisureAtThirdPlaceForLeisureAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.LEISURE)
-				.withActivityDescription("Leisure at 3rd place with friends")
+				.withActivityDescription(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_FRIENDS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.TWELVE))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
 				.withExamples("Sports and recreation, culture and amusement events, hobbies, shopping, having meals")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(6,0,23,0, ISimulationSettings.WEEK)
 				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_LEISURE)
 				.withNetworkType(NetworkType.FRIENDS_NETWORK)
 				.build();
@@ -191,7 +191,7 @@ public final class ActivityInitializer {
 	public Activity initWorkAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 		.withActivityCategory(ActivityCategory.WORK)
-		.withActivityDescription("Work at home alone")
+		.withActivityDescription(ISimulationSettings.WORK_AT_HOME_ALONE)
 		.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 				.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 				.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
@@ -199,7 +199,7 @@ public final class ActivityInitializer {
 				.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 				.build())
 		.withExamples("Paid work")
-		.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
+		.withAvailabilityIntervalAtDays(7, 0, 18, 0, ISimulationSettings.WORK_WEEK)
 		.withIsJointActivity(false)
 		.withActivityLocation(ActivityLocation.HOME)
 		.withNetworkType(NetworkType.NONE)
@@ -214,7 +214,7 @@ public final class ActivityInitializer {
 	public Activity initWorkAtWorkPlaceAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at work location alone")
+				.withActivityDescription(ISimulationSettings.WORK_AT_WORK_PLACE_ALONE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
@@ -222,7 +222,7 @@ public final class ActivityInitializer {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
 				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
+				.withAvailabilityIntervalAtDays(7, 0, 18, 0, ISimulationSettings.WORK_WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.WORK)
 				.withNetworkType(NetworkType.NONE)
@@ -236,10 +236,10 @@ public final class ActivityInitializer {
 	 */
 	public Activity initWorkAtWorkPlaceWithCoworkers() {
 		return ACTIVITY_BUILDER
-				.withAlternativeActivity(initWorkAtHomeAloneActivity())
+				.withAlternativeActivity(initWorkAtWorkPlaceAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at work location with coworkers")
+				.withActivityDescription(ISimulationSettings.WORK_AT_WORK_PLACE_WITH_COWORKERS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
@@ -249,7 +249,7 @@ public final class ActivityInitializer {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 						.build())
 				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
+				.withAvailabilityIntervalAtDays(7, 0, 18, 0, ISimulationSettings.WORK_WEEK)
 				.withActivityLocation(ActivityLocation.WORK)
 				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
 				.build();
@@ -263,7 +263,7 @@ public final class ActivityInitializer {
 	public Activity initWorkAtThirdPlaceForWorkAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at 3rd place for work alone")
+				.withActivityDescription(ISimulationSettings.WORK_AT_THIRD_PLACE_ALONE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
@@ -271,7 +271,7 @@ public final class ActivityInitializer {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
 						.build())
 				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
+				.withAvailabilityIntervalAtDays(7, 0, 18, 0, ISimulationSettings.WORK_WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_WORK)
 				.withNetworkType(NetworkType.NONE)
@@ -288,7 +288,7 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initWorkAtThirdPlaceForWorkAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work at 3rd place for work with coworkers")
+				.withActivityDescription(ISimulationSettings.WORK_AT_THIRD_PLACE_WITH_COWORKERS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
@@ -298,57 +298,8 @@ public final class ActivityInitializer {
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 						.build())
 				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
+				.withAvailabilityIntervalAtDays(7, 0, 18, 0, ISimulationSettings.WORK_WEEK)
 				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_WORK)
-				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
-				.build();
-	}
-	
-	/**
-	 * Initializes the activity.
-	 * 
-	 * @return - the initialized activity
-	 */
-	public Activity initWorkDuringTravelAloneActivity() {
-		return ACTIVITY_BUILDER
-				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work during travel alone")
-				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.THREE))
-						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX))
-						.build())
-				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
-				.withIsJointActivity(false)
-				.withActivityLocation(ActivityLocation.TRAVEL)
-				.withNetworkType(NetworkType.NONE)
-				.build();
-	}
-	
-	/**
-	 * Initializes the activity.
-	 * 
-	 * @return - the initialized activity
-	 */
-	public Activity initWorkDuringTravelWithCoworkers() {
-		return ACTIVITY_BUILDER
-				.withAlternativeActivity(initWorkDuringTravelAloneActivity())
-				.withIsJointActivity(true)
-				.withActivityCategory(ActivityCategory.WORK)
-				.withActivityDescription("Work during travel with coworkers")
-				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.NINE))
-						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-						.build())
-				.withExamples("Paid work")
-				.withAvailabilityIntervalAtDays(8, 0, 16, 0, ISimulationSettings.WORK_WEEK)
-				.withActivityLocation(ActivityLocation.TRAVEL)
 				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
 				.build();
 	}
@@ -361,10 +312,10 @@ public final class ActivityInitializer {
 	public Activity initPersonalCareAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at home alone")
+				.withActivityDescription(ISimulationSettings.PERSONAL_CARE_AT_HOME_ALONE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FIVE))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FIVE))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE))
 						.build())
 				.withExamples("Personal hygiene, dressing up, sports")
@@ -385,16 +336,16 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initPersonalCareAtHomeAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at home with household members")
+				.withActivityDescription(ISimulationSettings.PERSONAL_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Cooking, having meals, talking, cleaning")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(6,0,21,0, ISimulationSettings.WEEK)
 				.withActivityLocation(ActivityLocation.HOME)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
@@ -410,16 +361,16 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initPersonalCareAtHomeAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at home with friends")
+				.withActivityDescription(ISimulationSettings.PERSONAL_CARE_AT_HOME_WITH_FRIENDS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Cooking, having meals, talking")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(8,0,21,0, ISimulationSettings.WEEK)
 				.withActivityLocation(ActivityLocation.HOME)
 				.withNetworkType(NetworkType.FRIENDS_NETWORK)
 				.build();
@@ -433,14 +384,14 @@ public final class ActivityInitializer {
 	public Activity initPersonalCareAtWorkPlaceAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at work alone")
+				.withActivityDescription(ISimulationSettings.PERSONAL_CARE_AT_WORK_ALONE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FIVE))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FIVE))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE))
 						.build())
 				.withExamples("Having meals")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(7,0,18,0, ISimulationSettings.WORK_WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.WORK)
 				.withNetworkType(NetworkType.NONE)
@@ -457,16 +408,16 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initPersonalCareAtWorkPlaceAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at work with coworkers")
+				.withActivityDescription(ISimulationSettings.PERSONAL_CARE_AT_WORK_WITH_COWORKERS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Having meals")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(7,0,18,0, ISimulationSettings.WORK_WEEK)
 				.withActivityLocation(ActivityLocation.WORK)
 				.withNetworkType(NetworkType.WORK_COLLEGUES_NETWORK)
 				.build();
@@ -480,14 +431,14 @@ public final class ActivityInitializer {
 	public Activity initPersonalCareAtThirdPlaceForPersonalCareAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at 3rd place alone")
+				.withActivityDescription(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_ALONE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FIVE))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FIVE))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.FIVE))
 						.build())
 				.withExamples("Sports")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(8,0,20,0, ISimulationSettings.WEEK)
 				.withIsJointActivity(false)
 				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.withNetworkType(NetworkType.NONE)
@@ -504,16 +455,16 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initPersonalCareAtThirdPlaceForPersonalCareAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at 3rd place with household members")
+				.withActivityDescription(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Sports")
-				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withAvailabilityIntervalAtDays(8,0,20,0, ISimulationSettings.WEEK)
 				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE)
 				.withNetworkType(NetworkType.HOUSEHOLD_NETWORK)
 				.build();
@@ -529,12 +480,12 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initPersonalCareAtThirdPlaceForPersonalCareAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.PERSONAL_CARE)
-				.withActivityDescription("Personal care at 3rd place with friends")
+				.withActivityDescription(ISimulationSettings.PERSONAL_CARE_AT_THIRD_PLACE_WITH_FRIENDS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.EIGHT))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
 						.build())
 				.withExamples("Sports")
@@ -552,10 +503,10 @@ public final class ActivityInitializer {
 	public Activity initHouseholdAndFamilyCareAtHomeAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
-				.withActivityDescription("Household/family care at home alone")
+				.withActivityDescription(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_ALONE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SEVEN))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.SEVEN))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.SEVEN))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.SEVEN))
 						.build())
 				.withExamples("Housework, Shopping, family business, services and civic matters")
@@ -576,11 +527,11 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initHouseholdAndFamilyCareAtHomeAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
-				.withActivityDescription("Household/family care at home with household members")
+				.withActivityDescription(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_HOME_WITH_HOUSEHOLD_MEMBERS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.ELEVEN))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.ELEVEN))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.ELEVEN))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.ELEVEN))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.ELEVEN))
 						.build())
 				.withExamples("Housework, Shopping, family business, services and civic matters")
@@ -598,10 +549,10 @@ public final class ActivityInitializer {
 	public Activity initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
-				.withActivityDescription("Household/family care at 3rd place alone")
+				.withActivityDescription(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_ALONE)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SEVEN))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.SEVEN))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.SEVEN))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.SEVEN))
 						.build())
 				.withExamples("Shopping, family business, services and civic matters")
@@ -622,11 +573,11 @@ public final class ActivityInitializer {
 				.withAlternativeActivity(initHouseholdAndFamilyCareAtThirdPlaceForHouseholdAndFamilyCareAloneActivity())
 				.withIsJointActivity(true)
 				.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
-				.withActivityDescription("Household/family care at 3rd place with household members")
+				.withActivityDescription(ISimulationSettings.HOUSEHOLD_AND_FAMILY_CARE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.ELEVEN))
 						.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.ELEVEN))
-						.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.ELEVEN))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(CalculationUtility.TWO, CalculationUtility.ELEVEN))
 						.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.FOUR, CalculationUtility.ELEVEN))
 						.build())
 				.withExamples("Shopping, family business, services and civic matters")
@@ -764,9 +715,31 @@ public final class ActivityInitializer {
 	public Activity initTravelActivity() {
 		return ACTIVITY_BUILDER
 				.withActivityCategory(ActivityCategory.TRAVEL)
-				.withActivityDescription("Travel")
+				.withActivityDescription(ISimulationSettings.TRAVEL)
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
 						.withNeedTimeSplit(Need.NONE, BigDecimal.ONE)
+						.build())
+				.withExamples("Travel with any mode of transport")
+				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+				.withIsJointActivity(false)
+				.withActivityLocation(ActivityLocation.TRAVEL)
+				.withNetworkType(NetworkType.NONE)
+				.build();
+	}
+	
+	/**
+	 * Initializes the activity.
+	 * 
+	 * @return - the initialized activity
+	 */
+	public Activity initSleepAtHomeActivity() {
+		return ACTIVITY_BUILDER
+				.withActivityCategory(ActivityCategory.SLEEP_AND_REST)
+				.withActivityDescription(ISimulationSettings.SLEEP_AT_HOME)
+				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+						.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(CalculationUtility.SIX, BigDecimal.TEN))
+						.withNeedTimeSplit(Need.PROTECTION, CalculationUtility.divide(CalculationUtility.TWO, BigDecimal.TEN))
+						.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(CalculationUtility.TWO, BigDecimal.TEN))
 						.build())
 				.withExamples("Travel with any mode of transport")
 				.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)

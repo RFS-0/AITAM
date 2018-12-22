@@ -194,7 +194,7 @@ public final class IndividualInitializer {
 							.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 							.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 							.withNeedTimeSplit(Need.IDENTITY, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-							.withNeedTimeSplit(Need.LEISURE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 							.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 							.withNeedTimeSplit(Need.PROTECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
 							.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))

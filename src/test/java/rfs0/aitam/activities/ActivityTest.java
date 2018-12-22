@@ -78,7 +78,7 @@ public class ActivityTest {
 
 	@Test
 	public void testNeedTimeSplit() {
-		assertEquals(s_testNeedTimeSplit, s_testActivity.getNeedTimeSplit());
+		assertEquals(s_testNeedTimeSplit.getNeedTimeSplit(), s_testActivity.getNeedTimeSplit());
 		assertEquals(s_testNeeds, s_testActivity.getNeeds());
 		Activity incompleteNeedTimeSplitActivity = ACTIVITY_BUILDER
 				.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER.withNeedTimeSplit(Need.AFFECTION, BigDecimal.valueOf(0.5)).build())

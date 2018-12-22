@@ -56,32 +56,6 @@ public class ActivityInitializerTest {
 	}
 	
 	@Test
-	public void testInitWorkDuringTravelAloneActivity() {
-		Activity workDuringTravelAloneActivity = ACTIVITY_INITIALIZER.initWorkDuringTravelAloneActivity();
-		assertEquals(ActivityCategory.WORK, workDuringTravelAloneActivity.getActivityCategory());
-		assertEquals("Work during travel alone", workDuringTravelAloneActivity.getActivityDescription());
-		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.SIX), workDuringTravelAloneActivity.getFractionForNeed(Need.SUBSISTENCE));
-		assertEquals("Paid work", workDuringTravelAloneActivity.getExamples());		
-		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
-		assertEquals(true, workDuringTravelAloneActivity.isAvailableAt(DateTimeConstants.MONDAY, availableStartTime));
-		assertEquals(false, workDuringTravelAloneActivity.isJointActivity());
-		assertEquals(ActivityLocation.TRAVEL, workDuringTravelAloneActivity.getActivityLocation());
-	}
-	
-	@Test
-	public void testInitWorkDuringTravelWithCoworkersinitWorkDuringTravelWithCoworkers() {
-		Activity workDuringTravelWithCoworkers = ACTIVITY_INITIALIZER.initWorkDuringTravelWithCoworkers();
-		assertEquals(ActivityCategory.WORK, workDuringTravelWithCoworkers.getActivityCategory());
-		assertEquals("Work during travel with coworkers", workDuringTravelWithCoworkers.getActivityDescription());
-		assertEquals(CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE), workDuringTravelWithCoworkers.getFractionForNeed(Need.SUBSISTENCE));
-		assertEquals("Paid work", workDuringTravelWithCoworkers.getExamples());		
-		DateTime availableStartTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0);
-		assertEquals(true, workDuringTravelWithCoworkers.isAvailableAt(DateTimeConstants.MONDAY, availableStartTime));
-		assertEquals(true, workDuringTravelWithCoworkers.isJointActivity());
-		assertEquals(ActivityLocation.TRAVEL, workDuringTravelWithCoworkers.getActivityLocation());
-	}
-	
-	@Test
 	public void testInitLeisureAtHomeAloneActivity() {
 		Activity leisureAtHomeAloneActivity = ACTIVITY_INITIALIZER.initLeisureAtHomeAloneActivity();
 		assertEquals(ActivityCategory.LEISURE, leisureAtHomeAloneActivity.getActivityCategory());

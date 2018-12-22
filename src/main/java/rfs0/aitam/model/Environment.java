@@ -442,6 +442,7 @@ public class Environment extends SimState {
 		initHouseholdCareActivities();
 		initTravelActivities();
 		initIdleActivities();
+		initSleepAndRestActivities();
 		System.out.println(String.format("Initialized activities in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
@@ -454,8 +455,6 @@ public class Environment extends SimState {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_WORK_PLACE_WITH_COWORKERS, ACTIVITY_INITIALIZER.initWorkAtWorkPlaceWithCoworkers());
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_THIRD_PLACE_ALONE, ACTIVITY_INITIALIZER.initWorkAtThirdPlaceForWorkAloneActivity());
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_AT_THIRD_PLACE_WITH_COWORKERS, ACTIVITY_INITIALIZER.initWorkAtThirdPlaceForWorkWithCoworkers());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_DURING_TRAVEL_ALONE, ACTIVITY_INITIALIZER.initWorkDuringTravelAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.WORK_DURING_TRAVEL_WITH_COWORKERS, ACTIVITY_INITIALIZER.initWorkDuringTravelWithCoworkers());
 	}
 
 	/**
@@ -511,6 +510,10 @@ public class Environment extends SimState {
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE, ACTIVITY_INITIALIZER.initIdleAtThirdPlaceForHouseholdAndFamilyCareActivity());
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_LEISURE, ACTIVITY_INITIALIZER.initIdleAtThirdPlaceForLeisureActivity());
 		m_activityDescriptionToActivityMap.put(ISimulationSettings.IDLE_AT_THIRD_PLACE_FOR_WORK, ACTIVITY_INITIALIZER.initIdleAtThirdPlaceForWorkActivity());
+	}
+	
+	private void initSleepAndRestActivities() {
+		m_activityDescriptionToActivityMap.put(ISimulationSettings.SLEEP_AT_HOME, ACTIVITY_INITIALIZER.initSleepAtHomeActivity());
 	}
 	
 	/**
