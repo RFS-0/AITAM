@@ -39,11 +39,11 @@ public interface ISimulationSettings {
 	 * <br>The shape files used to develop the simulation represent the city of Zurich and use the following CRS: <b>EPSG:2056 - CH1903+ / LV95 - Projected</b>. 
 	 * <br>The unit of this CRS is: <b>meter</b></p>
 	 */
-	public static final String BUILDINGS_FILE = "\\data\\environment\\buildings\\buildings.shp";
+	public static final String BUILDINGS_FILE = "/data/environment/buildings/buildings.shp";
 	/**
 	 * <p>The relative path to the shape file representing the paths in the {@link Environment}.
 	 */
-	public static final String PATHS_FILE = "\\data\\environment\\paths\\paths.shp";
+	public static final String PATHS_FILE = "/data/environment/paths/paths.shp";
 	
 	/**
 	 * @category Configuration of aspects related to buildings in the environment
@@ -64,7 +64,7 @@ public interface ISimulationSettings {
 	 * <br><b>Note:</b> The output is stored in CSV format.</p>
 	 * <p>{@link ISimulationSettings#CHAR_SET}: The char set used to write the output CSV-file to disk</p>
 	 */
-	public static final String SIMULATION_OUTPUT_FOLDER = "\\data\\output\\";
+	public static final String SIMULATION_OUTPUT_FOLDER = "/data/output/";
 	/**
 	 * <p>The char set used to write the output CSV-file to disk</p>
 	 */
@@ -133,7 +133,7 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The base month of the simulation. It is set to January.</p>
 	 */
-	public static final int BASE_DAY = DateTimeConstants.TUESDAY;
+	public static final int BASE_DAY = 1; // Tuesday
 	/**
 	 * <p>The base hour of the simulation. It is set to 0.</p>
 	 */
@@ -207,7 +207,7 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY}: The maximum number of {@link Activity}s with friends an {@link Individual} is willing to participate in.</p>
 	 * <p>{@link ISimulationSettings#PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY}: The probability of an {@link Individual} participating in an {@link Activity} with friends upon request by some other member of the same household network.</p>
 	 */
-	public static final int NUMBER_OF_INDIVIDUALS = 100;
+	public static final int NUMBER_OF_INDIVIDUALS = 5;
 	/**
 	 * <p>The minimum number of {@link Individual}s in each {@link Network} representing a household or family.</p>
 	 */
@@ -456,7 +456,7 @@ public interface ISimulationSettings {
 	 * This is used to improve the performance of the simulation since calculating the travel time for plans with many travel activities consumes a lot of computing resources to calculate travel times, but those plans are not likely to be selected since travel time decreases the time the individual can spend on satisfying its needs.</p>
 	 * <p>{@link ISimulationSettings#MIN_DURATION_OF_ACTIVITY_TO_TRAVEL_TO_DIFFERENT_LOCATION}: If the duration of an {@link Activity} is smaller than this constant, the {@link Individual} must stay at it's current location, since traveling would otherwise consume most or all of the time the {@link Individual} intends to spend on the activity.</p>
 	 */
-	public static final int NUMBER_OF_PLANS_TO_GENERATE = 50;
+	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
 	/**
 	 * <p>The time points an {@link Individual} can plan resp. replan its activities for the current day (see {@link Environment#start()}).</p>
 	 */
@@ -547,6 +547,9 @@ public interface ISimulationSettings {
 	 * 
 	 */
 	public static final String TIME_STAMP = "time stamp";
+	public static final String DAY_OF_WEEK = "day of week";
+	public static final String HOUR_OF_DAY = "hour of day";
+	public static final String MINUTE_OF_HOUR = "minute of hour";
 	public static final String TOTAL_NUMBER_OF_AGENTS = "total number of agents";
 	public static final String LEISURE_AT_HOME_ALONE_ACTIVITY= "Leisure at home alone";
 	public static final String LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS = "Leisure at home with household members";

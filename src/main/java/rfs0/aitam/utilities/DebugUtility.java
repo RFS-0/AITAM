@@ -55,7 +55,7 @@ public final class DebugUtility {
 					new Font("SansSerif",Font.BOLD, 15),
 					LabelledPortrayal2D.ALIGN_LEFT,
 					null, 
-					ISimulationSettings.COLOR_OF_BUILDING, 
+					ISimulationSettings.COLOR_OF_INDIVIDUAL, 
 					false) {
 				private static final long serialVersionUID = 1L;
 				@Override

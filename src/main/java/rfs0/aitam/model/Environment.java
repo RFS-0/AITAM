@@ -564,6 +564,9 @@ public class Environment extends SimState {
 	 */
 	private void initOutput() {
 		m_outputHolder.put(ISimulationSettings.TIME_STAMP, m_simulationTime.getCurrentDateTime());
+		m_outputHolder.put(ISimulationSettings.DAY_OF_WEEK, m_simulationTime.getCurrentDateTime().getDayOfWeek());
+		m_outputHolder.put(ISimulationSettings.HOUR_OF_DAY, m_simulationTime.getCurrentDateTime().getHourOfDay());
+		m_outputHolder.put(ISimulationSettings.MINUTE_OF_HOUR, m_simulationTime.getCurrentDateTime().getMinuteOfHour());
 		m_outputHolder.put(ISimulationSettings.TOTAL_NUMBER_OF_AGENTS, 0);
 		for (ActivityCategory category: ActivityCategory.values()) {
 			m_outputHolder.put(category.toString(), 0);

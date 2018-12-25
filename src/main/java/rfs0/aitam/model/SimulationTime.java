@@ -37,7 +37,11 @@ public class SimulationTime implements Steppable {
 			System.out.println("Simulated: " + DATE_TIME_FORMATTER.print(m_dateTime));
 		}
 		m_dateTime = m_dateTime.plusMinutes(1); // increment time
-		((Environment) state).getOutputHolder().put(ISimulationSettings.TIME_STAMP, m_dateTime); // record current value
+		Environment environment = ((Environment) state);
+		environment.getOutputHolder().put(ISimulationSettings.TIME_STAMP, m_dateTime); // record time stamp
+		environment.getOutputHolder().put(ISimulationSettings.DAY_OF_WEEK, m_dateTime.getDayOfWeek()); // record day of week
+		environment.getOutputHolder().put(ISimulationSettings.HOUR_OF_DAY, m_dateTime.getHourOfDay()); // record hour of day
+		environment.getOutputHolder().put(ISimulationSettings.MINUTE_OF_HOUR, m_dateTime.getMinuteOfHour()); // record minute of hour
 	}
 	
 	/**

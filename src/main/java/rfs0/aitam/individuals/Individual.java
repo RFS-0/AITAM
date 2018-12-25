@@ -1088,7 +1088,8 @@ public class Individual {
 		}
 		if (availableActivities.size() > 0) {
 			Activity choosenActivity = availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
-			return new AbstractMap.SimpleImmutableEntry<Activity, Interval>(choosenActivity, availableIntervalInRealTime);
+			Interval choosenInterval = allCategoriesToIntervalSamples.get(choosenActivity.getActivityCategory());
+			return new AbstractMap.SimpleImmutableEntry<Activity, Interval>(choosenActivity, choosenInterval);
 		}
 		// none of the samples fitted
 		for (ActivityCategory availableCategory: allCategoriesToIntervalSamples.keySet()) {

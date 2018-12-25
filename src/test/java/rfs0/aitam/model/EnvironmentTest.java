@@ -10,8 +10,23 @@ import rfs0.aitam.settings.ISimulationSettings;
 import sim.engine.SimState;
 
 public class EnvironmentTest {
+	
+	public static final int MINUTES_IN_DAY = 1440;
+	
+	@Test
+	public void testDay() {
+		Environment environment = new Environment(1L);
+		environment.start();
+		
+		for (int i = 0; i < MINUTES_IN_DAY; i++) {
+			environment.schedule.step(environment);
+		}
+		
+		environment.finish();
+	}
 
 	@Test
+	@Ignore
 	public void testStepEnvironment() {
 		Environment environment = new Environment(1L);
 		environment.start();

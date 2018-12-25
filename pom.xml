@@ -53,13 +53,13 @@
     </dependency>
     <dependency>
         <groupId>mason</groupId>
-        <artifactId>geomason</artifactId>
-        <version>1.5</version>
-    </dependency>
-    <dependency>
-        <groupId>mason</groupId>
         <artifactId>mason</artifactId>
         <version>18</version>
+    </dependency>
+    <dependency>
+    	<groupId>mason</groupId>
+    	<artifactId>geomason</artifactId>
+    	<version>1.5</version>
     </dependency>
     <dependency>
         <groupId>portfolio</groupId>

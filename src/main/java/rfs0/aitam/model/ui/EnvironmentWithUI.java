@@ -108,7 +108,7 @@ public class EnvironmentWithUI extends GUIState {
 		m_display.attach(m_agentPortrayal, "Agents", true);
 		
 		// Activity chart
-		JFreeChart barChart = ChartFactory.createBarChart("Individual's Activity", "Activity", "Percentage", ((Environment) this.state).getActivityCategoryDataset(), PlotOrientation.VERTICAL, false, false, false);
+		JFreeChart barChart = ChartFactory.createBarChart("Aggregated Activities", "Activity Category", "Percentage", ((Environment) this.state).getActivityCategoryDataset(), PlotOrientation.VERTICAL, false, false, false);
 		barChart.setBackgroundPaint(Color.white);
 		barChart.getTitle().setPaint(Color.black);
 		CategoryPlot categoryPlot = barChart.getCategoryPlot();
@@ -142,7 +142,7 @@ public class EnvironmentWithUI extends GUIState {
 	}
 	
 	/**
-	 * <p>This method finshes the visualization.</p>
+	 * <p>This method finishes the visualization.</p>
 	 */
 	@Override
 	public void finish() {
@@ -169,10 +169,6 @@ public class EnvironmentWithUI extends GUIState {
 		tabbedInspector.addInspector(new SimpleInspector(environment.getSimulationTime(), this), "Time");
 		tabbedInspector.addInspector(new SimpleInspector(environment.getIndividuals(), this), "Individuals");
 		tabbedInspector.addInspector(new SimpleInspector(environment.getAllActivities(), this), "Activities");
-		tabbedInspector.addInspector(new SimpleInspector(environment.getEdgeTraffic(), this), "Traffic");
-		tabbedInspector.addInspector(new SimpleInspector(environment.getIndividualsField(), this), "Individuals field");
-		tabbedInspector.addInspector(new SimpleInspector(environment.getBuildingsField(), this), "Buildings field");
-		tabbedInspector.addInspector(new SimpleInspector(environment.getPathField(), this), "Paths field");
 		return tabbedInspector;
 	}
 
@@ -184,7 +180,7 @@ public class EnvironmentWithUI extends GUIState {
 	public static void main(String[] args) {
 		EnvironmentWithUI environmentGui = null;
 		try {
-			environmentGui = new EnvironmentWithUI();
+			environmentGui = new EnvironmentWithUI(1L);
 		} catch (ParseException e) {
 			Logger.getLogger(EnvironmentWithUI.class.getName()).log(Level.SEVERE, "Can not create simulation", e);
 		}
