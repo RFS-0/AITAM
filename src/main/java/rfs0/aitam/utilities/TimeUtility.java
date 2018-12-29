@@ -82,7 +82,7 @@ public final class TimeUtility {
 		else {
 			preceding = intervalIterator.next();
 		}
-		// only one interval planned and it does not cover the whole day
+		// only one interval planned and it covers the whole day
 		if (preceding.getStart().equals(startOfCurrentDay) && preceding.getEnd().equals(endOfCurrentDay)) {
 			return true;
 		}
@@ -101,7 +101,7 @@ public final class TimeUtility {
 			// last planned interval
 			if (!intervalIterator.hasNext()) {
 				// end is at end of day -> covers whole day
-				if (latter.getEnd().equals(endOfCurrentDay) || latter.getEnd().isAfter(endOfCurrentDay)) {
+				if (latter.getEnd().equals(endOfCurrentDay) && latter.getEnd().isAfter(endOfCurrentDay)) {
 					return true;
 				}
 				// end is before end of day -> does not cover whole day
