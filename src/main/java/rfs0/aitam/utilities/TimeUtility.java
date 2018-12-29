@@ -63,6 +63,7 @@ public final class TimeUtility {
 	public static boolean isDayFullyPlanned(Environment environment, ActivityAgenda randomAgenda) {
 		DateTime currentTime = environment.getSimulationTime().getCurrentDateTime();
 		DateTime endOfCurrentDay = TimeUtility.getEndOfCurrentDay(currentTime);
+		DateTime startOfCurrentDay = TimeUtility.getStartOfCurrentDay(currentTime);
 		// nothing planned yet 
 		if (randomAgenda.getFirstPlannedInterval() == null) {
 			return false;
@@ -81,8 +82,8 @@ public final class TimeUtility {
 		else {
 			preceding = intervalIterator.next();
 		}
-		// only one interval planned and it does not cover rest of day
-		if (preceding.getEnd().equals(endOfCurrentDay)) {
+		// only one interval planned and it does not cover the whole day
+		if (preceding.getStart().equals(startOfCurrentDay) && preceding.getEnd().equals(endOfCurrentDay)) {
 			return true;
 		}
 		else if (!intervalIterator.hasNext()) {
