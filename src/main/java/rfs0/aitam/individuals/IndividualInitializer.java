@@ -22,7 +22,6 @@ import sim.util.geo.MasonGeometry;
 /**
  * <p>This class is used to initialize all activities. 
  * The details of all the activities available in the simulation can be found in {@link ActivityInitializer} resp. <a href="activity_configuration.xlsx">the activity configuration file</a>.</p>
- * As indicated by the usage of static methods and variables, this class is designed to be used statically.
  * It requires the following attributes:</p>
  * 
  * <p><b>Environment</b></p>
@@ -36,7 +35,7 @@ import sim.util.geo.MasonGeometry;
  * 
  * <p><b>Individuals</b></p>
  * 
- * <p> {@link IndividualInitializer#ALL_INDIVIDUALS}: A list containing all individuals built by this initializer.</p>
+ * <p> {@link IndividualInitializer#m_allIndividuals}: A list containing all individuals built by this initializer.</p>
  *
  */
 public final class IndividualInitializer {
@@ -67,9 +66,9 @@ public final class IndividualInitializer {
 	 */
 	
 	/**
-	 * <p> {@link IndividualInitializer#ALL_INDIVIDUALS}: A list containing all individuals built by this initializer.</p>
+	 * <p> {@link IndividualInitializer#m_allIndividuals}: A list containing all individuals built by this initializer.</p>
 	 */
-	public static ArrayList<Individual> ALL_INDIVIDUALS = new ArrayList<>();
+	private ArrayList<Individual> m_allIndividuals = new ArrayList<>();
 
 	public IndividualInitializer() {}
 	
@@ -82,22 +81,22 @@ public final class IndividualInitializer {
 	 * @param environment - a reference to the environment for which the individuals are initialized
 	 * @return ArrayList<Individual> - the list 
 	 */
-	public static ArrayList<Individual> initIndividuals(Environment environment) {
+	public ArrayList<Individual> initIndividuals(Environment environment) {
 		s_environment = environment;
 		initBasicIndividuals();
 		initHouseholdAndFamilyRelatedAspects();
 		initWorkRelatedAspects();
 		initLeisureRelatedAspects();
 		initTargetNeedTimeSplits();
-		return ALL_INDIVIDUALS;
+		return m_allIndividuals;
 	}
 	
 	/**
 	 * <p>This method initializes the configured number of individuals, but only sets the most basic attributes.</p>
 	 */
-	private static void initBasicIndividuals( ) {
+	private void initBasicIndividuals( ) {
 		for (int i = 0; i < ISimulationSettings.NUMBER_OF_INDIVIDUALS; i++) {
-			ALL_INDIVIDUALS.add(INDIVIDUAL_BUILDER
+			m_allIndividuals.add(INDIVIDUAL_BUILDER
 					.withEnvironment(s_environment)
 					.withId(i)
 					.build());
@@ -107,7 +106,7 @@ public final class IndividualInitializer {
 	/**
 	 * <p>This method initializes all the household and family related aspects of the individuals.</p>
 	 */
-	private static void initHouseholdAndFamilyRelatedAspects() {
+	private void initHouseholdAndFamilyRelatedAspects() {
 		ArrayList<Integer> initRange = geRangeOfIndividualsToInitialize();
 		int networkId = 0;
 		ArrayList<MasonGeometry> availableBuildings = getAvailableBuildingsForActivityCategory(s_environment, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
@@ -121,7 +120,7 @@ public final class IndividualInitializer {
 			ArrayList<MasonGeometry> otherPlaceForHouseholdAndFamilyCareBuildings = determineBuildingsForCategoryWithinDistance(availableBuildings, homeBuilding, ISimulationSettings.MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE, ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE);
 			for (Integer houseHoldMemberIndex: householdMembersIndices) {
 				INDIVIDUAL_BUILDER
-					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(houseHoldMemberIndex))
+					.adjust(m_allIndividuals.get(houseHoldMemberIndex))
 					.withHomeBuilding(homeBuilding)
 					.withHousholdMembersNetworkId(networkId)
 					.withHousholdMembersNetwork(householdNetwork)
@@ -135,7 +134,7 @@ public final class IndividualInitializer {
 	/**
 	 * <p>This method initializes all work related aspects of the individuals.</p>
 	 */
-	private static void initWorkRelatedAspects() {
+	private void initWorkRelatedAspects() {
 		ArrayList<Integer> initRange = geRangeOfIndividualsToInitialize();
 		int networkId = 0;
 		ArrayList<MasonGeometry> availableBuildings = getAvailableBuildingsForActivityCategory(s_environment, ActivityCategory.WORK);
@@ -146,7 +145,7 @@ public final class IndividualInitializer {
 			ArrayList<MasonGeometry> otherPlaceForWorkBuildings = determineBuildingsForCategoryWithinDistance(availableBuildings, workBuilding, ISimulationSettings.MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK, ActivityCategory.WORK);
 			for (Integer workCollegueIndex: workColleguesIndices) {
 				INDIVIDUAL_BUILDER
-					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(workCollegueIndex))
+					.adjust(m_allIndividuals.get(workCollegueIndex))
 					.withWorkPlaceBuilding(workBuilding)
 					.withWorkColleguesNetworkId(networkId)
 					.withWorkColleguesNetwork(workColleguesNetwork)
@@ -160,7 +159,7 @@ public final class IndividualInitializer {
 	/**
 	 * <p>This method initializes all leisure related aspects of the individuals.</p>
 	 */
-	private static void initLeisureRelatedAspects() {
+	private void initLeisureRelatedAspects() {
 		ArrayList<Integer> initRange = geRangeOfIndividualsToInitialize();
 		int networkId = 0;
 		ArrayList<MasonGeometry> availableBuildings = getAvailableBuildingsForActivityCategory(s_environment, ActivityCategory.LEISURE);
@@ -171,7 +170,7 @@ public final class IndividualInitializer {
 			ArrayList<MasonGeometry> otherPlaceForLeisureBuildings = determineBuildingsForCategoryWithinDistance(availableBuildings, leisureBuilding, ISimulationSettings.MAX_DISTANCE_TO_OTHER_PLACES_FOR_LEISURE, ActivityCategory.LEISURE);
 			for (Integer friendIndex: friendsIndices) {
 				INDIVIDUAL_BUILDER
-					.adjust(IndividualInitializer.ALL_INDIVIDUALS.get(friendIndex))
+					.adjust(m_allIndividuals.get(friendIndex))
 					.withLeisureBuilding(leisureBuilding)
 					.withFriendsNetworkId(networkId)
 					.withFriendsNetwork(friendsNetwork)
@@ -185,8 +184,8 @@ public final class IndividualInitializer {
 	/**
 	 * <p>This method initializes all target need time split related aspects of the individuals.</p>
 	 */
-	private static void initTargetNeedTimeSplits() {
-		for (Individual individual: ALL_INDIVIDUALS) {
+	private void initTargetNeedTimeSplits() {
+		for (Individual individual: m_allIndividuals) {
 			INDIVIDUAL_BUILDER
 					.adjust(individual)
 					.withTargetNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
@@ -210,10 +209,10 @@ public final class IndividualInitializer {
 	 * @param membersIndices - a list of ids of individuals which are part of the network.
 	 * @return Network - a network with all individuals as nodes but without edges linking them. 
 	 */
-	private static Network createNetworkForMemberIndices(ArrayList<Integer> membersIndices) {
+	private Network createNetworkForMemberIndices(ArrayList<Integer> membersIndices) {
 		Network network = new Network();
 		for (Integer memberIndex: membersIndices) {
-			network.addNode(IndividualInitializer.ALL_INDIVIDUALS.get(memberIndex));
+			network.addNode(m_allIndividuals.get(memberIndex));
 		}
 		return network;
 	}
@@ -230,7 +229,7 @@ public final class IndividualInitializer {
 	 * @param maxNumberOfNetworkMembers - the maximum number of individuals in this network.
 	 * @return ArrayList<Integer> - a list of all individuals which will be part of the network.
 	 */
-	private static ArrayList<Integer> determineNetworkMembers(ArrayList<Integer> remainingInitRange, int minNumberOfNetworkMembers, int maxNumberOfNetworkMembers) {
+	private ArrayList<Integer> determineNetworkMembers(ArrayList<Integer> remainingInitRange, int minNumberOfNetworkMembers, int maxNumberOfNetworkMembers) {
 		ArrayList<Integer> networkMembers = new ArrayList<>();
 		int max = Math.max(maxNumberOfNetworkMembers - minNumberOfNetworkMembers, minNumberOfNetworkMembers);
 		int numberOfHouseholdMembers = minNumberOfNetworkMembers + s_environment.random.nextInt(max);
@@ -249,7 +248,7 @@ public final class IndividualInitializer {
 	 * 
 	 * @return ArrayList<Integer> - a list with an id for each of the individuals.
 	 */
-	private static ArrayList<Integer> geRangeOfIndividualsToInitialize() {
+	private ArrayList<Integer> geRangeOfIndividualsToInitialize() {
 		return IntStream.range(0, ISimulationSettings.NUMBER_OF_INDIVIDUALS).boxed().collect(Collectors.toCollection(ArrayList::new));
 	}
 	
@@ -262,7 +261,7 @@ public final class IndividualInitializer {
 	 * @param activityCategory - the activity category for which this building will be used for.
 	 * @return MasonGeometry - the building chosen.
 	 */
-	private static MasonGeometry determineLocationForCategory(ArrayList<MasonGeometry> availableBuildings, ActivityCategory activityCategory) {
+	private MasonGeometry determineLocationForCategory(ArrayList<MasonGeometry> availableBuildings, ActivityCategory activityCategory) {
 		int indexOfChoosenLocation = s_environment.random.nextInt(availableBuildings.size());
 		MasonGeometry choosenLocation = availableBuildings.remove(indexOfChoosenLocation);
 		choosenLocation.addAttribute(ISimulationSettings.ATTRIBUTE_FOR_ACTIVITY_CATEGORY, activityCategory);
@@ -278,7 +277,7 @@ public final class IndividualInitializer {
 	 * @param activityCategory - the activity category which the selected buildings will be allocated.
 	 * @return ArrayList<MasonGeometry> - a list of all the selected buildings with the provided activity category set.
 	 */
-	private static ArrayList<MasonGeometry> determineBuildingsForCategoryWithinDistance(ArrayList<MasonGeometry> availableBuildings, MasonGeometry building, double distance, ActivityCategory activityCategory) {
+	private ArrayList<MasonGeometry> determineBuildingsForCategoryWithinDistance(ArrayList<MasonGeometry> availableBuildings, MasonGeometry building, double distance, ActivityCategory activityCategory) {
 		ArrayList<MasonGeometry> buildingsForCategory = new ArrayList<>();
 		try {
 			int numberOfBuildingsConfiguredForActivityCategory = -1;
@@ -319,7 +318,7 @@ public final class IndividualInitializer {
 	 * @param activityCategory
 	 * @return
 	 */
-	public static ArrayList<MasonGeometry> getAvailableBuildingsForActivityCategory(Environment environment, ActivityCategory activityCategory) {
+	public ArrayList<MasonGeometry> getAvailableBuildingsForActivityCategory(Environment environment, ActivityCategory activityCategory) {
 		ArrayList<MasonGeometry> availableBuildings = new ArrayList<>();  
 		for (Object geometry: s_environment.getBuildingsField().getGeometries()) {
 			  if (geometry instanceof MasonGeometry) {
@@ -330,5 +329,12 @@ public final class IndividualInitializer {
 			  }
 		  }
 		return availableBuildings;
+	}
+	
+	/**
+	 * @category Getters and setters
+	 */
+	ArrayList<Individual> getAllIndividuals() {
+		return m_allIndividuals;
 	}
 }

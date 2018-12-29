@@ -82,7 +82,7 @@ import sim.util.geo.PointMoveTo;
  * <p><b>Note:</b> Individuals can only travel along paths of the path network (i.e. they never leave the path network) and thus instead of using the actual building 
  * as target location the simulation uses the node on the path network which is closest to the building as a proxy for the building. This makes handling travel
  * much easier. You can use {@link Environment#BUILDING_TO_CLOSEST_NODE_MAP} to retrieve the node which is closest to some building you are interested in. 
- * Furthermore, you can use {@link Environment#NODE_TO_CLOSEST_BUILDING_MAP} to retrieve the building which is closest to some node you are interested in.</p>
+ * Furthermore, you can use {@link Environment#m_nodeToClosestBuildingMap} to retrieve the building which is closest to some node you are interested in.</p>
  * 
  * <p>{@link Individual#m_homeNode}: The node on the path network which is closest to the individuals home building. It serves as a proxy for the individuals home.</p>
  * <p>{@link Individual#m_otherPlacesForHouseholdAndFamilyCareNodes}: A list of all other places (in addition to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
@@ -357,7 +357,7 @@ public class Individual {
 
 		/**
 		 * <p>Each {@link Individual} must have a home and this method sets it for {@link Builder#individualToBuild}.
-		 * More specificallly, the node on the path network which is closest to the individuals home building will be used as home. 
+		 * More specifically, the node on the path network which is closest to the individuals home building will be used as home. 
 		 * Thus, it serves as a proxy for the individuals home.
 		 * Since the home is also the starting point of all individuals, all variables referring to the individuals location will be initialized with the 
 		 * home location as well.</p>
@@ -367,8 +367,8 @@ public class Individual {
 		 */
 		public Builder withHomeBuilding(MasonGeometry homeBuilding) {
 			String warningMessage = "Home location is invalid. The built individual may be unusable!";
-			validate(homeBuilding.getGeometry().getCoordinate(), warningMessage);
-			Node homeNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(homeBuilding);
+			validate(homeBuilding.getGeometry(), warningMessage);
+			Node homeNode = individualToBuild.m_environment.getClosestNodeToBuilding(homeBuilding);
 			Coordinate currentLocationPoint = new Coordinate(homeNode.getCoordinate());
 			individualToBuild.m_currentLocationPoint = new MasonGeometry(Environment.GEO_FACTORY.createPoint(currentLocationPoint));
 			individualToBuild.m_currentLocationPoint.isMovable = true;
@@ -380,7 +380,7 @@ public class Individual {
 		
 		/**
 		 * <p>Each {@link Individual} must have at least one other place for household and family care related activities and this method sets it for {@link Builder#individualToBuild}.
-		 * This attribute represents a list of all other places (in addtion to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
+		 * This attribute represents a list of all other places (in addition to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
 		 * 
 		 * @param otherPlaceForHouseholdAndFamilyCareBuildings - a list of other locations where the indvidual can execute activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}.
 		 * @return {@link Builder} - builder with the other places for household and family care set for {@link Builder#individualToBuild}.
@@ -390,7 +390,7 @@ public class Individual {
 			ArrayList<Node> otherPlaceForHouseholdAndFamilyCareNodes = new ArrayList<>();
 			for (MasonGeometry otherPlaceForHouseholdAndFamilyCareBuilding: otherPlaceForHouseholdAndFamilyCareBuildings) {
 				validate(otherPlaceForHouseholdAndFamilyCareBuilding.getGeometry().getCoordinate(), warningMessage);
-				Node thirdPlaceForHouseholdAndFamilyCareNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(otherPlaceForHouseholdAndFamilyCareBuilding);
+				Node thirdPlaceForHouseholdAndFamilyCareNode = individualToBuild.m_environment.getClosestNodeToBuilding(otherPlaceForHouseholdAndFamilyCareBuilding);
 				otherPlaceForHouseholdAndFamilyCareNodes.add(thirdPlaceForHouseholdAndFamilyCareNode);
 			}
 			individualToBuild.m_otherPlacesForHouseholdAndFamilyCareNodes = otherPlaceForHouseholdAndFamilyCareNodes;
@@ -399,7 +399,7 @@ public class Individual {
 		
 		/**
 		 * <p>Each {@link Individual} must have a work place and this method sets it for {@link Builder#individualToBuild}.
-		 * More specifially, the node on the path network which is closest to the individuals work place building will be used as work place. 
+		 * More specifically, the node on the path network which is closest to the individuals work place building will be used as work place. 
 		 * Thus, it serves as a proxy for the individuals work place.</p>
 		 * 
 		 * @param workPlaceBuilding -The {@link MasonGeometry} that represents the building where the individual works.
@@ -408,7 +408,7 @@ public class Individual {
 		public Builder withWorkPlaceBuilding(MasonGeometry workPlaceBuilding) {
 			String warningMessage = "The work place building is invalid. The built individual may be unusable!";
 			validate(workPlaceBuilding.getGeometry().getCoordinate(), warningMessage);
-			Node workPlaceNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(workPlaceBuilding);
+			Node workPlaceNode = individualToBuild.m_environment.getClosestNodeToBuilding(workPlaceBuilding);
 			validate(workPlaceNode, warningMessage);
 			individualToBuild.m_workPlaceNode = workPlaceNode;
 			return this;
@@ -418,7 +418,7 @@ public class Individual {
 		 * <p>Each {@link Individual} must have at least one other place for work related activities and this method sets it for {@link Builder#individualToBuild}.
 		 * This attribute represents a list of all other places (in addition to the work place) where activities of {@link ActivityCategory#WORK} can be executed.</p>
 		 * 
-		 * @param otherPlaceForWorkBuildings - a list of other locations where the indvidual can execute activities of {@link ActivityCategory#WORK}.
+		 * @param otherPlaceForWorkBuildings - a list of other locations where the individual can execute activities of {@link ActivityCategory#WORK}.
 		 * @return {@link Builder} - builder with the other places for work place set for {@link Builder#individualToBuild}.
 		 */
 		public Builder withOtherPlaceForWorkBuildings(ArrayList<MasonGeometry> otherPlaceForWorkBuildings) {
@@ -426,7 +426,7 @@ public class Individual {
 			ArrayList<Node> otherPlaceForWorkNodes = new ArrayList<>();
 			for (MasonGeometry otherPlaceForWorkBuilding: otherPlaceForWorkBuildings) {
 				validate(otherPlaceForWorkBuilding.getGeometry().getCoordinate(), warningMessage);
-				Node otherPlaceForWorkNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(otherPlaceForWorkBuilding);
+				Node otherPlaceForWorkNode = individualToBuild.m_environment.getClosestNodeToBuilding(otherPlaceForWorkBuilding);
 				otherPlaceForWorkNodes.add(otherPlaceForWorkNode);
 			}
 			individualToBuild.m_otherPlacesForWorkNodes = otherPlaceForWorkNodes;
@@ -442,7 +442,7 @@ public class Individual {
 		public Builder withLeisureBuilding(MasonGeometry leisureBuilding) {
 			String warningMessage = "The place for leisure is invalid. The built individual may be unusable!";
 			validate(leisureBuilding.getGeometry().getCoordinate(), warningMessage);
-			Node leisureNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(leisureBuilding);
+			Node leisureNode = individualToBuild.m_environment.getClosestNodeToBuilding(leisureBuilding);
 			validate(leisureNode, warningMessage);
 			individualToBuild.m_leisureNode = leisureNode;
 			return this;
@@ -451,7 +451,7 @@ public class Individual {
 		/**
 		 * <p>Each {@link Individual} must have at least one other place for leisure related activities and this method sets it for {@link Builder#individualToBuild}.</p>
 		 * 
-		 * @param otherPlaceForLeisureBuildings - a list of other locations where the indvidual can execute activities of {@link ActivityCategory#LEISURE}.
+		 * @param otherPlaceForLeisureBuildings - a list of other locations where the individual can execute activities of {@link ActivityCategory#LEISURE}.
 		 * @return {@link Builder} - builder with the other locations for leisure activities set for {@link Builder#individualToBuild}.
 		 */
 		public Builder withOtherPlaceForLeisureBuildings(ArrayList<MasonGeometry> otherPlaceForLeisureBuildings) {
@@ -459,7 +459,7 @@ public class Individual {
 			ArrayList<Node> otherPlaceForLeisureNodes = new ArrayList<>();
 			for (MasonGeometry otherPlaceForLeisureBuilding: otherPlaceForLeisureBuildings) {
 				validate(otherPlaceForLeisureBuilding.getGeometry().getCoordinate(), warningMessage);
-				Node thirdPlaceForLeisureNode = Environment.BUILDING_TO_CLOSEST_NODE_MAP.get(otherPlaceForLeisureBuilding);
+				Node thirdPlaceForLeisureNode = individualToBuild.m_environment.getClosestNodeToBuilding(otherPlaceForLeisureBuilding);
 				otherPlaceForLeisureNodes.add(thirdPlaceForLeisureNode);
 			}
 			individualToBuild.m_otherPlacesForLeisureNodes = otherPlaceForLeisureNodes;
@@ -1025,8 +1025,8 @@ public class Individual {
 	 */
 	public void planIndividualActivities() {
 		long start = System.nanoTime();
-		m_allDayPlans.clear();
 		int numberOfDiscardedPlans = 0;
+		m_allDayPlans.clear();
 		while (m_allDayPlans.size() < ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE) {
 			ActivityAgenda randomAgenda = ActivityAgenda.newInstance(m_activityAgenda);
 			while (!TimeUtility.isDayFullyPlanned(m_environment, randomAgenda)) {
@@ -1338,9 +1338,21 @@ public class Individual {
 	public void move() {
 		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
 		m_currentActivity = m_activityAgenda.getActivityForDateTime(currentDateTime);
-		m_currentTargetNode = m_activityAgenda.getNodeForDateTime(currentDateTime);
+		if (m_activityAgenda.getNodeForDateTime(currentDateTime) == null) {
+			// TODO: this should not happen -> log error and see what is causing it
+			// current approach to handle this issue is to keep the old target node if no new one can be identified.
+			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, String.format("Could not retrieve next target node (is null)! Got values the following values:\n"
+					+ "simulation time = %s\n"
+					+ "m_currentActivity = %s\n"
+					+ "m_activityAgenda = \n"
+					+ "%s", String.valueOf(currentDateTime), String.valueOf(m_currentActivity), String.valueOf(m_activityAgenda.getAgenda())));
+		}
+		else {
+			m_currentTargetNode = m_activityAgenda.getNodeForDateTime(currentDateTime);
+		}
 		if (ISimulationSettings.IS_DEBUG) {
-			Environment.NODE_TO_CLOSEST_BUILDING_MAP.get(m_currentTargetNode).getGeometry().setUserData(DebugUtility.createLabelledPortrayal2DForBuilding(m_id, m_currentActivity));
+			// removed: && m_environment.getClosestBuildingToNode(m_currentTargetNode) != null -> should not be necessary at this point
+			m_environment.getClosestBuildingToNode(m_currentTargetNode).getGeometry().setUserData(DebugUtility.createLabelledPortrayal2DForBuilding(m_id, m_currentActivity));
 		}
 		// check if target has been reached
 		if (!m_currentNode.getCoordinate().equals(m_currentTargetNode.getCoordinate())) {

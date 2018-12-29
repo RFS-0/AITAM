@@ -50,8 +50,8 @@ import sim.util.geo.MasonGeometry;
  * 
  * <p><b>Buildings and nodes</b></p>
  * 
- * <p> {@link Environment#BUILDING_TO_CLOSEST_NODE_MAP}: This map contains the closest node for each of the buildings.</p>
- * <p> {@link Environment#NODE_TO_CLOSEST_BUILDING_MAP}: A reversed mapping form node to their closest building. Contains only nodes that are closest to some building.</p>
+ * <p> {@link Environment#m_buildingToClosestNodeMap}: This map contains the closest node for each of the buildings.</p>
+ * <p> {@link Environment#m_nodeToClosestBuildingMap}: A reversed mapping form node to their closest building. Contains only nodes that are closest to some building.</p>
  * 
  * <p><b>Activities</b></p>
  * 
@@ -104,11 +104,11 @@ public class Environment extends SimState {
 	 * 
 	 * <p>This map contains the closest node for each of the buildings.</p>
 	 */
-	public static HashMap<MasonGeometry, Node> BUILDING_TO_CLOSEST_NODE_MAP = new HashMap<>();
+	private HashMap<MasonGeometry, Node> m_buildingToClosestNodeMap = new HashMap<>();
 	/**
 	 * <p>A reversed mapping form node to their closest building. Contains only nodes that are closest to some building./p>
 	 */
-	public static HashMap<Node, MasonGeometry> NODE_TO_CLOSEST_BUILDING_MAP = new HashMap<>();
+	private HashMap<Node, MasonGeometry> m_nodeToClosestBuildingMap = new HashMap<>();
 	
 	/**
 	 *  @category Activities
@@ -522,7 +522,7 @@ public class Environment extends SimState {
 	private void initIndividuals() {
 		System.out.println("Initializing individuals...");
 		long start = System.nanoTime();
-		m_individuals = IndividualInitializer.initIndividuals(this);
+		m_individuals = new IndividualInitializer().initIndividuals(this);
 		for (Individual individual: m_individuals) {
 			m_individualsField.addGeometry(individual.getCurrentLocationPoint());
 			
@@ -538,7 +538,7 @@ public class Environment extends SimState {
 		System.out.println("Initializing buildings...");
 		long start = System.nanoTime();
 		initBuildingToClosestNodeMap();
-		System.out.println(String.format("Initialized buildings in %d ms", (System.nanoTime() - start) / 1000000));
+		System.out.println(String.format("Initialized buildings %d in %d ms", m_buildingToClosestNodeMap.size(), (System.nanoTime() - start) / 1000000));
 	}
 	
 	/**
@@ -554,8 +554,8 @@ public class Environment extends SimState {
 				closestNodeToBuilding = getClosestNodeToBuilding(building, pathsWithinDistance);
 				searchDistance += 1;
 			}
-			BUILDING_TO_CLOSEST_NODE_MAP.put(building, closestNodeToBuilding);
-			NODE_TO_CLOSEST_BUILDING_MAP.put(closestNodeToBuilding, building);
+			m_buildingToClosestNodeMap.put(building, closestNodeToBuilding);
+			m_nodeToClosestBuildingMap.put(closestNodeToBuilding, building);
 		}
 	}
 	
@@ -667,5 +667,21 @@ public class Environment extends SimState {
 
 	public HashMap<ActivityCategory, ArrayList<Activity>> getCategoryToActivities() {
 		return m_activityCategoryToActivitiesyMap;
+	}
+	
+	public HashMap<MasonGeometry, Node> getBuildingToClosestNodeMap() {
+		return m_buildingToClosestNodeMap;
+	}
+	
+	public Node getClosestNodeToBuilding(MasonGeometry building) {
+		return m_buildingToClosestNodeMap.get(building);
+	}
+	
+	public HashMap<Node, MasonGeometry> getNodeToClosestBuildingMap() {
+		return m_nodeToClosestBuildingMap;
+	}
+	
+	public MasonGeometry getClosestBuildingToNode(Node node) {
+		return m_nodeToClosestBuildingMap.get(node);
 	}
 }
