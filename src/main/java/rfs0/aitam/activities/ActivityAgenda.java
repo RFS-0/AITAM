@@ -84,6 +84,16 @@ public class ActivityAgenda implements Cloneable {
 		return new ActivityAgenda(activtyAgenda.getAgenda(), activtyAgenda.getNodes());
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Activities:\n");
+		sb.append(m_agenda.toString());
+		sb.append("Locations:\n");
+		sb.append(m_locations.toString());
+		return super.toString();
+	}
+	
 	/**
 	 * This method is used to add a new activity for some interval to the agenda.
 	 * 
