@@ -206,7 +206,17 @@ public class Environment extends SimState {
 	public void start() {
 		super.start();
 		for (Individual individual: getIndividuals()) {
-			schedule.scheduleRepeating(0.0, 0, new Steppable() {			
+			schedule.scheduleRepeating(0.0, 0, new Steppable() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void step(SimState state) {
+					Environment environment = (Environment) state;
+					if (environment.getSimulationTime().getCurrentTime().equals(ISimulationSettings.START_OF_DAY)) {
+						individual.initNewDay();
+					}
+				}
+			});
+			schedule.scheduleRepeating(0.0, 10, new Steppable() {			
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
@@ -215,7 +225,7 @@ public class Environment extends SimState {
 					}
 				}
 			});
-			schedule.scheduleRepeating(0.0, 1, new Steppable() {			
+			schedule.scheduleRepeating(0.0, 20, new Steppable() {			
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
@@ -224,7 +234,7 @@ public class Environment extends SimState {
 					}
 				}
 			});
-			schedule.scheduleRepeating(0.0, 2, new Steppable() {			
+			schedule.scheduleRepeating(0.0, 30, new Steppable() {			
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
@@ -233,7 +243,7 @@ public class Environment extends SimState {
 					}
 				}
 			});
-			schedule.scheduleRepeating(0.0, 3, new Steppable() {			
+			schedule.scheduleRepeating(0.0, 40, new Steppable() {			
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
@@ -242,34 +252,24 @@ public class Environment extends SimState {
 					}
 				}
 			});
-			schedule.scheduleRepeating(0.0, 4, new Steppable() {
+			schedule.scheduleRepeating(0.0, 50, new Steppable() {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
 					individual.move();
 				}
 			});
-			schedule.scheduleRepeating(0.0, 5, new Steppable() {
+			schedule.scheduleRepeating(0.0, 60, new Steppable() {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
 					individual.executeActivity();
 				}
 			});
-			schedule.scheduleRepeating(0.0, Integer.MAX_VALUE, new Steppable() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public void step(SimState state) {
-					Environment environment = (Environment) state;
-					if (environment.getSimulationTime().getCurrentTime().equals(ISimulationSettings.END_OF_DAY)) {
-						individual.initNewDay();
-					}
-				}
-			});
 		}
-		schedule.scheduleRepeating(0.0, 10, m_individualsField.scheduleSpatialIndexUpdater());
+		schedule.scheduleRepeating(0.0, 70, m_individualsField.scheduleSpatialIndexUpdater());
 		// update attributes for simulation output
-		schedule.scheduleRepeating(0.0, 11, new Steppable() {
+		schedule.scheduleRepeating(0.0, 80, new Steppable() {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public void step(SimState state) {
@@ -287,8 +287,8 @@ public class Environment extends SimState {
 					}
 				}
 		});
-		schedule.scheduleRepeating(0.0, 12, m_environmentObserver);
-		schedule.scheduleRepeating(0.0, 13, m_simulationTime);
+		schedule.scheduleRepeating(0.0, 90, m_environmentObserver);
+		schedule.scheduleRepeating(0.0, 100, m_simulationTime);
 	}
 	
 	/**

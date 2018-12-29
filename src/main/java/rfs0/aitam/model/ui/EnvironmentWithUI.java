@@ -34,7 +34,7 @@ import sim.portrayal.simple.LabelledPortrayal2D;
 import sim.util.geo.MasonGeometry;
 
 /**
- * <p>This class is used to visalize the {@link Environment}.
+ * <p>This class is used to visualize the {@link Environment}.
  * As such it requires the following attributes:</p>
  * 
  * <p><b>Visualization</b></p>
@@ -78,7 +78,7 @@ public class EnvironmentWithUI extends GUIState {
 	private GeomVectorFieldPortrayal m_agentPortrayal = new GeomVectorFieldPortrayal();
 
 	public EnvironmentWithUI() throws ParseException {
-		super(new Environment(1L));
+		super(new Environment(ISimulationSettings.SEED));
 	}
 
 	public EnvironmentWithUI(SimState state) {
@@ -180,7 +180,7 @@ public class EnvironmentWithUI extends GUIState {
 	public static void main(String[] args) {
 		EnvironmentWithUI environmentGui = null;
 		try {
-			environmentGui = new EnvironmentWithUI(1L);
+			environmentGui = new EnvironmentWithUI(ISimulationSettings.SEED);
 		} catch (ParseException e) {
 			Logger.getLogger(EnvironmentWithUI.class.getName()).log(Level.SEVERE, "Can not create simulation", e);
 		}

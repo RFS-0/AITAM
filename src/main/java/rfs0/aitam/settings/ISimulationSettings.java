@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.math3.distribution.AbstractRealDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.random.MersenneTwister;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
@@ -26,6 +27,20 @@ import sim.util.geo.MasonGeometry;
 public interface ISimulationSettings {
 		
 	
+	/**
+	 * @category Configuration of aspects related to randomness.
+	 * 
+	 * <p>This section contains all constants used to configure or handle aspects related to randomness.</p>
+	 * 
+	 * <p>{@link ISimulationSettings#SEED}: The seed used for all random number generators.</p>
+	 * <p>{@link ISimulationSettings#RANDOM_NUMBER_GENERATOR}: The random number generator used to sample activity durations.</p>
+	 */
+	public static final long SEED = 1L;
+	/**
+	 * <p>The random number generator used to sample activity durations.</p>
+	 */
+	public static final MersenneTwister RANDOM_NUMBER_GENERATOR = new MersenneTwister(SEED);
+		
 	/**
 	 * @category Configuration of data representing the {@link Environment}<p>
 	 * 
@@ -400,7 +415,7 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#LEISURE}.
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_LEISURE_DURATION = new NormalDistribution(MEAN_OF_LEISURE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION);
+	public static final NormalDistribution DISTRIBUTION_OF_LEISURE_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_LEISURE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION);
 	/**
 	 * <p>The mean duration of activities in {@link ActivityCategory#WORK} in minutes.</p>
 	 */
@@ -412,7 +427,7 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#WORK}.
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_WORK_DURATION = new NormalDistribution(MEAN_OF_WORK_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION);
+	public static final NormalDistribution DISTRIBUTION_OF_WORK_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_WORK_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION);
 	/**
 	 * <p>The mean duration of activities in {@link ActivityCategory#PERSONAL_CARE} in minutes.</p>
 	 */
@@ -425,7 +440,7 @@ public interface ISimulationSettings {
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#PERSONAL_CARE}.
 	 * It is used to sample durations for this category.</p>
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_PERSONAL_CARE_DURATION = new NormalDistribution(MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION);
+	public static final NormalDistribution DISTRIBUTION_OF_PERSONAL_CARE_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION);
 	/**
 	 * <p>The mean duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.</p>
 	 */
@@ -437,7 +452,32 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}. It is used to sample durations for this category.</p>
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION = new NormalDistribution(MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION);
+	public static final NormalDistribution DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION);
+	/**
+	 * <p>The mean duration of activities in {@link ActivityCategory#SLEEP_AND_REST} in minutes.</p>
+	 */
+	public static final double MEAN_OF_SLEEP_AND_REST_ACTIVITY_DURATION = 420;
+	/**
+	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#SLEEP_AND_REST} in minutes.</p>
+	 */
+	public static final double STANDARD_DEVIATION_OF_SLEEP_AND_REST_ACTIVITY_DURATION = 60;
+	/**
+	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#SLEEP_AND_REST}. It is used to sample durations for this category.</p>
+	 */
+	public static final NormalDistribution DISTRIBUTION_OF_SLEEP_AND_REST_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_SLEEP_AND_REST_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_SLEEP_AND_REST_ACTIVITY_DURATION);	
+	
+	/**
+	 * <p>The mean duration of activities in {@link ActivityCategory#IDLE} in minutes.</p>
+	 */
+	public static final double MEAN_OF_IDLE_ACTIVITY_DURATION = 15;
+	/**
+	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#IDLE} in minutes.</p>
+	 */
+	public static final double STANDARD_DEVIATION_OF_IDLE_ACTIVITY_DURATION = 5;
+	/**
+	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#IDLE}. It is used to sample durations for this category.</p>
+	 */
+	public static final NormalDistribution DISTRIBUTION_OF_IDLE_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_IDLE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_IDLE_ACTIVITY_DURATION);
 	/**
 	 * <p>A mapping from activity category to the duration distribution of durations for this category.</p>
 	 */
@@ -461,10 +501,10 @@ public interface ISimulationSettings {
 	 * <p>The time points an {@link Individual} can plan resp. replan its activities for the current day (see {@link Environment#start()}).</p>
 	 */
 	public static final ArrayList<DateTime> AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES = Stream.of(
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30))
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0))//,
+//			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
+//			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
+//			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30))
 			.collect(Collectors.toCollection(ArrayList::new));
 	/**
 	 * <p>The maximum number of trials to find a time slot for a joint activity.
@@ -633,6 +673,8 @@ public interface ISimulationSettings {
 		activityCategoryToDurationDistributionMap.put(ActivityCategory.WORK, DISTRIBUTION_OF_WORK_DURATION);
 		activityCategoryToDurationDistributionMap.put(ActivityCategory.PERSONAL_CARE, DISTRIBUTION_OF_PERSONAL_CARE_DURATION);
 		activityCategoryToDurationDistributionMap.put(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION);
+		activityCategoryToDurationDistributionMap.put(ActivityCategory.SLEEP_AND_REST, DISTRIBUTION_OF_SLEEP_AND_REST_DURATION);
+		activityCategoryToDurationDistributionMap.put(ActivityCategory.IDLE, DISTRIBUTION_OF_IDLE_DURATION);
 		return activityCategoryToDurationDistributionMap;
 	}
 }
