@@ -19,31 +19,40 @@ import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
 /**
- * <p>This class is used to model real world activities or abstractions thereof. As such they are described by the following information:</p>
+ * <p>This class is used to model real world activities resp. abstractions thereof. As such it is described by the following information:</p>
  * 
- * <p>{@link Activity#m_activityCategory}: The category of an activity. This classification serves as main means to group similar activities.</p>
- * <p>{@link Activity#m_activityDescription}: A description of the activity, which is also used to refer to simulation output related to it.</p>
- * <p>{@link Activity#m_activityLocation}: The location where the activity can be executed. This does not refer to the exact location but the type of location.</p>
+ * <p>{@link Activity#m_activityCategory}: The category of the activity. This classification is used to group similar activities.</p>
+ * <p>{@link Activity#m_activityDescription}: A description of the activity.
+ * It must uniquely identify an activity
+ * It is used to in the simulation output as well.</p>
+ * <p>{@link Activity#m_activityLocation}: The location where the activity can be executed. 
+ * This does not refer to the exact location but the type of location.</p>
  * <p>{@link Activity#m_isJointActivity}: This attribute is used to declare an activity as either being an individual or joint activity. 
- * Joint activities can only be executed together with other individuals.</p>
- * <p>{@link Activity#m_alternativeActivity}: An alternative activity which can be executed instead of a joint activity if none of the participating member are present at the target location.</p>
+ * Joint activities can only be executed together with other individuals.
+ * Individuals do not have such a restriction.</p>
+ * <p>{@link Activity#m_alternativeActivity}: An alternative activity which can be executed instead of a joint activity.
+ * The alternative activity will be used if none of the participating member is present at the target location.</p>
  * <p>{@link Activity#m_availability}: The availability in terms of days of week and time of day referring to possible start times of an activity. 
  * This serves as a way of constraining when an activity can be started.</p>
  * <p>{@link Activity#m_needTimeSplit}: The need time split is a construct that allows to define what needs an activity satisfies for each unit of time it is being executed.</p>
  * <p>{@link Activity#m_examples}: Some examples of this activity. 
  * This allows to make abstractions of activities more concrete. 
- * However, it serves only as information to the modeler and is not being used in any functionality.</p>
+ * It serves only as information to the modeler and is not being used in any functionality.</p>
  * <p>{@link Activity#m_networkType}: The network type determines with which members of a network an activity must be conducted with.</p>
  */
 public class Activity {
+	
+	private static final Logger LOG = Logger.getLogger(Activity.class.getName());
 
 	/**
-	 * <p>The category of an activity. 
-	 * This classification serves as main means to group similar activities.</p>
+	 * <p>The category of the activity. 
+	 * This classification is used to group similar activities.</p>
 	 */
 	private ActivityCategory m_activityCategory;
 	/**
-	 * <p>A description of the activity, which is also used to refer to simulation output related to it.</p>
+	 * <p>A description of the activity.
+	 * It must uniquely identify an activity
+	 * It is used to in the simulation output as well.</p>
 	 */
 	private String m_activityDescription;
 	/**
@@ -53,11 +62,13 @@ public class Activity {
 	private ActivityLocation m_activityLocation;
 	/**
 	 * <p>This attribute is used to declare an activity as either being an individual or joint activity. 
-	 * Joint activities can only be executed.</p>
+	 * Joint activities can only be executed together with other individuals.
+	 * Individuals do not have such a restriction.</p>
 	 */
 	private boolean m_isJointActivity;
 	/**
-	 * <p>An alternative activity which can be executed instead of a joint activity if none of the participating member are present at the target location.</p>
+	 * <p>An alternative activity which can be executed instead of a joint activity.
+	 * The alternative activity will be used if none of the participating member is present at the target location.</p>
 	 */
 	private Activity m_alternativeActivity;
 	/**
@@ -69,8 +80,9 @@ public class Activity {
 	 */
 	private NeedTimeSplit m_needTimeSplit;
 	/**
-	 * <p>Some examples of this activity. This allows to make abstractions of activities more concrete. 
-	 * However, it serves only as information to </p>
+	 * <p>Some examples of this activity. 
+	 * This allows to make abstractions of activities more concrete. 
+	 * It serves only as information to the modeler and is not being used in any functionality.</p>
 	 */
 	private String m_examples;
 	/**
@@ -78,6 +90,9 @@ public class Activity {
 	 */
 	private NetworkType m_networkType;
 
+	/**
+	 * <p>Please, use the {@link Builder} to instantiate this class.</p>
+	 */
 	private Activity() {}
 	
 	@Override
@@ -184,17 +199,15 @@ public class Activity {
 		 */
 		public Builder withAvailabilityInterval(int dayOfWeek, int startHourOfDay, int startMinuteOfDay, int endHourOfDay, int endMinuteOfDay) {
 			if (startHourOfDay >= endHourOfDay) {
-				Logger.getLogger(Activity.class.getName()).log(Level.SEVERE, "Interval is invalid: start is after end. The built activity may be unusable!");
+				LOG.log(Level.SEVERE, "Interval is invalid: start is after end. The built activity may be unusable!");
 			}
-			DateTime startOfInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, startHourOfDay, startMinuteOfDay);
-			DateTime endOfInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, endHourOfDay, endMinuteOfDay);
-			if (activityToBuild.m_availability.get(dayOfWeek) == null) {
-				activityToBuild.m_availability.put(dayOfWeek, new ArrayList<>());
-			}
-			activityToBuild.m_availability.get(dayOfWeek).add(new Interval(startOfInterval, endOfInterval));
+			DateTime startOfInterval = createDateTime(startHourOfDay, startMinuteOfDay);
+			DateTime endOfInterval = createDateTime(endHourOfDay, endMinuteOfDay);
+			createAvailabilityList(dayOfWeek);
+			addIntervalToAvailabilityList(dayOfWeek, new Interval(startOfInterval, endOfInterval));
 			return this;
 		}
-
+		
 		/**
 		 * <p>Each {@link Activity} must have the time defined in terms of days of week and time of day (referring to its start time) it is available and this method sets this information for {@link Builder#activityToBuild}.</p>
 		 * 
@@ -212,15 +225,13 @@ public class Activity {
 		 */
 		public Builder withAvailabilityIntervalAtDays(int startHourOfDay, int startMinuteOfDay, int endHourOfDay, int endMinuteOfDay, ArrayList<Integer> daysOfWeek) {
 			if (startHourOfDay >= endHourOfDay) {
-				Logger.getLogger(Activity.class.getName()).log(Level.SEVERE, "Interval is invalid: start is after end. The built activity may be unusable!");
+				LOG.log(Level.SEVERE, "Interval is invalid: start is after end. The built activity may be unusable!");
 			}
-			DateTime startOfInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, startHourOfDay, startMinuteOfDay);
-			DateTime endOfInterval = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, endHourOfDay, endMinuteOfDay);
+			DateTime startOfInterval = createDateTime(startHourOfDay, startMinuteOfDay);
+			DateTime endOfInterval = createDateTime(endHourOfDay, endMinuteOfDay);
 			for (Integer day: daysOfWeek) {
-				if (activityToBuild.m_availability.get(day) == null) {
-					activityToBuild.m_availability.put(day, new ArrayList<>());
-				}
-				activityToBuild.m_availability.get(day).add(new Interval(startOfInterval, endOfInterval));
+				createAvailabilityList(day);
+				addIntervalToAvailabilityList(day, new Interval(startOfInterval, endOfInterval));
 			}
 			return this;
 		}
@@ -263,6 +274,39 @@ public class Activity {
 		public Builder withNetworkType(NetworkType networkType) {
 			activityToBuild.m_networkType = networkType;
 			return this;
+		}
+		
+		/**
+		 * <p>This method creates a new {@link DateTime} instance using base time.</p>
+		 * 
+		 * @param hourOfDay - the hour of day (in base time).
+		 * @param minuteOfDay - the minute of day (in base time).
+		 * @return
+		 */
+		private DateTime createDateTime(int hourOfDay, int minuteOfDay) {
+			return new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, hourOfDay, minuteOfDay);
+		}
+		
+		/**
+		 * <p>This method creates a list of intervals on a given day of week, if it does not exist.
+		 * The intervals represent the time during which the activity is available.</p>
+		 * 
+		 * @param dayOfWeek - the day of the week for which a list of intervals is created.
+		 */
+		private void createAvailabilityList(Integer dayOfWeek) {
+			if (activityToBuild.m_availability.get(dayOfWeek) == null) {
+				activityToBuild.m_availability.put(dayOfWeek, new ArrayList<>());
+			}
+		}
+		
+		/**
+		 * <p>This method adds the provided interval to the list of all intervals during which the activity is available at the given day of week.</p>
+		 * 
+		 * @param dayOfWeek - the day of week for which the interval of availability is defined.
+		 * @param interval - the interval during which the activity is available.
+		 */
+		private void addIntervalToAvailabilityList(Integer dayOfWeek, Interval interval) {
+			activityToBuild.m_availability.get(dayOfWeek).add(interval);
 		}
 		
 		/**
@@ -310,7 +354,7 @@ public class Activity {
 		 */
 		public Activity build() {
 			if (checkIfAnyFieldIsNull() != null) {
-				Logger.getLogger(Activity.class.getName()).log(Level.SEVERE, String.format("%s is null i.e. not set! The built activity may be unusable!", checkIfAnyFieldIsNull()));
+				LOG.log(Level.SEVERE, String.format("%s is null i.e. not set! The built activity may be unusable!", checkIfAnyFieldIsNull()));
 			}
 			Activity builtActivity = activityToBuild;
 			activityToBuild = new Activity();
@@ -319,9 +363,7 @@ public class Activity {
 	}
 
 	/**
-	 * @category Getters
-	 * 
-	 * This section contains all getters for {@link Activity}s.
+	 * @category Getters and setters
 	 */
 	
 	public ActivityCategory getActivityCategory() {

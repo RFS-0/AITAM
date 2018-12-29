@@ -34,6 +34,7 @@ public class ActivityTest {
 	public static boolean s_testIsJointActivity;
 	public static ActivityLocation s_testActivityLocation;
 	public static Activity s_testActivity;
+	public static Activity s_testAlternativeActivity;
 
 	@BeforeClass
 	public static void setupTest() {
@@ -54,6 +55,9 @@ public class ActivityTest {
 		s_testEndMinuteOfDay = 59;
 		s_testIsJointActivity = true;
 		s_testActivityLocation = ActivityLocation.OTHER_PLACE_FOR_WORK;
+		s_testAlternativeActivity = ACTIVITY_BUILDER
+				.withActivityDescription("Alternative")
+				.build();
 
 		s_testActivity = ACTIVITY_BUILDER.withActivityCategory(ActivityCategory.WORK)
 				.withActivityDescription(s_testActivityDescription)
@@ -63,6 +67,7 @@ public class ActivityTest {
 						s_testEndMinuteOfDay, ISimulationSettings.WORK_WEEK)
 				.withIsJointActivity(s_testIsJointActivity)
 				.withActivityLocation(ActivityLocation.OTHER_PLACE_FOR_WORK)
+				.withAlternativeActivity(s_testAlternativeActivity)
 				.build();
 	}
 
@@ -111,7 +116,12 @@ public class ActivityTest {
 	}
 	
 	@Test
-	public void withActivityLocation() {
+	public void testActivityLocation() {
 		assertEquals(s_testActivityLocation, s_testActivity.getActivityLocation());
+	}
+	
+	@Test
+	public void testAlternativeActivity() {
+		assertEquals(s_testAlternativeActivity, s_testActivity.getAlternativeActivity());
 	}
 }
