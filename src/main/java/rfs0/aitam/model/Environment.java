@@ -231,7 +231,7 @@ public class Environment extends SimState {
 				public void step(SimState state) {
 					if (individual.isPlanningPossible(ISimulationSettings.AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES)) {
 						individual.carryOverJointActivities();
-					}
+					 }
 				}
 			});
 			schedule.scheduleRepeating(0.0, 30, new Steppable() {			

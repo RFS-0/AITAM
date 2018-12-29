@@ -1143,6 +1143,7 @@ public class Individual {
 		Activity previousActivity = getPreviousActivity(randomAgenda, intervalOfInterestInBaseTime);
 		if ((int) intervalOfInterestInBaseTime.toDuration().getStandardMinutes() <= ISimulationSettings.MIN_DURATION_OF_ACTIVITY_TO_TRAVEL_TO_DIFFERENT_LOCATION  && previousActivity != null) {
 			return m_environment.getAllActivities().values().stream()
+				.filter(activity -> activity.getActivityCategory() == activityCategory)
 				.filter(activity -> activity.getActivityCategory() == activityCategory || activity.getActivityCategory() == ActivityCategory.IDLE)
 				.filter(activity -> activity.getActivityLocation() == previousActivity.getActivityLocation())
 				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
