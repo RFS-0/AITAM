@@ -1,7 +1,6 @@
 package rfs0.aitam.individuals;
 
 import java.math.BigDecimal;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +29,7 @@ import rfs0.aitam.utilities.DebugUtility;
 import rfs0.aitam.utilities.GeometryUtility;
 import rfs0.aitam.utilities.GraphUtility;
 import rfs0.aitam.utilities.TimeUtility;
+import rfs0.aitam.utilities.Tuple;
 import sim.field.geo.GeomVectorField;
 import sim.field.network.Network;
 import sim.util.geo.GeomPlanarGraphDirectedEdge;
@@ -38,57 +38,87 @@ import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
 
 /**
- * <p>This class is used to model an abstraction of real-world individuals and their attributes relevant for planning and executing their daily activities based on a set 
- * of needs introduced by Manfred Max-Neef (see <a href="https://en.wikipedia.org/wiki/Fundamental_human_needs">fundamental human needs</a> for more information). 
+ * <p>This class is used to model an abstraction of real-world individuals and their attributes relevant for planning and executing their daily activities.
+ * They do so based on a set of needs.
+ * This set of needs was introduced by Manfred Max-Neef (see <a href="https://en.wikipedia.org/wiki/Fundamental_human_needs">fundamental human needs</a> for more information). 
  * In order to do so, the following attributes are required:</p>
  *
  * <p><b>Environment</b></p>
  * 
- * <p>{@link Individual#m_environment}: A reference to the simulation's environment. It is used to retrieve information about the current state of the environment such as the current time, the state of other individuals etc.</p>
+ * <p>{@link Individual#m_environment}: A reference to the simulation's environment. 
+ * It is used to retrieve information about the current state of the environment such as the current time, the state of other individuals etc.</p>
  * 
  * <p><b>Individual</b></p>
  * 
- * <p>{@link Individual#m_id}: The individual's id is a simple unique identifier which also reflects the order in which they are being created. It start at zero and goes up to {@link ISimulationSettings#NUMBER_OF_INDIVIDUALS} - 1.</p> 
+ * <p>{@link Individual#m_id}: The individual's id is a simple unique identifier which also reflects the order in which they are being created. 
+ * It start at zero and goes up to {@link ISimulationSettings#NUMBER_OF_INDIVIDUALS} - 1.</p> 
  * 
  * <p><b>Networks</b></p>
  * 
- * <p>{@link Individual#m_householdMembersNetwork}: The individuals household network (or family). It contains references to all other individuals which are part of the household. The number of household members can be configured
- *    via {@link ISimulationSettings#MIN_NUMBER_OF_HOUSEHOLD_MEMBERS} and {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_MEMBERS}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
- * <p>{@link Individual#m_householdMembersNetworkId}: The id of the household members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a household network.</p>
- * <p>{@link Individual#m_numberOfHouseholdNetworkActivitiesPlanned}: The number of household activities planned for the current day. It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY} to limit the number of household activities.</p>
- * <p>{@link Individual#m_workColleaguesNetwork}: The individuals work colleagues network. It contains references to all the individual's work colleagues. The number of work colleagues can be configured
- *    via {@link ISimulationSettings#MIN_NUMBER_OF_WORK_COLLEGUES} and {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
- * <p>{@link Individual#m_workColleaguesNetworkId}: The id of the work colleagues members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work colleagues network.</p>
- * <p>{@link Individual#m_numberOfWorkColleguesNetworkActivitiesPlanned}: The number of activities together with work colleagues planned for the current day. It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with work colleagues.</p>
- * <p>{@link Individual#m_friendsNetwork}: The individuals friends network. It contains references to all the individual's friends. The number of friends can be configured
- *    via {@link ISimulationSettings#MIN_NUMBER_OF_FRIENDS} and {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
- * <p>{@link Individual#m_friendsNetworkId}: The id of the friends members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work colleagues network.</p>
- * <p>{@link Individual#m_numberOfFriendsNetworkActivitiesPlanned}: The number of activities together with friends planned for the current day. It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with friends.</p>
+ * <p>{@link Individual#m_householdMembersNetwork}: The individuals household network (or family). 
+ * It contains references to all other individuals which are part of the household. 
+ * The number of household members can be configured via {@link ISimulationSettings#MIN_NUMBER_OF_HOUSEHOLD_MEMBERS} and {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_MEMBERS}. 
+ * The main purpose of a network is to enable the coordination of joint activities within the network.</p>
+ * <p>{@link Individual#m_householdMembersNetworkId}: The id of the household members network. 
+ * This is a unique identifier for each network. 
+ * It defaults to -1 if an individual is not part of a household network.</p>
+ * <p>{@link Individual#m_numberOfHouseholdNetworkActivitiesPlanned}: The number of household activities planned for the current day. 
+ * It is reset to 0 at the beginning of each day.
+ * It allows together with {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY} to limit the number of household activities.</p>
+ * <p>{@link Individual#m_workColleaguesNetwork}: The individuals work colleagues network. 
+ * It contains references to all the individual's work colleagues. 
+ * The number of work colleagues can be configured via {@link ISimulationSettings#MIN_NUMBER_OF_WORK_COLLEGUES} and {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES}. 
+ * The main purpose of a network is to enable the coordination of joint activities within the network.</p>
+ * <p>{@link Individual#m_workColleaguesNetworkId}: The id of the work colleagues members network. 
+ * This is a unique identifier for each network. 
+ * It defaults to -1 if an individual is not part of a work colleagues network.</p>
+ * <p>{@link Individual#m_numberOfWorkColleguesNetworkActivitiesPlanned}: The number of activities together with work colleagues planned for the current day. 
+ * It is reset to 0 at the beginning of each day.
+ * It allows together with {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with work colleagues.</p>
+ * <p>{@link Individual#m_friendsNetwork}: The individuals friends network. 
+ * It contains references to all the individual's friends. 
+ * The number of friends can be configured via {@link ISimulationSettings#MIN_NUMBER_OF_FRIENDS} and {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS}. 
+ * The main purpose of a network is to enable the coordination of joint activities within the network.</p>
+ * <p>{@link Individual#m_friendsNetworkId}: The id of the friends members network. 
+ * This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work colleagues network.</p>
+ * <p>{@link Individual#m_numberOfFriendsNetworkActivitiesPlanned}: The number of activities together with friends planned for the current day. 
+ * It is reset to 0 at the beginning of each day.
+ * It allows together with {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with friends.</p>
  *
  * <p><b>Needs</b></p>
  * 
- * <p>{@link Individual#m_targetNeedTimeSplit}: The target need time split defines the individual's ideal relative distribution of time in regards to it's different needs. Thus, it is used as a benchmark to evaluate activity plans. The closer a plan is to the target need time split, the better it is at satisfying the individuals needs and thus the more an individual prefers it.<p>
- * <p>{@link Individual#m_actualNeedTimeSplit}: The actual need time split is used to record the time the individual spends on satisfying each of its needs. Thus, it can be used to compare the individuals actual need satisfaction to it's ideal (i.e. target) need satisfaction at any given point in time.</p>
+ * <p>{@link Individual#m_targetNeedTimeSplit}: The target need time split defines the individual's ideal relative distribution of time in regards to it's different needs. 
+ * Thus, it is used as a benchmark to evaluate activity plans. 
+ * The closer a plan is to the target need time split, the better it is at satisfying the individuals needs and thus the more an individual prefers it.<p>
+ * <p>{@link Individual#m_actualNeedTimeSplit}: The actual need time split is used to record the time the individual spends on satisfying each of its needs. 
+ * Thus, it can be used to compare the individuals actual need satisfaction to it's ideal (i.e. target) need satisfaction at any given point in time.</p>
  * 
  * <p><b>Agendas</b></p>
  * 
- * <p>{@link Individual#m_activityAgenda}: The agenda with all activities planned for the current day. It contains individual as well as joint activities.</p>
- * <p>{@link Individual#m_jointActivityAgenda}: The agenda with all joint activities planned for the current day. It contains only joint activities.</p>
- * <p>{@link Individual#m_allDayPlans}: This variable is used to create a configurable number of randomly generated plans and to choose from it. Use {@link ISimulationSettings#NUMBER_OF_PLANS_TO_GENERATE} to configure it.</p>
+ * <p>{@link Individual#m_activityAgenda}: The agenda with all activities planned for the current day. 
+ * It contains individual as well as joint activities.</p>
+ * <p>{@link Individual#m_jointActivityAgenda}: The agenda with all joint activities planned for the current day. 
+ * It contains only joint activities.</p>
+ * <p>{@link Individual#m_allDayPlans}: This variable is used to create a configurable number of randomly generated plans and to choose from it. 
+ * Use {@link ISimulationSettings#NUMBER_OF_PLANS_TO_GENERATE} to configure it.</p>
  * <p>{@link Individual#m_currentActivity}: The activity the individual has planned executing at the current point in time.</p>
  * 
  * <p><b>Static locations</b></p>
  * 
- * <p><b>Note:</b> Individuals can only travel along paths of the path network (i.e. they never leave the path network) and thus instead of using the actual building 
- * as target location the simulation uses the node on the path network which is closest to the building as a proxy for the building. This makes handling travel
- * much easier. You can use {@link Environment#BUILDING_TO_CLOSEST_NODE_MAP} to retrieve the node which is closest to some building you are interested in. 
+ * <p><b>Note:</b> Individuals can only travel along paths of the path network (i.e. they never leave the path network).
+ * Thus, instead of using the actual building as target location the simulation uses the node on the path network which is closest to the building as a proxy for the building. 
+ * This makes handling travel much easier. 
+ * You can use {@link Environment#m_buildingToClosestNodeMap} to retrieve the node which is closest to some building you are interested in. 
  * Furthermore, you can use {@link Environment#m_nodeToClosestBuildingMap} to retrieve the building which is closest to some node you are interested in.</p>
  * 
- * <p>{@link Individual#m_homeNode}: The node on the path network which is closest to the individuals home building. It serves as a proxy for the individuals home.</p>
+ * <p>{@link Individual#m_homeNode}: The node on the path network which is closest to the individuals home building. 
+ * It serves as a proxy for the individuals home.</p>
  * <p>{@link Individual#m_otherPlacesForHouseholdAndFamilyCareNodes}: A list of all other places (in addition to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
- * <p>{@link Individual#m_workPlaceNode}: The node on the path network which is closest to the individuals work place building. It serves as a proxy for the individuals work place.</p>
+ * <p>{@link Individual#m_workPlaceNode}: The node on the path network which is closest to the individuals work place building. 
+ * It serves as a proxy for the individuals work place.</p>
  * <p>{@link Individual#m_otherPlacesForWorkNodes}: A list of all other places (in addition to the work place) where activities of {@link ActivityCategory#WORK} can be executed.</p>
- * <p>{@link Individual#m_leisureNode}: The node on the path network which is closest to the individuals preferred building for executing leisure activities. It serves as a proxy for this building.</p>
+ * <p>{@link Individual#m_leisureNode}: The node on the path network which is closest to the individuals preferred building for executing leisure activities. 
+ * It serves as a proxy for this building.</p>
  * <p>{@link Individual#m_otherPlacesForLeisureNodes}: A list of all other places (in addition to the preferred place for leisure) where activities of {@link ActivityCategory#LEISURE} can be executed.</p>
  * 
  * <p><b>Dynamic locations</b></p>
@@ -101,19 +131,24 @@ import sim.util.geo.PointMoveTo;
  * <p>{@link Individual#m_pointMoveTo}: A helper class to move a point to a new Coordinate.</p>
  * <p>{@link Individual#m_pathToNextTarget}: The path to the next target.</p>
  * <p>{@link Individual#m_currentEdge}: The edge on which the individual currently is traveling on.</p>
- * <p>{@link Individual#m_edgeDirection}: The direction which the individual is traveling on the current edge. It can either be positive or negative and indicates how the edge is traversed by the individual.</p>
- * <p>{@link Individual#m_currentIndexOnPathToNextTarget}: The index of the edge the individual is currently traveling on. If this value is equal to the size of {@link Individual#m_pathToNextTarget}, then the individual has reached its target.</p>
+ * <p>{@link Individual#m_edgeDirection}: The direction which the individual is traveling on the current edge. 
+ * It can either be positive or negative and indicates how the edge is traversed by the individual.</p>
+ * <p>{@link Individual#m_currentIndexOnPathToNextTarget}: The index of the edge the individual is currently traveling on. 
+ * If this value is equal to the size of {@link Individual#m_pathToNextTarget}, then the individual has reached its target.</p>
  * <p>{@link Individual#m_currentNode}: The node of the path network the individual is currently on.</p>
  * <p>{@link Individual#m_currentTargetNode}: The node of the path network that represents the next target.</p>
  */
 public class Individual {
+	
+	private static final Logger LOG = Logger.getLogger(Individual.class.getName());
 
 	/**
 	 * @category Environment
 	 */
 	
 	/**
-	 * <p>A reference to the simulation's environment. It is used to retrieve information about the current state of the environment such as the current time, the state of other individuals etc.</p>
+	 * <p>A reference to the simulation's environment. 
+	 * It is used to retrieve information about the current state of the environment such as the current time, the state of other individuals etc.</p>
 	 */
 	private Environment m_environment;
 	
@@ -122,7 +157,8 @@ public class Individual {
 	 */
 	
 	/**
-	 * The individual's id is a simple unique identifier which also reflects the order in which they are being created. It start at zero and goes up to {@link ISimulationSettings#NUMBER_OF_INDIVIDUALS} - 1.</p>
+	 * The individual's id is a simple unique identifier which also reflects the order in which they are being created. 
+	 * It start at zero and goes up to {@link ISimulationSettings#NUMBER_OF_INDIVIDUALS} - 1.</p>
 	 */
 	private int m_id = -1;
 	
@@ -131,42 +167,56 @@ public class Individual {
 	 */
 	
 	/**
-	 * <p>The individuals household network (or family). It contains references to all other individuals which are part of the household. The number of household members can be configured
- *    via {@link ISimulationSettings#MIN_NUMBER_OF_HOUSEHOLD_MEMBERS} and {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_MEMBERS}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
+	 * <p>The individuals household network (or family). 
+	 * It contains references to all other individuals which are part of the household. 
+	 * The number of household members can be configured via {@link ISimulationSettings#MIN_NUMBER_OF_HOUSEHOLD_MEMBERS} and {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_MEMBERS}. 
+	 * The main purpose of a network is to enable the coordination of joint activities within the network.</p>
 	 */
 	private Network m_householdMembersNetwork = new Network(false);
 	/**
-	 * <p>The id of the household members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a household network.</p>
+	 * <p>The id of the household members network. This is a unique identifier for each network. 
+	 * It defaults to -1 if an individual is not part of a household network.</p>
 	 */
 	private int m_householdMembersNetworkId = -1;
 	/**
-	 * <p>The number of household activities planned for the current day. It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY} to limit the number of household activities.</p>
+	 * <p>The number of household activities planned for the current day. 
+	 * It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY} to limit the number of household activities.</p>
 	 */
 	private int m_numberOfHouseholdNetworkActivitiesPlanned = 0;
 	/**
-	 * The individuals work colleagues network. It contains references to all the individual's work colleagues. The number of work colleagues can be configured
-	 * via {@link ISimulationSettings#MIN_NUMBER_OF_WORK_COLLEGUES} and {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
+	 * The individuals work colleagues network. 
+	 * It contains references to all the individual's work colleagues. 
+	 * The number of work colleagues can be configured via {@link ISimulationSettings#MIN_NUMBER_OF_WORK_COLLEGUES} and {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES}. 
+	 * The main purpose of a network is to enable the coordination of joint activities within the network.</p>
 	 */
 	private Network m_workColleaguesNetwork = new Network(false);
 	/**
-	 * <p>The id of the work colleagues members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work colleagues network.</p>
+	 * <p>The id of the work colleagues members network. 
+	 * This is a unique identifier for each network. 
+	 * It defaults to -1 if an individual is not part of a work colleagues network.</p>
 	 */
 	private int m_workColleaguesNetworkId = -1;
 	/**
-	 * <p>The number of activities together with work colleagues planned for the current day. It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with work colleagues.</p>
+	 * <p>The number of activities together with work colleagues planned for the current day. 
+	 * It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with work colleagues.</p>
 	 */
 	private int m_numberOfWorkColleguesNetworkActivitiesPlanned = 0;
 	/**
-	 * The individuals friends network. It contains references to all the individual's friends. The number of friends can be configured via {@link ISimulationSettings#MIN_NUMBER_OF_FRIENDS} 
-	 * and {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS}. The main purpose of a network is to enable the coordination of joint activities within the network.</p>
+	 * The individuals friends network. 
+	 * It contains references to all the individual's friends. 
+	 * The number of friends can be configured via {@link ISimulationSettings#MIN_NUMBER_OF_FRIENDS} and {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS}. 
+	 * The main purpose of a network is to enable the coordination of joint activities within the network.</p>
 	 */
 	private Network m_friendsNetwork = new Network(false);
 	/**
-	 * <p>The id of the friends members network. This is a unique identifier for each network. It defaults to -1 if an individual is not part of a work colleagues network.</p>
+	 * <p>The id of the friends members network. 
+	 * This is a unique identifier for each network. 
+	 * It defaults to -1 if an individual is not part of a work colleagues network.</p>
 	 */
 	private int m_friendsNetworkId = -1;
 	/**
-	 * <p>The number of activities together with friends planned for the current day. It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with friends.</p>
+	 * <p>The number of activities together with friends planned for the current day. 
+	 * It is reset to 0 at the beginning of each day and allows together with {@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY} to limit the number of activities executed with friends.</p>
 	 */
 	private int m_numberOfFriendsNetworkActivitiesPlanned = 0;
 
@@ -175,11 +225,14 @@ public class Individual {
 	 */
 	
 	/**
-	 * The target need time split defines the individual's ideal relative distribution of time in regards to it's different needs. Thus, it is used as a benchmark to evaluate activity plans. The closer a plan is to the target need time split, the better it is at satisfying the individuals needs and thus the more an individual prefers it.<p>
+	 * The target need time split defines the individual's ideal relative distribution of time in regards to it's different needs. 
+	 * Thus, it is used as a benchmark to evaluate activity plans. 
+	 * The closer a plan is to the target need time split, the better it is at satisfying the individuals needs and thus the more an individual prefers it.<p>
 	 */
 	private NeedTimeSplit m_targetNeedTimeSplit;
 	/**
-	 * The actual need time split is used to record the time the individual spends on satisfying each of its needs. Thus, it can be used to compare the individuals actual need satisfaction to it's ideal (i.e. target) need satisfaction at any given point in time.</p>
+	 * The actual need time split is used to record the time the individual spends on satisfying each of its needs. 
+	 * Thus, it can be used to compare the individuals actual need satisfaction to it's ideal (i.e. target) need satisfaction at any given point in time.</p>
 	 */
 	private AbsoluteNeedTimeSplit m_actualNeedTimeSplit = new AbsoluteNeedTimeSplit();
 	
@@ -188,15 +241,18 @@ public class Individual {
 	 */
 	
 	/**
-	 * <p>The agenda with all activities planned for the current day. It contains individual as well as joint activities.</p>
+	 * <p>The agenda with all activities planned for the current day. 
+	 * It contains individual as well as joint activities.</p>
 	 */
 	private ActivityAgenda m_activityAgenda = new ActivityAgenda();
 	/**
-	 * <p>The agenda with all joint activities planned for the current day. It contains only joint activities.</p>
+	 * <p>The agenda with all joint activities planned for the current day. 
+	 * It contains only joint activities.</p>
 	 */
 	private ActivityAgenda m_jointActivityAgenda = new ActivityAgenda();
 	/**
-	 * <p>This variable is used to create a configurable number of randomly generated plans and to choose from it. Use {@link ISimulationSettings#NUMBER_OF_PLANS_TO_GENERATE} to configure it.</p>
+	 * <p>This variable is used to create a configurable number of randomly generated plans and to choose from it. 
+	 * Use {@link ISimulationSettings#NUMBER_OF_PLANS_TO_GENERATE} to configure it.</p>
 	 */
 	private HashMap<ActivityAgenda, ActivityAgenda> m_allDayPlans = new HashMap<>();
 	/**
@@ -209,7 +265,8 @@ public class Individual {
 	 */
 	
 	/**
-	 * <p>The node on the path network which is closest to the individuals home building. It serves as a proxy for the individuals home.</p>
+	 * <p>The node on the path network which is closest to the individuals home building. 
+	 * It serves as a proxy for the individuals home.</p>
 	 */
 	private Node m_homeNode;
 	/**
@@ -217,7 +274,8 @@ public class Individual {
 	 */
 	private ArrayList<Node> m_otherPlacesForHouseholdAndFamilyCareNodes;
 	/**
-	 * The node on the path network which is closest to the individuals work place building. It serves as a proxy for the individuals work place.</p>
+	 * The node on the path network which is closest to the individuals work place building. 
+	 * It serves as a proxy for the individuals work place.</p>
 	 */
 	private Node m_workPlaceNode;
 	/**
@@ -225,7 +283,8 @@ public class Individual {
 	 */
 	private ArrayList<Node> m_otherPlacesForWorkNodes;
 	/**
-	 * <p>The node on the path network which is closest to the individuals preferred building for executing leisure activities. It serves as a proxy for this building.</p>
+	 * <p>The node on the path network which is closest to the individuals preferred building for executing leisure activities. 
+	 * It serves as a proxy for this building.</p>
 	 */
 	private Node m_leisureNode;
 	/**
@@ -270,13 +329,15 @@ public class Individual {
 	 */
 	private GeomPlanarGraphEdge m_currentEdge = null;
 	/**
-	 * <p>The direction which the individual is traveling on the current edge. It can either be positive or negative and indicates how the edge is traversed by the individual.</p>
+	 * <p>The direction which the individual is traveling on the current edge. 
+	 * It can either be positive or negative and indicates how the edge is traversed by the individual.</p>
 	 */
 	private static final int POSITIVE_MOVEMENT = 1;
 	private static final int NEGATIVE_MOVEMENT = -1;
 	private int m_edgeDirection;
 	/**
-	 * <p>The index of the edge the individual is currently traveling on. If this value is equal to the size of {@link Individual#m_pathToNextTarget}, then the individual has reached its traget.</p>
+	 * <p>The index of the edge the individual is currently traveling on. 
+	 * If this value is equal to the size of {@link Individual#m_pathToNextTarget}, then the individual has reached its target.</p>
 	 */
 	private int m_currentIndexOnPathToNextTarget = 0;
 	/**
@@ -288,11 +349,17 @@ public class Individual {
 	 */
 	private Node m_currentTargetNode = null;
 
+	/**
+	 * <p>Please, use the {@link Builder} to instantiate this class.</p>
+	 */
 	private Individual() {}
 	
 	@Override
 	public String toString() {
-		return "Id = " + m_id + " | Household Network = " + m_householdMembersNetworkId + " | Work network = " + m_workColleaguesNetworkId + " | Friends network = " + m_friendsNetworkId;
+		return "Id = " + m_id 
+				+ " | Household Network = " + m_householdMembersNetworkId 
+				+ " | Work network = " + m_workColleaguesNetworkId 
+				+ " | Friends network = " + m_friendsNetworkId;
 	}
 
 	/**
@@ -300,7 +367,8 @@ public class Individual {
 	 */
 	
 	/**
-	 * <p>This builder must be used to instantiate {@link Individual}s. In addition to making creation of instances easier it validates some of the most important attributes.</p>
+	 * <p>This builder must be used to instantiate {@link Individual}s. 
+	 * In addition to making creation of instances easier it validates some of the most important attributes.</p>
 	 */
 	public static class Builder {
 
@@ -359,8 +427,7 @@ public class Individual {
 		 * <p>Each {@link Individual} must have a home and this method sets it for {@link Builder#individualToBuild}.
 		 * More specifically, the node on the path network which is closest to the individuals home building will be used as home. 
 		 * Thus, it serves as a proxy for the individuals home.
-		 * Since the home is also the starting point of all individuals, all variables referring to the individuals location will be initialized with the 
-		 * home location as well.</p>
+		 * Since the home is also the starting point of all individuals, all variables referring to the individuals location will be initialized with the home location as well.</p>
 		 * 
 		 * @param homeBuilding - The {@link MasonGeometry} that represents the building where the individual lives in
 		 * @return {@link Builder} - builder with the home building and the initial location set for {@link Builder#individualToBuild}.
@@ -368,12 +435,10 @@ public class Individual {
 		public Builder withHomeBuilding(MasonGeometry homeBuilding) {
 			String warningMessage = "Home location is invalid. The built individual may be unusable!";
 			validate(homeBuilding.getGeometry(), warningMessage);
-			Node homeNode = individualToBuild.m_environment.getClosestNodeToBuilding(homeBuilding);
-			Coordinate currentLocationPoint = new Coordinate(homeNode.getCoordinate());
-			individualToBuild.m_currentLocationPoint = new MasonGeometry(Environment.GEO_FACTORY.createPoint(currentLocationPoint));
-			individualToBuild.m_currentLocationPoint.isMovable = true;
+			Node homeNode = getClosestNode(homeBuilding);
 			validate(homeNode, warningMessage);
-			individualToBuild.m_currentNode = new Node(homeNode.getCoordinate(), homeNode.getOutEdges());
+			initCurrentLocation(homeNode);
+			initCurrentNode(homeNode);
 			individualToBuild.m_homeNode = homeNode;
 			return this;
 		}
@@ -382,18 +447,12 @@ public class Individual {
 		 * <p>Each {@link Individual} must have at least one other place for household and family care related activities and this method sets it for {@link Builder#individualToBuild}.
 		 * This attribute represents a list of all other places (in addition to the home) where activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} can be executed.</p>
 		 * 
-		 * @param otherPlaceForHouseholdAndFamilyCareBuildings - a list of other locations where the indvidual can execute activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}.
+		 * @param otherPlaceForHouseholdAndFamilyCareBuildings - a list of other locations where the individual can execute activities of {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}.
 		 * @return {@link Builder} - builder with the other places for household and family care set for {@link Builder#individualToBuild}.
 		 */
 		public Builder withOtherPlaceForHouseholdAndFamilyCareBuildings(ArrayList<MasonGeometry> otherPlaceForHouseholdAndFamilyCareBuildings) {
 			String warningMessage = "Third place for household and family care is invalid. The built individual may be unusable!";
-			ArrayList<Node> otherPlaceForHouseholdAndFamilyCareNodes = new ArrayList<>();
-			for (MasonGeometry otherPlaceForHouseholdAndFamilyCareBuilding: otherPlaceForHouseholdAndFamilyCareBuildings) {
-				validate(otherPlaceForHouseholdAndFamilyCareBuilding.getGeometry().getCoordinate(), warningMessage);
-				Node thirdPlaceForHouseholdAndFamilyCareNode = individualToBuild.m_environment.getClosestNodeToBuilding(otherPlaceForHouseholdAndFamilyCareBuilding);
-				otherPlaceForHouseholdAndFamilyCareNodes.add(thirdPlaceForHouseholdAndFamilyCareNode);
-			}
-			individualToBuild.m_otherPlacesForHouseholdAndFamilyCareNodes = otherPlaceForHouseholdAndFamilyCareNodes;
+			individualToBuild.m_otherPlacesForHouseholdAndFamilyCareNodes = initOtherPlaces(otherPlaceForHouseholdAndFamilyCareBuildings, warningMessage);
 			return this;
 		}
 		
@@ -408,7 +467,7 @@ public class Individual {
 		public Builder withWorkPlaceBuilding(MasonGeometry workPlaceBuilding) {
 			String warningMessage = "The work place building is invalid. The built individual may be unusable!";
 			validate(workPlaceBuilding.getGeometry().getCoordinate(), warningMessage);
-			Node workPlaceNode = individualToBuild.m_environment.getClosestNodeToBuilding(workPlaceBuilding);
+			Node workPlaceNode = getClosestNode(workPlaceBuilding);
 			validate(workPlaceNode, warningMessage);
 			individualToBuild.m_workPlaceNode = workPlaceNode;
 			return this;
@@ -423,13 +482,7 @@ public class Individual {
 		 */
 		public Builder withOtherPlaceForWorkBuildings(ArrayList<MasonGeometry> otherPlaceForWorkBuildings) {
 			String warningMessage = "The third place for work is invalid. The built individual may be unusable!";
-			ArrayList<Node> otherPlaceForWorkNodes = new ArrayList<>();
-			for (MasonGeometry otherPlaceForWorkBuilding: otherPlaceForWorkBuildings) {
-				validate(otherPlaceForWorkBuilding.getGeometry().getCoordinate(), warningMessage);
-				Node otherPlaceForWorkNode = individualToBuild.m_environment.getClosestNodeToBuilding(otherPlaceForWorkBuilding);
-				otherPlaceForWorkNodes.add(otherPlaceForWorkNode);
-			}
-			individualToBuild.m_otherPlacesForWorkNodes = otherPlaceForWorkNodes;
+			individualToBuild.m_otherPlacesForWorkNodes = initOtherPlaces(otherPlaceForWorkBuildings, warningMessage);
 			return this;
 		}
 		
@@ -442,7 +495,7 @@ public class Individual {
 		public Builder withLeisureBuilding(MasonGeometry leisureBuilding) {
 			String warningMessage = "The place for leisure is invalid. The built individual may be unusable!";
 			validate(leisureBuilding.getGeometry().getCoordinate(), warningMessage);
-			Node leisureNode = individualToBuild.m_environment.getClosestNodeToBuilding(leisureBuilding);
+			Node leisureNode = getClosestNode(leisureBuilding);
 			validate(leisureNode, warningMessage);
 			individualToBuild.m_leisureNode = leisureNode;
 			return this;
@@ -456,13 +509,7 @@ public class Individual {
 		 */
 		public Builder withOtherPlaceForLeisureBuildings(ArrayList<MasonGeometry> otherPlaceForLeisureBuildings) {
 			String warningMessage = "The third place for leisure is invalid. The built individual may be unusable!";
-			ArrayList<Node> otherPlaceForLeisureNodes = new ArrayList<>();
-			for (MasonGeometry otherPlaceForLeisureBuilding: otherPlaceForLeisureBuildings) {
-				validate(otherPlaceForLeisureBuilding.getGeometry().getCoordinate(), warningMessage);
-				Node thirdPlaceForLeisureNode = individualToBuild.m_environment.getClosestNodeToBuilding(otherPlaceForLeisureBuilding);
-				otherPlaceForLeisureNodes.add(thirdPlaceForLeisureNode);
-			}
-			individualToBuild.m_otherPlacesForLeisureNodes = otherPlaceForLeisureNodes;
+			individualToBuild.m_otherPlacesForLeisureNodes = initOtherPlaces(otherPlaceForLeisureBuildings, warningMessage);
 			return this;
 		}
 		
@@ -577,6 +624,54 @@ public class Individual {
 		}
 		
 		/**
+		 * <p>This method returns the closest node of a given building.</p>
+		 * 
+		 * @param building - some building.
+		 * @return {@link Node} - the node closest to the building.
+		 */
+		private Node getClosestNode(MasonGeometry building) {
+			return individualToBuild.m_environment.getClosestNodeToBuilding(building);
+		}
+		
+		/**
+		 * <p>This method initializes the current location of the individual.</p>
+		 * 
+		 * @param location - the current location.
+		 */
+		private void initCurrentLocation(Node location) {
+			Coordinate currentLocationPoint = new Coordinate(location.getCoordinate());
+			individualToBuild.m_currentLocationPoint = new MasonGeometry(Environment.GEO_FACTORY.createPoint(currentLocationPoint));
+			individualToBuild.m_currentLocationPoint.isMovable = true;
+		}
+		
+		/**
+		 * <p>This method initializes the current node of the individual.</p>
+		 * 
+		 * @param currentNode - the current node.
+		 */
+		private void initCurrentNode(Node currentNode) {
+			individualToBuild.m_currentNode = new Node(currentNode.getCoordinate(), currentNode.getOutEdges());
+			individualToBuild.m_homeNode = currentNode;
+		}
+		
+		/**
+		 * <p>This method initializes the nodes closest to the provided list of buildings.</p>
+		 * 
+		 * @param otherPlaceBuildings - the list of buildings for which the closest nodes are initialized.
+		 * @param warningMessage - a message that will be logged if a node is invalid.
+		 * @return ArrayList<Node> - a list with the closest nodes.
+		 */
+		private ArrayList<Node> initOtherPlaces(ArrayList<MasonGeometry> otherPlaceBuildings, String warningMessage) {
+			ArrayList<Node> otherPlaceNodes = new ArrayList<>();
+			for (MasonGeometry otherPlaceBuilding: otherPlaceBuildings) {
+				validate(otherPlaceBuilding.getGeometry().getCoordinate(), warningMessage);
+				Node thirdPlaceForHouseholdAndFamilyCareNode = getClosestNode(otherPlaceBuilding);
+				otherPlaceNodes.add(thirdPlaceForHouseholdAndFamilyCareNode);
+			}
+			return otherPlaceNodes;
+		}
+		
+		/**
 		 * <p>This method can be used to ensure that a given object is not null and log a message otherwise.
 		 * It is primarily used to ensure that important attributes used to construct an {@link Individual} are valid i.e. not <code>null</code>.</p>
 		 * 
@@ -585,7 +680,7 @@ public class Individual {
 		 */
 		private void validate(Object objToValidate, String message) {
 			if (objToValidate == null) {
-				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, message);
+				LOG.log(Level.SEVERE, message);
 			}
 		}
 		
@@ -672,7 +767,7 @@ public class Individual {
 		 */
 		public Individual buildAndValidate() {
 			if (checkIfAnyFieldIsNull() != null) {
-				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("%s is null i.e. not set! The built individual may be unusable!", checkIfAnyFieldIsNull()));
+				LOG.log(Level.SEVERE, String.format("%s is null i.e. not set! The built individual may be unusable!", checkIfAnyFieldIsNull()));
 			}
 			Individual builtIndividual = individualToBuild;
 			individualToBuild = new Individual();
@@ -699,9 +794,7 @@ public class Individual {
 	 * </ol></p> 
 	 */
 	public void planJointActivities() {
-		removeFutureJointActivitiesOfNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK);
-		removeFutureJointActivitiesOfNetwork(m_workColleaguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK);
-		removeFutureJointActivitiesOfNetwork(m_friendsNetwork, NetworkType.FRIENDS_NETWORK);
+		removeFutureJointActivities();
 		if (isOpenForNetworkActivities(NetworkType.HOUSEHOLD_NETWORK, ISimulationSettings.PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY)) {
 			planActivityForNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK , ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
 		}
@@ -714,6 +807,15 @@ public class Individual {
 	}
 	
 	/**
+	 * <p>This method removes the future activities for each of the different network types.</p>
+	 */
+	private void removeFutureJointActivities() {
+		removeFutureJointActivitiesOfNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK);
+		removeFutureJointActivitiesOfNetwork(m_workColleaguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK);
+		removeFutureJointActivitiesOfNetwork(m_friendsNetwork, NetworkType.FRIENDS_NETWORK);
+	}
+	
+	/**
 	 * <p>This method removes all future joint activities for the specified combination of network and network type. 
 	 * All activities with a start time after the current simulation time are future activities.
 	 * <br><b>Note:</b> All future activities for all members of the specified network are removed.</p>
@@ -722,31 +824,37 @@ public class Individual {
 	 * @param networkType - The type of the network.
 	 */
 	private void removeFutureJointActivitiesOfNetwork(Network network, NetworkType networkType) {
-		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
 		for (Object individualObj: network.getAllNodes()) {
 			Individual individual = (Individual) individualObj;
-			List<Interval> futureIntervals = individual.getJointActivityAgenda().getAgenda().keySet().stream()
-				.filter(interval -> (interval.getStart().isAfter(currentDateTime)))
-				.collect(Collectors.toList());
-			for (Interval futureInterval: futureIntervals) {
+			for (Interval futureInterval: getFutureIntervals(individual)) {
 				if (individual.getJointActivityAgenda().getActivityForInterval(futureInterval).getNetworkType() == networkType) {
 					individual.getJointActivityAgenda().getAgenda().remove(futureInterval);
 					individual.getJointActivityAgenda().getNodes().remove(futureInterval);
-					switch (networkType) {
-						case HOUSEHOLD_NETWORK:
-							individual.decrementNumberOfHouseholdNetworkActivitiesPlanned();
-							break;
-						case WORK_COLLEGUES_NETWORK:
-							individual.decrementNumberOfWorkColleguesNetworkActivitiesPlanned();
-							break;
-						case FRIENDS_NETWORK:
-							individual.decrementNumberOfFriendsNetworkActivitiesPlanned();
-							break;
-						default:
-							Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("Can not apply method to the following network type: %s", String.valueOf(networkType)));
-					}
+					decrementNumberOfNetworkActivities(networkType, individual);
 				}
 			}
+		}
+	}
+	
+	/**
+	 * <p>This method decrements the number of activities for the provided network type and individual.</p>
+	 * 
+	 * @param networkType - the network type for which the number of activities is decremented.
+	 * @param individual - the individual for which the number of activities is decremented.
+	 */
+	private void decrementNumberOfNetworkActivities(NetworkType networkType, Individual individual) {
+		switch (networkType) {
+			case HOUSEHOLD_NETWORK:
+				individual.decrementNumberOfHouseholdNetworkActivitiesPlanned();
+				break;
+			case WORK_COLLEGUES_NETWORK:
+				individual.decrementNumberOfWorkColleguesNetworkActivitiesPlanned();
+				break;
+			case FRIENDS_NETWORK:
+				individual.decrementNumberOfFriendsNetworkActivitiesPlanned();
+				break;
+			default:
+				LOG.log(Level.SEVERE, String.format("Can not apply method to the following network type: %s", String.valueOf(networkType)));
 		}
 	}
 	
@@ -755,7 +863,8 @@ public class Individual {
 	 * 
 	 * <p>To do this it considers the following:
 	 * 	<ol>
-	 * 		<li>The number of joint activities it has already planned for the specified network type. It is no longer open for further activities once the maximum number for the specified network type is reached.</li>
+	 * 		<li>The number of joint activities it has already planned for the specified network type. 
+	 * 			It is no longer open for further activities once the maximum number for the specified network type is reached.</li>
 	 * 		<li>If there is still unplanned time left for the current day. If there is no unplanned time left, it obviously can not be open for any further joint activity.</li>
 	 * 		<li>Its likelihood of planning a joint activity for the given network type.</p>
 	 * 	</ol> 
@@ -765,7 +874,25 @@ public class Individual {
 	 * @return boolean - <code>true</code> if it is willing to participate, <code>false</code> otherwise.
 	 */
 	public boolean isOpenForNetworkActivities(NetworkType networkType, double probabilityOfPlaningActivityForNetworkType) {	
-		boolean hasReachedMaxNumberOfActivitiesForNetworkType = false;
+		boolean hasReachedMaxNumberOfActivitiesForNetworkType = hasReachedMaxNumberOfNetworkActivities(networkType);
+		if (!hasReachedMaxNumberOfActivitiesForNetworkType
+				&& !TimeUtility.isDayFullyPlanned(m_environment, m_jointActivityAgenda)
+				&& m_environment.random.nextDouble(true, true) <= probabilityOfPlaningActivityForNetworkType) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	/**
+	 * <p>This checks if the maximum number not network activities has been reached based on the provided network type and the simulation settings.</p>
+	 * 
+	 * @param networkType - the network type for which the number of network activities is checked.
+	 * @return boolean - <code>true</code> if the number of activity exceeds the maximum configured in the settings, <code>false</code> otherwise.
+	 */
+	private boolean hasReachedMaxNumberOfNetworkActivities(NetworkType networkType) {
+		boolean hasReachedMaxNumberOfActivitiesForNetworkType = true;
 		switch (networkType) {
 			case FRIENDS_NETWORK:
 				hasReachedMaxNumberOfActivitiesForNetworkType = m_numberOfFriendsNetworkActivitiesPlanned >= ISimulationSettings.MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY;
@@ -777,17 +904,10 @@ public class Individual {
 				hasReachedMaxNumberOfActivitiesForNetworkType = m_numberOfWorkColleguesNetworkActivitiesPlanned >= ISimulationSettings.MAX_NUMBER_OF_WORK_COLLEGUES_NETWORK_ACTIVITIES_PER_DAY;
 				break;
 			default:
-				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("Can not apply method to the following network type: %s", String.valueOf(networkType)));
+				LOG.log(Level.SEVERE, String.format("Can not apply method to the following network type: %s", String.valueOf(networkType)));
 				break;
 		}
-		if (!TimeUtility.isDayFullyPlanned(m_environment, m_jointActivityAgenda)
-				&& !hasReachedMaxNumberOfActivitiesForNetworkType
-				&& m_environment.random.nextDouble(true, true) <= probabilityOfPlaningActivityForNetworkType) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return hasReachedMaxNumberOfActivitiesForNetworkType;
 	}
 	
 	/**
@@ -810,13 +930,7 @@ public class Individual {
 	 */
 	private void planActivityForNetwork(Network network, NetworkType type, ActivityCategory activityCategory, ArrayList<DateTime> availableStartTimes) {
 		// check if any activity is available for this category at this day
-		int currentWeekDay = m_environment.getSimulationTime().getCurrentWeekDay();
-		long numberOfActivitiesAvailableAtWeekDay = m_environment.getAllActivities().values().stream()
-				.filter(activity -> activity.getActivityCategory() == activityCategory)
-				.filter(activity -> activity.isAvailableAt(currentWeekDay))
-				.count();
-		// no activity available at this day of week for given category
-		if (numberOfActivitiesAvailableAtWeekDay < 1) {
+		if (!isAnyActivityAvailable(activityCategory)) {
 			return;
 		}
 		ArrayList<Individual> networkMemberParticipating = determineParticipatingNetworkMembers(network, type);
@@ -830,19 +944,45 @@ public class Individual {
 			return;
 		}
 		// at this point we should have ensured that some activity is available and at least two network members agreed on some interval for conducting it
-		ArrayList<Activity> availableActivities = m_environment.getAllActivities().values().stream()
-				.filter(activity -> activity.isJointActivity())
-				.filter(activity -> activity.getActivityCategory() == activityCategory)
-				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), baseIntervalOfJointActivity.getStart()))
-				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
-				.collect(Collectors.toCollection(ArrayList::new));
+		ArrayList<Activity> availableActivities = getJointActivitiesAvailable(activityCategory, baseIntervalOfJointActivity);
 		if (availableActivities.size() == 0) {
-			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe in category %s for interval interval: %s. Make sure there is always at least one activity available!", String.valueOf(activityCategory), String.valueOf(baseIntervalOfJointActivity)));	
+			LOG.log(Level.SEVERE, String.format("No activity availabe in category %s for interval interval: %s. Make sure there is always at least one activity available!", String.valueOf(activityCategory), String.valueOf(baseIntervalOfJointActivity)));	
 		}
 		// setup activity for all participating network members
-		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
-		Interval realIntervalOfJointActivity = TimeUtility.convertToRealInterval(currentDateTime, baseIntervalOfJointActivity);
-		Activity jointActivity = availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
+		setupJointActivity(type, networkMemberParticipating, availableActivities, baseIntervalOfJointActivity);
+	}
+	
+	/**
+	 * <p>This method checks if any activity of the provided category is available on the current (simulation) day.</p>
+	 * 
+	 * @param activityCategory - the category for which availability of activities is checked.
+	 * @return boolean - <code>true</code> if at least one activity is available, <code>otherwise</code>.
+	 */
+	private boolean isAnyActivityAvailable(ActivityCategory activityCategory) {
+		long numberOfActivitiesAvailableAtWeekDay = m_environment.getAllActivities().values().stream()
+				.filter(activity -> activity.getActivityCategory() == activityCategory)
+				.filter(activity -> activity.isAvailableAt(getCurrentDayOfWeek()))
+				.count();
+		// no activity available at this day of week for given category
+		if (numberOfActivitiesAvailableAtWeekDay > 1) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * <p>This method sets up the joint a joint activity for the provided network members.
+	 * It does so by randomly selecting one of the available activities.
+	 * The selected activity is then put into the joint activity agenda of all network members participating in the activity.</p>
+	 * 
+	 * @param type - the network type.
+	 * @param networkMemberParticipating - the individuals participating in the activity.
+	 * @param availableActivities - the activities available.
+	 * @param baseIntervalOfJointActivity - the interval during which the activity is executed.
+	 */
+	private void setupJointActivity(NetworkType type, ArrayList<Individual> networkMemberParticipating, ArrayList<Activity> availableActivities, Interval baseIntervalOfJointActivity) {
+		Interval realIntervalOfJointActivity = TimeUtility.convertToRealInterval(getCurrentDateTime(), baseIntervalOfJointActivity);
+		Activity jointActivity = availableActivities.get(getRandomInt(availableActivities.size()));
 		Node jointActivityNode = chooseActivityNode(jointActivity);
 		for (Individual individual: networkMemberParticipating) {
 			individual.getJointActivityAgenda().addActivityForInterval(realIntervalOfJointActivity, jointActivity);
@@ -858,7 +998,7 @@ public class Individual {
 				individual.incrementNumberOfWorkColleguesNetworkActivitiesPlanned();
 				break;
 			default:
-				Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not increment number of activities for this type!", String.valueOf(type)));
+				LOG.log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not increment number of activities for this type!", String.valueOf(type)));
 				break;
 			}
 		}
@@ -895,7 +1035,7 @@ public class Individual {
 						}
 						break;
 					default:
-						Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not plan activity for this type!", String.valueOf(type)));
+						LOG.log(Level.SEVERE, String.format("%s is an invalid NetworkType! Can not plan activity for this type!", String.valueOf(type)));
 						break;
 				}
 			}
@@ -912,11 +1052,11 @@ public class Individual {
 	 * 	<li>Pick one of those start times at random</li>
 	 * 	<li>Sample the duration</li>
 	 * 	<li>Construct a real and a base interval for this combination</li>
-	 * 	<li>Check that the real interval of interest does not overlap any of the other participants agendas and tha the maximum number of trials has not been exceeded yet.</li>
+	 * 	<li>Check that the real interval of interest does not overlap any of the other participants agendas and that the maximum number of trials has not been exceeded yet.</li>
 	 * 	<li>Repeat steps 2 - 5 until you find an interval that fits everybody or you reached the maximum number of trials.</li>
 	 * </ol>
 	 * 
-	 * <p><b>Note:</b> It is possible that no agreement on an interval that fits everyboy is possible. In this case planing is considered to have failed and thus no activity will be planned.
+	 * <p><b>Note:</b> It is possible that no agreement on an interval that fits everybody is possible. In this case planing is considered to have failed and thus no activity will be planned.
 	 * 
 	 * @param networkMemberParticipating - the individuals of of some network which are participating in the joint activity.
 	 * @param startTimes - the configured start times at which activities of the specified category can be started.
@@ -926,20 +1066,16 @@ public class Individual {
 	private Interval chooseIntervalOfJointActivity(ArrayList<Individual> networkMemberParticipating, ArrayList<DateTime> startTimes, ActivityCategory activityCategory) {
 		Interval baseIntervalOfInterest;
 		Interval realIntervalOfInterest;
-		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
+		DateTime currentDateTime = getCurrentDateTime();
 		int numberOfTrials = 0;
-		List<DateTime> availableStartTimes = startTimes.stream()
-				.filter(startTime -> startTime.isAfter(m_environment.getSimulationTime().getCurrentTime()))
-				.collect(Collectors.toList());
-		// no start times available anymore for network
+		List<DateTime> availableStartTimes = determineAvailableStartTimes(startTimes);
+		// no start times available anymore
 		if (availableStartTimes.size() == 0) {
 			return null;
 		}
 		do {
-			DateTime startOfJointActivityInBaseTime = availableStartTimes.get(m_environment.random.nextInt(availableStartTimes.size()));
-			double durationSampleForCategory = sampleDurationForCategory(activityCategory);
-			int duration = (int) durationSampleForCategory;
-			DateTime endOfJointActivityInBaseTime = startOfJointActivityInBaseTime.plusMinutes(duration);
+			DateTime startOfJointActivityInBaseTime = availableStartTimes.get(getRandomInt(availableStartTimes.size()));
+			DateTime endOfJointActivityInBaseTime = startOfJointActivityInBaseTime.plusMinutes(sampleDurationForCategory(activityCategory));
 			if (endOfJointActivityInBaseTime.isAfter(ISimulationSettings.END_OF_DAY)) {
 				endOfJointActivityInBaseTime = ISimulationSettings.END_OF_DAY;
 			}
@@ -947,7 +1083,8 @@ public class Individual {
 			realIntervalOfInterest = TimeUtility.convertToRealInterval(currentDateTime, baseIntervalOfInterest);
 			numberOfTrials++;
 		} 
-		while (TimeUtility.isIntervalOverlappingAnyAgenda(networkMemberParticipating, realIntervalOfInterest) && numberOfTrials < ISimulationSettings.MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY);
+		while (TimeUtility.isIntervalOverlappingAnyAgenda(networkMemberParticipating, realIntervalOfInterest) 
+				&& numberOfTrials < ISimulationSettings.MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY);
 		if (numberOfTrials < ISimulationSettings.MAX_NUMBER_OF_TRIALS_TO_FIND_TIME_SLOT_FOR_JOINT_ACTIVITY) {
 			return baseIntervalOfInterest;
 		} 
@@ -957,21 +1094,33 @@ public class Individual {
 	}
 
 	/**
+	 * <p>This method determines the available start times for joint activities under consideration of the current simulation time.</p>
+	 * 
+	 * @param startTimes - a list with all start times configured.
+	 * @return List<DateTime> - a list with all start time currently available.
+	 */
+	private List<DateTime> determineAvailableStartTimes(ArrayList<DateTime> startTimes) {
+		return startTimes.stream()
+				.filter(startTime -> startTime.isAfter(m_environment.getSimulationTime().getCurrentTime()))
+				.collect(Collectors.toList());
+	}
+
+	/**
 	 * <p>This method lets you sample lets you sample an activity duration for a specified category based on the distributions you have specified in {@link ISimulationSettings}.<p>
 	 * 
 	 * <b>Note:</b> Due to the nature of random distributions (and of small means with large standard deviations) it is possible that negative samples will be drawn. 
-	 * However, negative duration does not make any sense and thus samples will be drawn until a positive duration is sampeled.
+	 * However, negative duration does not make any sense and thus samples will be drawn until a positive duration is sampled.
 	 * This obviously implies that the durations drawn form the configured distribution do no exactly match the configured distribution.<p>
 	 * 
 	 * @param activityCategory - the activity category for which you want to sample a duration.
 	 * @return double - the number of minutes 
 	 */
-	private double sampleDurationForCategory(ActivityCategory activityCategory) {
+	private int sampleDurationForCategory(ActivityCategory activityCategory) {
 		double durationSampleForCategory = ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.get(activityCategory).sample();
 		while (durationSampleForCategory < 1) {
 			durationSampleForCategory = ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.get(activityCategory).sample();
 		}
-		return durationSampleForCategory;
+		return Math.toIntExact(Math.round(durationSampleForCategory));
 	}
 	
 	/**
@@ -985,17 +1134,17 @@ public class Individual {
 		case HOME:
 			return m_homeNode;
 		case OTHER_PLACE_FOR_HOUSEHOLD_AND_FAMILY_CARE:
-			return m_otherPlacesForHouseholdAndFamilyCareNodes.get(m_environment.random.nextInt(m_otherPlacesForHouseholdAndFamilyCareNodes.size()));
+			return m_otherPlacesForHouseholdAndFamilyCareNodes.get(getRandomInt(m_otherPlacesForHouseholdAndFamilyCareNodes.size()));
 		case LEISURE:
 			return m_leisureNode;
 		case OTHER_PLACE_FOR_LEISURE:
-			return m_otherPlacesForLeisureNodes.get(m_environment.random.nextInt(m_otherPlacesForLeisureNodes.size()));
+			return m_otherPlacesForLeisureNodes.get(getRandomInt(m_otherPlacesForLeisureNodes.size()));
 		case OTHER_PLACE_FOR_WORK:
-			return m_otherPlacesForWorkNodes.get(m_environment.random.nextInt(m_otherPlacesForWorkNodes.size()));
+			return m_otherPlacesForWorkNodes.get(getRandomInt(m_otherPlacesForWorkNodes.size()));
 		case WORK:
 			return m_workPlaceNode;
 		default:
-			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, "Could not choose activty location!");
+			LOG.log(Level.SEVERE, "Could not choose activty location!");
 			return null;
 		}
 	}
@@ -1031,7 +1180,7 @@ public class Individual {
 			ActivityAgenda randomAgenda = ActivityAgenda.newInstance(m_activityAgenda);
 			while (!TimeUtility.isDayFullyPlanned(m_environment, randomAgenda)) {
 				Interval availableInterval = TimeUtility.getFirstAvailableInterval(m_environment, randomAgenda);
-				AbstractMap.SimpleImmutableEntry<Activity, Interval> activityAndIntervalInRealTime = chooseActivityAndIntervalInRealTime(availableInterval, randomAgenda);
+				Tuple<Activity, Interval> activityAndIntervalInRealTime = chooseActivityAndIntervalInRealTime(randomAgenda, availableInterval);
 				Activity chosenActivity = activityAndIntervalInRealTime.getKey();
 				Interval chosenIntervalInRealTime = activityAndIntervalInRealTime.getValue();
 				Node activityNode = chooseActivityNode(chosenActivity);
@@ -1045,9 +1194,9 @@ public class Individual {
 			}
 			m_allDayPlans.put(randomAgendaWithTravelActivities, randomAgenda);
 		}
+		double fractionOfInvalidPlans = (double) numberOfDiscardedPlans / ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE * 100;
+		long executionTime = (System.nanoTime() - start) / 1000000000;
 		if (ISimulationSettings.IS_DEBUG) {
-			double fractionOfInvalidPlans = (double) numberOfDiscardedPlans / ISimulationSettings.NUMBER_OF_PLANS_TO_GENERATE * 100;
-			long executionTime = (System.nanoTime() - start) / 1000000000;
 			System.out.println(String.format("It took %d s to plan the individual activities of individual %d and %.2f %% of the plans were discareded because they included too many different locations.", executionTime, m_id, fractionOfInvalidPlans));
 		}
 	}
@@ -1075,13 +1224,38 @@ public class Individual {
 	 * @param randomAgenda - the random agenda currently being constructed.
 	 * @return AbstractMap.SimpleImmutableEntry<Activity, Interval> - the combination of activity and interval which has been chosen randomly, or <code>null</code> if no activity was available.
 	 */
-	private AbstractMap.SimpleImmutableEntry<Activity, Interval> chooseActivityAndIntervalInRealTime(Interval availableIntervalInRealTime, ActivityAgenda randomAgenda) {
+	private Tuple<Activity, Interval> chooseActivityAndIntervalInRealTime(ActivityAgenda randomAgenda, Interval availableIntervalInRealTime) {
 		Interval availableIntervalInBaseTime = TimeUtility.convertToBaseInterval(availableIntervalInRealTime);
-		DateTime startOfAvailableIntervalInBaseTime = availableIntervalInBaseTime.getStart();
-		HashMap<ActivityCategory, Interval> allCategoriesToIntervalSamples = new HashMap<>();
 		// draw sample duration for each category
+		HashMap<ActivityCategory, Interval> allCategoriesToIntervalSamples = sampleIntervalsForCategories(availableIntervalInBaseTime.getStart());
+		// determine all available activities
+		ArrayList<Activity> availableActivities = determineAvailableActivities(randomAgenda, availableIntervalInRealTime, allCategoriesToIntervalSamples);
+		// there are some duration samples that fit into the available interval
+		if (availableActivities.size() > 0) {
+			Activity chosenActivity = availableActivities.get(getRandomInt(availableActivities.size()));
+			Interval chosenIntervalInBaseTime = allCategoriesToIntervalSamples.get(chosenActivity.getActivityCategory());
+			Interval chosenIntervalInRealTime = TimeUtility.convertToRealInterval(getCurrentDateTime(), chosenIntervalInBaseTime);
+			return new Tuple<Activity, Interval>(chosenActivity, chosenIntervalInRealTime);
+		}
+		// none of the samples fitted
+		for (ActivityCategory availableCategory: allCategoriesToIntervalSamples.keySet()) {
+			List<Activity> availableActivitiesOfCategory = getAllAvailableActivitiesForCategoryAndInterval(randomAgenda, availableCategory, availableIntervalInBaseTime);
+			availableActivities.addAll(availableActivitiesOfCategory);
+		}
+		if (availableActivities.size() > 0) {
+			Activity chosenActivity = availableActivities.get(getRandomInt(availableActivities.size()));
+			return new Tuple<Activity, Interval>(chosenActivity, availableIntervalInRealTime);
+		}
+		else {
+			LOG.log(Level.SEVERE, String.format("No activity availabe for interval: %s. This can not happen unless something is configured incorrectly. Make sure you initialized all activities correctly!", availableIntervalInRealTime));
+			return null;
+		}
+	}
+	
+	private HashMap<ActivityCategory, Interval> sampleIntervalsForCategories(DateTime startOfAvailableIntervalInBaseTime) {
+		HashMap<ActivityCategory, Interval> allCategoriesToIntervalSamples = new HashMap<>();
 		for (ActivityCategory activityCategory: ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.keySet()) {
-			int sampleDuration = Math.toIntExact(Math.round(sampleDurationForCategory(activityCategory)));
+			int sampleDuration = sampleDurationForCategory(activityCategory);
 			Interval intervalOfInterestInBaseTime = null;
 			if (startOfAvailableIntervalInBaseTime.plusMinutes(sampleDuration).isAfter(ISimulationSettings.END_OF_DAY)) {
 				intervalOfInterestInBaseTime = new Interval(startOfAvailableIntervalInBaseTime, ISimulationSettings.END_OF_DAY);
@@ -1090,9 +1264,11 @@ public class Individual {
 			}
 			allCategoriesToIntervalSamples.put(activityCategory, intervalOfInterestInBaseTime);
 		}
-		// determine all available activities
+		return allCategoriesToIntervalSamples;
+	}
+	
+	private ArrayList<Activity> determineAvailableActivities(ActivityAgenda randomAgenda, Interval availableIntervalInRealTime, HashMap<ActivityCategory, Interval> allCategoriesToIntervalSamples) {
 		ArrayList<Activity> availableActivities = new ArrayList<>();
-		// there are some duration samples that fit into available interval
 		for (ActivityCategory availableCategory: allCategoriesToIntervalSamples.keySet()) {
 			Interval sampeledIntervalOfInterestInBaseTime = allCategoriesToIntervalSamples.get(availableCategory);
 			if (sampeledIntervalOfInterestInBaseTime.toDuration().getStandardMinutes() <= availableIntervalInRealTime.toDuration().getStandardMinutes()) {
@@ -1100,25 +1276,7 @@ public class Individual {
 				availableActivities.addAll(availableActivitiesOfCategory);
 			}
 		}
-		if (availableActivities.size() > 0) {
-			Activity chosenActivity = availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
-			Interval chosenIntervalInBaseTime = allCategoriesToIntervalSamples.get(chosenActivity.getActivityCategory());
-			Interval chosenIntervalInRealTime = TimeUtility.convertToRealInterval(m_environment.getSimulationTime().getCurrentDateTime(), chosenIntervalInBaseTime);
-			return new AbstractMap.SimpleImmutableEntry<Activity, Interval>(chosenActivity, chosenIntervalInRealTime);
-		}
-		// none of the samples fitted
-		for (ActivityCategory availableCategory: allCategoriesToIntervalSamples.keySet()) {
-			List<Activity> availableActivitiesOfCategory = getAllAvailableActivitiesForCategoryAndInterval(randomAgenda, availableCategory, availableIntervalInBaseTime);
-			availableActivities.addAll(availableActivitiesOfCategory);
-		}
-		if (availableActivities.size() > 0) {
-			Activity chosenActivity = availableActivities.get(m_environment.random.nextInt(availableActivities.size()));
-			return new AbstractMap.SimpleImmutableEntry<Activity, Interval>(chosenActivity, availableIntervalInRealTime);
-		}
-		else {
-			Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, String.format("No activity availabe for interval: %s. This can not happen unless something is configured incorrectly. Make sure you initialized all activities correctly!", availableIntervalInRealTime));
-			return null;
-		}
+		return availableActivities;
 	}
 	
 	/**
@@ -1148,7 +1306,7 @@ public class Individual {
 				.filter(activity -> activity.getActivityLocation() == previousActivity.getActivityLocation())
 				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
 				.filter(activity -> !activity.isJointActivity())
-				.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), intervalOfInterestInBaseTime.getStart()))
+				.filter(activity -> activity.isAvailableAt(getCurrentDayOfWeek(), intervalOfInterestInBaseTime.getStart()))
 				.collect(Collectors.toList());
 		}
 		// no constraint in terms of location
@@ -1158,13 +1316,13 @@ public class Individual {
 					.filter(activity -> !(activity.getActivityCategory() == ActivityCategory.IDLE))
 					.filter(activity -> !activity.isJointActivity())
 					.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
-					.filter(activity -> activity.isAvailableAt(m_environment.getSimulationTime().getCurrentWeekDay(), intervalOfInterestInBaseTime.getStart()))
+					.filter(activity -> activity.isAvailableAt(getCurrentDayOfWeek(), intervalOfInterestInBaseTime.getStart()))
 					.collect(Collectors.toList());
 		}
 	}
 	
 	private Activity getPreviousActivity(ActivityAgenda randomAgenda, Interval intervalOfInterestInBaseTime) {
-		DateTime endOfPreviousActivity = TimeUtility.convertToRealInterval(m_environment.getSimulationTime().getCurrentDateTime(), intervalOfInterestInBaseTime).getStart().minusMinutes(1);
+		DateTime endOfPreviousActivity = TimeUtility.convertToRealInterval(getCurrentDateTime(), intervalOfInterestInBaseTime).getStart().minusMinutes(1);
 		if (endOfPreviousActivity != null) {
 			return randomAgenda.getActivityForDateTime(endOfPreviousActivity);
 		}
@@ -1301,7 +1459,7 @@ public class Individual {
 	 */
 	public void carryOverJointActivities() {
 		// remove all future activities
-		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
+		DateTime currentDateTime = getCurrentDateTime();
 		List<Interval> futureIntervals = m_activityAgenda.getAgenda().keySet().stream()
 			.filter(interval -> (interval.getStart().isAfter(currentDateTime)))
 			.collect(Collectors.toList());
@@ -1336,34 +1494,21 @@ public class Individual {
 	 * 
 	 */
 	public void move() {
-		DateTime currentDateTime = m_environment.getSimulationTime().getCurrentDateTime();
+		DateTime currentDateTime = getCurrentDateTime();
 		m_currentActivity = m_activityAgenda.getActivityForDateTime(currentDateTime);
-		if (m_activityAgenda.getNodeForDateTime(currentDateTime) == null) {
-			// TODO: this should not happen -> log error and see what is causing it
-			// current approach to handle this issue is to keep the old target node if no new one can be identified.
-			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, String.format("Could not retrieve next target node (is null)! Got values the following values:\n"
-					+ "simulation time = %s\n"
-					+ "m_currentActivity = %s\n"
-					+ "m_activityAgenda = \n"
-					+ "%s", String.valueOf(currentDateTime), String.valueOf(m_currentActivity), String.valueOf(m_activityAgenda.getAgenda())));
-		}
-		else {
-			m_currentTargetNode = m_activityAgenda.getNodeForDateTime(currentDateTime);
-		}
-		if (ISimulationSettings.IS_DEBUG) {
-			// removed: && m_environment.getClosestBuildingToNode(m_currentTargetNode) != null -> should not be necessary at this point
-			m_environment.getClosestBuildingToNode(m_currentTargetNode).getGeometry().setUserData(DebugUtility.createLabelledPortrayal2DForBuilding(m_id, m_currentActivity));
-		}
+		m_currentTargetNode = m_activityAgenda.getNodeForDateTime(currentDateTime);
 		// check if target has been reached
 		if (!m_currentNode.getCoordinate().equals(m_currentTargetNode.getCoordinate())) {
 			// check if path has been initialized
 			if (m_pathToNextTarget.isEmpty()) {
 				initPathToTarget(m_currentNode, m_currentTargetNode);
 			}
-			// TODO: verify that this check is not necessary
 			if (!hasReachedTarget()) {
 				moveTowardsTarget();
 			}
+		}
+		if (ISimulationSettings.IS_DEBUG) {
+			m_environment.getClosestBuildingToNode(m_currentTargetNode).getGeometry().setUserData(DebugUtility.createLabelledPortrayal2DForBuilding(m_id, m_currentActivity));
 		}
 	}
 	
@@ -1478,7 +1623,7 @@ public class Individual {
 	private void initPathToTarget(Node currentNode, Node targetNode) {
 		m_pathToNextTarget.clear();
 		if (currentNode == null || targetNode == null) {
-			Logger.getLogger(Individual.class.getName()).log(Level.WARNING, String.format("Can not initialize path to target building. Got values currentNode=%s; targetNode=%s.", String.valueOf(currentNode), String.valueOf(targetNode)));
+			LOG.log(Level.WARNING, String.format("Can not initialize path to target building. Got values currentNode=%s; targetNode=%s.", String.valueOf(currentNode), String.valueOf(targetNode)));
 		}
 		ArrayList<GeomPlanarGraphDirectedEdge> pathToTarget = GraphUtility.astarPath(currentNode, targetNode);
 		if (!pathToTarget.isEmpty()) {
@@ -1690,7 +1835,48 @@ public class Individual {
 		m_jointActivityAgenda.clear();
 		m_allDayPlans.clear();
 	}
-
+	
+	private DateTime getCurrentDateTime() {
+		return m_environment.getSimulationTime().getCurrentDateTime();
+	}
+	
+	private int getCurrentDayOfWeek() {
+		return m_environment.getSimulationTime().getCurrentWeekDay();
+	}
+	
+	private List<Interval> getFutureIntervals(Individual individual) {
+		return individual.getJointActivityAgenda().getAgenda().keySet().stream()
+			.filter(interval -> (interval.getStart().isAfter(getCurrentDateTime())))
+			.collect(Collectors.toList());
+	}
+	
+	/**
+	 * <p>This method retrieves all joint activities available in the provided interval and category.</p>
+	 * 
+	 * @param activityCategory - the category of the activities.
+	 * @param intervalInBaseTime - the interval during which the activity must be available.
+	 * @return ArrayList<Activity> - the available activities.
+	 */
+	private ArrayList<Activity> getJointActivitiesAvailable(ActivityCategory activityCategory, Interval intervalInBaseTime) {
+		return m_environment.getAllActivities().values().stream()
+				.filter(activity -> activity.isJointActivity())
+				.filter(activity -> activity.getActivityCategory() == activityCategory)
+				.filter(activity -> activity.isAvailableAt(getCurrentDayOfWeek(), intervalInBaseTime.getStart()))
+				.filter(activity -> !(activity.getActivityLocation() == ActivityLocation.TRAVEL))
+				.collect(Collectors.toCollection(ArrayList::new));
+	}
+	
+	/**
+	 * <p>This method uses the random number generator of the {@link Environment} to sample an integer.
+	 * The integer will be in the range <b>0 - <code>numberOfElements</code></b>.
+	 * 
+	 * @param numberOfElements - the number of elements, which usually refers to the size of a list.
+	 * @return integer - the random number chosen.
+	 */
+	private int getRandomInt(int numberOfElements) {
+		return m_environment.random.nextInt(numberOfElements);
+	}
+	
 	/**
 	 * @category Getter and setter
 	 */
