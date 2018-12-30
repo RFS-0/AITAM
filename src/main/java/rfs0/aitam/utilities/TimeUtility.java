@@ -3,6 +3,8 @@ package rfs0.aitam.utilities;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
@@ -17,6 +19,8 @@ import rfs0.aitam.settings.ISimulationSettings;
  * <p>This class is used to handle all operations related to time.</p>
  */
 public final class TimeUtility {
+	
+	private static final Logger LOG = Logger.getLogger(TimeUtility.class.getName());
 	
 	public TimeUtility() {}
 	
@@ -90,10 +94,11 @@ public final class TimeUtility {
 			return false;
 		}
 		// two or more intervals planned
-		else {
+		latter = preceding;
+		while (intervalIterator.hasNext()) {
+			// no gap found yet & end not reached yet -> advance
+			preceding = latter;
 			latter = intervalIterator.next();
-		}
-		do {
 			// gap between two consecutive intervals
 			if (!latter.abuts(preceding)) {
 				return false;
@@ -101,7 +106,7 @@ public final class TimeUtility {
 			// last planned interval
 			if (!intervalIterator.hasNext()) {
 				// end is at end of day -> covers whole day
-				if (latter.getEnd().equals(endOfCurrentDay) && latter.getEnd().isAfter(endOfCurrentDay)) {
+				if (latter.getEnd().equals(endOfCurrentDay) || latter.getEnd().isAfter(endOfCurrentDay)) {
 					return true;
 				}
 				// end is before end of day -> does not cover whole day
@@ -109,13 +114,9 @@ public final class TimeUtility {
 					return false;
 				}
 			}
-			else {
-				preceding = latter;
-				latter = intervalIterator.next();
-			}
 		}
-		while (intervalIterator.hasNext());
-		return true;
+		LOG.log(Level.SEVERE, "Could not determine whether day is fully planned or not!");
+		return false;
 	}
 	
 	public static Interval getFirstAvailableInterval(Environment environment, ActivityAgenda agenda) {
@@ -141,15 +142,17 @@ public final class TimeUtility {
 			// gap between first interval and end of current day
 			return new Interval(preceding.getEnd(), endOfCurrentDay);
 		}
+		latter = preceding;
 		// two or more intervals planned
-		do {
+		while (intervalIterator.hasNext()) {
+			preceding = latter;
 			latter = intervalIterator.next();
 			// gap between two consecutive intervals
 			if (!latter.abuts(preceding)) {
 				return new Interval(preceding.getEnd(), latter.getStart());
 			}
-			// last planned interval
-			else if (!intervalIterator.hasNext()) {
+			// last planned interval & everything before was abutting
+			if (!intervalIterator.hasNext()) {
 				// whole day planned -> no interval available
 				if (latter.getEnd().equals(endOfCurrentDay)) {
 					return null;
@@ -157,13 +160,9 @@ public final class TimeUtility {
 				// gap between last interval planned and end of day
 				return new Interval(latter.getEnd(), endOfCurrentDay);
 			}
-			// no gap found yet and end of agenda not reached yet
-			else {
-				preceding = latter;
-			}
-		} 
-		while (intervalIterator.hasNext());
-		// can never happen
+			
+		}
+		LOG.log(Level.SEVERE, "Did not find any available interval!");
 		return null;
 	}
 	
