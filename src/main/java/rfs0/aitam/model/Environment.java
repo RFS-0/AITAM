@@ -51,7 +51,8 @@ import sim.util.geo.MasonGeometry;
  * <p><b>Buildings and nodes</b></p>
  * 
  * <p> {@link Environment#m_buildingToClosestNodeMap}: This map contains the closest node for each of the buildings.</p>
- * <p> {@link Environment#m_nodeToClosestBuildingMap}: A reversed mapping form node to their closest building. Contains only nodes that are closest to some building.</p>
+ * <p> {@link Environment#m_nodeToClosestBuildingMap}: A reversed mapping form node to their closest building. 
+ * Contains only nodes that are closest to some building.</p>
  * 
  * <p><b>Activities</b></p>
  * 
@@ -61,7 +62,8 @@ import sim.util.geo.MasonGeometry;
  * 
  * <p><b>Time</b></p>
  * 
- * <p>{@link Environment#m_simulationTime}: This variable is used to keep track of the current simulation time. It is updated after each simulation step.</p>
+ * <p>{@link Environment#m_simulationTime}: This variable is used to keep track of the current simulation time. 
+ * It is updated after each simulation step.</p>
  * 
  * <p><b>GIS</b></p>
  * 
@@ -78,7 +80,8 @@ import sim.util.geo.MasonGeometry;
  * 
  * <p><b>Output</b></p>
  * 
- * <p>{@link Environment#m_outputHolder}: This variable contains all output variables. It is updated after each simulation step.</p>
+ * <p>{@link Environment#m_outputHolder}: This variable contains all output variables. 
+ * It is updated after each simulation step.</p>
  * <p>{@link Environment#m_environmentObserver}: The environment observer is used record the output by serializing each step as one line in a CSV-File which is generated for the whole simulation run.</p>
  */
 public class Environment extends SimState {
@@ -188,18 +191,22 @@ public class Environment extends SimState {
 	 * <ol>
 	 * 	<li>Schedule all the steps of the {@link Individual} as anonymous {@link Steppable}'s. <b>Note:</b> This is necessary since each of them must be executed for all {@link Individual}'s in the given order</li>
 	 * 	<ol>
-	 * 		<li>Plan joint {@link Activity}'s, if planning is possible. Write them into {@link Individual}'s joint {@link ActivityAgenda}</li>
+	 * 		<li>Plan joint {@link Activity}'s, if planning is possible. 
+	 * 			Write them into {@link Individual}'s joint {@link ActivityAgenda}</li>
 	 * 		<li>Carry over joint activities to the {@link Individual}'s individual {@link ActivityAgenda}, if planning is possible</li>
 	 * 		<li>Plan individual activities, if planning is possible.</li>
 	 * 		<li>Choose the best of the generated {@link ActivityAgenda}'s</li>
 	 * 		<li>At each point in time: Moving, if necessary.</li>
-	 * 		<li>At each point in time: execute the activity scheduled for the interval overlapping the current point in time. <b>Note:</b> This includes in particular updating the {@link AbsoluteNeedTimeSplit}.
+	 * 		<li>At each point in time: execute the activity scheduled for the interval overlapping the current point in time. 
+	 * 		<b>Note:</b> This includes in particular updating the {@link AbsoluteNeedTimeSplit}.
 	 * 		<li>Finally, if the beginning of a new day is reached, reset (only) variables which are used to generate a new {@link ActivityAgenda}</li>
 	 * 	</ol>
-	 * 	<li>Schedule the {@link GeomVectorField} containing all {@link Point}'s wrapped in a {@link MasonGeometry}. These represent the {@link Individual}'s as dots.</li>
+	 * 	<li>Schedule the {@link GeomVectorField} containing all {@link Point}'s wrapped in a {@link MasonGeometry}. 
+	 * 		These represent the {@link Individual}'s as dots.</li>
 	 * 	<li>Schedule the {@link DefaultCategoryDataset} to be updated with the information of the aggregated number of {@link Individual}'s per {@link ActivityCategory}.</li>
 	 * 	<li>Schedule the {@link EnvironmentObserver} to write all data in {@link Environment#m_outputHolder} to disk.
-	 * 	<li>Schedule the {@link SimulationTime} to be incremented. <b>Note:</b>Each step takes exactly one minute. The start point of simulation is 01.01.2018 00:00.
+	 * 	<li>Schedule the {@link SimulationTime} to be incremented. <b>Note:</b>Each step takes exactly one minute. 
+	 * 		The start point of simulation is 01.01.2018 00:00.
 	 *<ol>
 	 */
 	@Override
@@ -587,9 +594,9 @@ public class Environment extends SimState {
 	/**
 	 * <p>This method gets the closest node to the provided building based on the provided candidate paths.</p>
 	 * 
-	 * @param building
-	 * @param candidatePaths
-	 * @return
+	 * @param building - building for which the closest not is retrieved.
+	 * @param candidatePaths - a list with paths near to the building.
+	 * @return Node - the node (i.e. junction) closest to the building.
 	 */
 	private Node getClosestNodeToBuilding(MasonGeometry building, Bag candidatePaths) {
 		Coordinate buildingCoordinate = building.getGeometry().getCoordinate();
