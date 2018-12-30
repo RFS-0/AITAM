@@ -11,18 +11,26 @@ import rfs0.aitam.utilities.CalculationUtility;
  * This absolute need time split can be converted into a relative need time split.
  * It uses the following attributes</p>
  *
- * <p>{@link AbsoluteNeedTimeSplit#m_absoluteNeedTimeSplit}: The absolute need time split. It captures the time spent in minutes on each of the needs. E.g. {@link Need#AFFECTION} = 60 (minutes), {@link Need#CREATION} = 60 (minutes) etc.</p>
- * <p>{@link AbsoluteNeedTimeSplit#m_relativeNeedTimeSplit}: The relative need time split equivalent to the actual need actual need time split. It captures the relative time spent on each of the needs. E.g. {@link Need#AFFECTION} = 0.5 (50%), {@link Need#CREATION} = 0.5 (50%).</p>
+ * <p>{@link AbsoluteNeedTimeSplit#m_absoluteNeedTimeSplit}: The absolute need time split. 
+ * It captures the time spent in minutes on each of the needs. 
+ * E.g. {@link Need#AFFECTION} = 60 (minutes), {@link Need#CREATION} = 60 (minutes) etc.</p>
+ * <p>{@link AbsoluteNeedTimeSplit#m_relativeNeedTimeSplit}: The relative need time split equivalent to the actual need actual need time split. 
+ * It captures the relative time spent on each of the needs. 
+ * E.g. {@link Need#AFFECTION} = 0.5 (50%), {@link Need#CREATION} = 0.5 (50%).</p>
  * <p>{@link AbsoluteNeedTimeSplit#m_isUpdated}: Indicates whether or not the relative need time split is updated to match the current absolute need time split or not.</p> 
  */
 public class AbsoluteNeedTimeSplit {
 	
 	/**
-	 * <p>The absolute need time split. It captures the time spent in minutes on each of the needs. E.g. {@link Need#AFFECTION} = 60 (minutes), {@link Need#CREATION} = 60 (minutes) etc.</p>
+	 * <p>The absolute need time split. 
+	 * It captures the time spent in minutes on each of the needs. 
+	 * E.g. {@link Need#AFFECTION} = 60 (minutes), {@link Need#CREATION} = 60 (minutes) etc.</p>
 	 */
 	private HashMap<Need, BigDecimal> m_absoluteNeedTimeSplit = new HashMap<>();
 	/**
-	 * <p>The relative need time split equivalent to the absolute need time split. It captures the relative time spent on each of the needs. E.g. {@link Need#AFFECTION} = 0.5 (50%), {@link Need#CREATION} = 0.5 (50%).</p>
+	 * <p>The relative need time split equivalent to the absolute need time split. 
+	 * It captures the relative time spent on each of the needs. 
+	 * E.g. {@link Need#AFFECTION} = 0.5 (50%), {@link Need#CREATION} = 0.5 (50%).</p>
 	 */
 	private HashMap<Need, BigDecimal> m_relativeNeedTimeSplit = new HashMap<>();
 	/**
