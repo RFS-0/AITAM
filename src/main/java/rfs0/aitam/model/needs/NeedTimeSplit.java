@@ -76,7 +76,8 @@ public class NeedTimeSplit {
 			else {
 				/**
 				 *
-				 * Unless fractions add up to one we will always get a difference of 0.00001. This is due to the avoidance of non-terminating decimal expansion in the divide method of {@link CalculationUtility}.
+				 * Unless fractions add up to one we will always get a difference of 0.00001. 
+				 * This is due to the avoidance of non-terminating decimal expansion in the divide method of {@link CalculationUtility}.
 				 * We handle this by adding the rounding difference to Need <code>NOT_DEFINED</code>.
 				 */
 				targetNeedTimeSplitToBuild.m_needTimeSplit.put(Need.NONE , targetNeedTimeSplitToBuild.getFractionForNeed(Need.NONE).add(difference));
