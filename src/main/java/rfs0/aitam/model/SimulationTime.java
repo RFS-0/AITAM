@@ -13,7 +13,8 @@ import sim.engine.Steppable;
  * To do so it relies on the following attributes:</p>
  *
  * <p>{@link SimulationTime#DATE_TIME_FORMATTER}: The formatter used to print the end of each simulation day in human readable form.</p>
- * <p>{@link SimulationTime#m_dateTime}: The current time in the simulation. It is incremented each step by one minute (i.e. each step in the simulation corresponds to one minute in real time).</p>
+ * <p>{@link SimulationTime#m_dateTime}: The current time in the simulation. 
+ * It is incremented each step by one minute (i.e. each step in the simulation corresponds to one minute in real time).</p>
  */
 public class SimulationTime implements Steppable {
 
@@ -24,7 +25,8 @@ public class SimulationTime implements Steppable {
 	 */
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.longDateTime();
 	/**
-	 * <p>The current time in the simulation. It is incremented each step by one minute (i.e. each step in the simulation corresponds to one minute in real time).</p>
+	 * <p>The current time in the simulation. 
+	 * It is incremented each step by one minute (i.e. each step in the simulation corresponds to one minute in real time).</p>
 	 */
 	private DateTime m_dateTime = new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, ISimulationSettings.BASE_HOUR, ISimulationSettings.BASE_MINUTE);
 
