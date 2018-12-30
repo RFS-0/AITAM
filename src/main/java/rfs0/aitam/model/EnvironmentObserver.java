@@ -82,7 +82,8 @@ public class EnvironmentObserver implements Steppable {
 	/**
 	 * <p>This method writes the a new line to the CSV-File of the current simulation run containing all the provided values.</p>
 	 * 
-	 * @param values - the values which should be written in the line for the current simulation step. <b>Important:</b> The ordering of those values must be alinged with the header.
+	 * @param values - the values which should be written in the line for the current simulation step. 
+	 * <b>Important:</b> The ordering of those values must be aligned with the header.
 	 */
 	private void recordValues(LinkedList<Object> values) {
 		try {
