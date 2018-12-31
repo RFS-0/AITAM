@@ -1397,6 +1397,11 @@ public class Individual {
 					updateActualNeedTimeSplit(activityAgendaWithTravelTimes, currentActivity, effectiveActivityInterval);
 				}
 			}
+			// the next activity takes place at the same location
+			else {
+				// no travel time -> just copy the entry to the agenda with travel times
+				updateActualNeedTimeSplit(activityAgendaWithTravelTimes, currentActivity, interval);
+			}
 		}
 		return activityAgendaWithTravelTimes;
 	}

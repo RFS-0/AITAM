@@ -13,7 +13,7 @@ public class EnvironmentTest {
 	
 	public static final int MINUTES_IN_DAY = 1440;
 	public static final int MINUTES_IN_WEEK = 7 * MINUTES_IN_DAY;
-	public static final int NUMBER_OF_TEST_SIMULATIONS = 100;
+	public static final int NUMBER_OF_TEST_SIMULATIONS = 30;
 	
 
 	@Test

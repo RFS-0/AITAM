@@ -50,7 +50,8 @@ public interface ISimulationSettings {
 	 * <br><b>Note:</b> Replace this file or this path to adapt the simulated environment (or city) to your needs.</p>
 	 * <p>{@link ISimulationSettings#PATHS_FILE}: The relative path to the shape file representing the paths in the {@link Environment}.
 	 * <br><b>Note:</b>: Replace this file or this path to adapt the simulated environment (or city) to your needs.</p>
-	 * <p><b>Important:</b> The dimensions of the environment are defined by the coordinate reference system (CRS) used by the shape files. (See <a href="https://en.wikipedia.org/wiki/Spatial_reference_system">CRS</a> for more information). 
+	 * <p><b>Important:</b> The dimensions of the environment are defined by the coordinate reference system (CRS) used by the shape files. 
+	 * (See <a href="https://en.wikipedia.org/wiki/Spatial_reference_system">CRS</a> for more information). 
 	 * <br>The shape files used to develop the simulation represent the city of Zurich and use the following CRS: <b>EPSG:2056 - CH1903+ / LV95 - Projected</b>. 
 	 * <br>The unit of this CRS is: <b>meter</b></p>
 	 */
@@ -222,7 +223,7 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY}: The maximum number of {@link Activity}s with friends an {@link Individual} is willing to participate in.</p>
 	 * <p>{@link ISimulationSettings#PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY}: The probability of an {@link Individual} participating in an {@link Activity} with friends upon request by some other member of the same household network.</p>
 	 */
-	public static final int NUMBER_OF_INDIVIDUALS = 10;
+	public static final int NUMBER_OF_INDIVIDUALS = 20;
 	/**
 	 * <p>The minimum number of {@link Individual}s in each {@link Network} representing a household or family.</p>
 	 */
@@ -407,11 +408,11 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#s_ActivityCategoryToDurationDistributionMap}: A mapping from activity category to the duration distribution of durations for this category.</p>
 	 */
 	// TODO: use empirical values
-	public static final double MEAN_OF_LEISURE_ACTIVITY_DURATION = 120;
+	public static final double MEAN_OF_LEISURE_ACTIVITY_DURATION = 60;
 	/**
 	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#LEISURE} in minutes.</p>
 	 */
-	public static final double STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION = 60;
+	public static final double STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION = 5;
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#LEISURE}.
 	 */
@@ -444,11 +445,11 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The mean duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.</p>
 	 */
-	public static final double MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 90;
+	public static final double MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 60;
 	/**
 	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.</p>
 	 */
-	public static final double STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 45;
+	public static final double STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 5;
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}. It is used to sample durations for this category.</p>
 	 */
@@ -496,15 +497,13 @@ public interface ISimulationSettings {
 	 * This is used to improve the performance of the simulation since calculating the travel time for plans with many travel activities consumes a lot of computing resources to calculate travel times, but those plans are not likely to be selected since travel time decreases the time the individual can spend on satisfying its needs.</p>
 	 * <p>{@link ISimulationSettings#MIN_DURATION_OF_ACTIVITY_TO_TRAVEL_TO_DIFFERENT_LOCATION}: If the duration of an {@link Activity} is smaller than this constant, the {@link Individual} must stay at it's current location, since traveling would otherwise consume most or all of the time the {@link Individual} intends to spend on the activity.</p>
 	 */
-	public static final int NUMBER_OF_PLANS_TO_GENERATE = 10;
+	public static final int NUMBER_OF_PLANS_TO_GENERATE = 100;
 	/**
-	 * <p>The time points an {@link Individual} can plan resp. replan its activities for the current day (see {@link Environment#start()}).</p>
+	 * <p>The time points an {@link Individual} can plan resp. plan its activities anew for the current day (see {@link Environment#start()}).</p>
 	 */
 	public static final ArrayList<DateTime> AVAILABLE_TIME_POINTS_FOR_PLANNING_ACTIVITIES = Stream.of(
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0))//,
-//			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
-//			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
-//			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30))
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 0, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
 	/**
 	 * <p>The maximum number of trials to find a time slot for a joint activity.
@@ -659,7 +658,7 @@ public interface ISimulationSettings {
 	 * 
 	 * {@link ISimulationSettings#IS_DEBUG}: Flag for whether or not the simulation should show information helpful for debugging.
 	 */
-	public static final boolean IS_DEBUG = false;
+	public static final boolean IS_DEBUG = true;
 	
 	/**
 	 * This function is used to initialize the mapping of {@link ActivityCategory}s to {@link AbstractRealDistribution} used to define

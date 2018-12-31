@@ -189,15 +189,17 @@ public final class IndividualInitializer {
 			INDIVIDUAL_BUILDER
 					.adjust(individual)
 					.withTargetNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
-							.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-							.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-							.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-							.withNeedTimeSplit(Need.IDENTITY, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-							.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-							.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-							.withNeedTimeSplit(Need.PROTECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-							.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
-							.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+//							.withNeedTimeSplit(Need.AFFECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+//							.withNeedTimeSplit(Need.CREATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+//							.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+//							.withNeedTimeSplit(Need.IDENTITY, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+//							.withNeedTimeSplit(Need.IDLENESS, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+//							.withNeedTimeSplit(Need.PARTICIPATION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+//							.withNeedTimeSplit(Need.PROTECTION, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+//							.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+//							.withNeedTimeSplit(Need.UNDERSTANDING, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.NINE))
+							.withNeedTimeSplit(Need.SUBSISTENCE, CalculationUtility.divide(BigDecimal.ONE, CalculationUtility.FOUR))
+							.withNeedTimeSplit(Need.FREEDOM, CalculationUtility.divide(CalculationUtility.THREE, CalculationUtility.FOUR))
 							.build())
 					.buildAndValidate();
 		}

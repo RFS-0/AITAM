@@ -2,6 +2,7 @@ package rfs0.aitam.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,9 +24,13 @@ import rfs0.aitam.activities.Activity;
 import rfs0.aitam.activities.ActivityAgenda;
 import rfs0.aitam.activities.ActivityCategory;
 import rfs0.aitam.activities.ActivityInitializer;
+import rfs0.aitam.activities.ActivityLocation;
 import rfs0.aitam.individuals.Individual;
 import rfs0.aitam.individuals.IndividualInitializer;
+import rfs0.aitam.individuals.NetworkType;
 import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
+import rfs0.aitam.model.needs.Need;
+import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;
@@ -444,12 +449,12 @@ public class Environment extends SimState {
 		System.out.println("Initializing activities...");
 		long start = System.nanoTime();
 		initLeisureActivities();		
-		initWorkActivities();
-		initPersonalCareActivities();
-		initHouseholdCareActivities();
+//		initWorkActivities();
+//		initPersonalCareActivities();
+//		initHouseholdCareActivities();
 		initTravelActivities();
-		initIdleActivities();
-		initSleepAndRestActivities();
+//		initIdleActivities();
+//		initSleepAndRestActivities();
 		System.out.println(String.format("Initialized activities in %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
@@ -468,12 +473,47 @@ public class Environment extends SimState {
 	 * <p>This method initializes all activities that belong to the {@link ActivityCategory#LEISURE}.</p>
 	 */
 	private void initLeisureActivities() {
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_ALONE_ACTIVITY, ACTIVITY_INITIALIZER.initLeisureAtHomeAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initLeisureAtHomeWithHouseholdMembersActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_WITH_FRIENDS, ACTIVITY_INITIALIZER.initLeisureAtHomeWithFriendsActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_ALONE, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureAloneActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity());
-		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_FRIENDS, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureWithFriendsActivity());
+//		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_ALONE_ACTIVITY, ACTIVITY_INITIALIZER.initLeisureAtHomeAloneActivity());
+//		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initLeisureAtHomeWithHouseholdMembersActivity());
+//		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_HOME_WITH_FRIENDS, ACTIVITY_INITIALIZER.initLeisureAtHomeWithFriendsActivity());
+//		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_ALONE, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureAloneActivity());
+//		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_HOUSEHOLD_MEMBERS, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureWithHouseholdMembersActivity());
+//		m_activityDescriptionToActivityMap.put(ISimulationSettings.LEISURE_AT_THIRD_PLACE_WITH_FRIENDS, ACTIVITY_INITIALIZER.initLeisureAtThirdPlaceForLeisureWithFriendsActivity());
+		m_activityDescriptionToActivityMap.put(Need.SUBSISTENCE.toString(), initActivitySubsistence());
+		m_activityDescriptionToActivityMap.put(Need.FREEDOM.toString(), initActivityFreedom());
+	}
+	
+	public static final Activity.Builder ACTIVITY_BUILDER = new Activity.Builder();
+	public static final NeedTimeSplit.Builder NEED_TIME_SPLIT_BUILDER = new NeedTimeSplit.Builder();
+	
+	private Activity initActivitySubsistence() {
+		return ACTIVITY_BUILDER
+		.withActivityCategory(ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE)
+		.withActivityDescription(Need.SUBSISTENCE.toString())
+		.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+				.withNeedTimeSplit(Need.SUBSISTENCE, BigDecimal.ONE)
+				.build())
+		.withExamples("")
+		.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+		.withIsJointActivity(false)
+		.withActivityLocation(ActivityLocation.HOME)
+		.withNetworkType(NetworkType.NONE)
+		.build();
+	}
+	
+	private Activity initActivityFreedom() {
+		return ACTIVITY_BUILDER
+		.withActivityCategory(ActivityCategory.LEISURE)
+		.withActivityDescription(Need.FREEDOM.toString())
+		.withNeedTimeSplit(NEED_TIME_SPLIT_BUILDER
+				.withNeedTimeSplit(Need.FREEDOM, BigDecimal.ONE)
+				.build())
+		.withExamples("")
+		.withAvailabilityIntervalAtDays(0,0,23,59, ISimulationSettings.WEEK)
+		.withIsJointActivity(false)
+		.withActivityLocation(ActivityLocation.HOME)
+		.withNetworkType(NetworkType.NONE)
+		.build();
 	}
 	
 	/**
