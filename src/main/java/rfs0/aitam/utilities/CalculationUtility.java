@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import ec.util.MersenneTwisterFast;
-import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
-import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.need.AbsoluteNeedTimeSplit;
+import rfs0.aitam.need.Need;
+import rfs0.aitam.need.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
 /**

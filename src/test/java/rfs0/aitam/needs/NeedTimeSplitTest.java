@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
-import rfs0.aitam.model.needs.NeedTimeSplit.Builder;
+import rfs0.aitam.need.Need;
+import rfs0.aitam.need.NeedTimeSplit;
+import rfs0.aitam.need.NeedTimeSplit.Builder;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 

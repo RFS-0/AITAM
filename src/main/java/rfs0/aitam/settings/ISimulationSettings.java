@@ -16,9 +16,9 @@ import org.joda.time.DateTimeConstants;
 
 import rfs0.aitam.activity.Activity;
 import rfs0.aitam.activity.ActivityCategory;
+import rfs0.aitam.environment.Environment;
+import rfs0.aitam.environment.EnvironmentObserver;
 import rfs0.aitam.individual.Individual;
-import rfs0.aitam.model.Environment;
-import rfs0.aitam.model.EnvironmentObserver;
 import rfs0.aitam.model.ui.EnvironmentWithUI;
 import rfs0.aitam.utilities.CalculationUtility;
 import sim.field.network.Network;

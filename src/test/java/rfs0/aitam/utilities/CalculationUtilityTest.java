@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 import org.junit.Test;
 
 import rfs0.aitam.activity.ActivityAgenda;
-import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.need.Need;
+import rfs0.aitam.need.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
 public class CalculationUtilityTest {

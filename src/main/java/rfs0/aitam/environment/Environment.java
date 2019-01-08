@@ -25,7 +25,7 @@ import rfs0.aitam.activity.ActivityCategory;
 import rfs0.aitam.activity.ActivityInitializer;
 import rfs0.aitam.individual.Individual;
 import rfs0.aitam.individual.IndividualInitializer;
-import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
+import rfs0.aitam.need.AbsoluteNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;
 import sim.engine.SimState;

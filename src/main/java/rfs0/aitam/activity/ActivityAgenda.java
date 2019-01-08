@@ -12,8 +12,8 @@ import org.joda.time.Interval;
 
 import com.vividsolutions.jts.planargraph.Node;
 
-import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.need.AbsoluteNeedTimeSplit;
+import rfs0.aitam.need.NeedTimeSplit;
 
 /**
  * <p>This class is used to model agendas of activities. As such it is described by the following information:</p>

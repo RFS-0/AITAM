@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import rfs0.aitam.model.Environment;
+import rfs0.aitam.environment.Environment;
 import sim.field.geo.GeomVectorField;
 import sim.util.geo.MasonGeometry;
 

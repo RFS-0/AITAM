@@ -9,9 +9,9 @@ import java.util.stream.IntStream;
 
 import rfs0.aitam.activity.ActivityCategory;
 import rfs0.aitam.activity.ActivityInitializer;
-import rfs0.aitam.model.Environment;
-import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.environment.Environment;
+import rfs0.aitam.need.Need;
+import rfs0.aitam.need.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 import rfs0.aitam.utilities.DebugUtility;

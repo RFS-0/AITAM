@@ -14,8 +14,8 @@ import org.joda.time.Interval;
 
 import rfs0.aitam.individual.Individual;
 import rfs0.aitam.individual.NetworkType;
-import rfs0.aitam.model.needs.Need;
-import rfs0.aitam.model.needs.NeedTimeSplit;
+import rfs0.aitam.need.Need;
+import rfs0.aitam.need.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 
 /**

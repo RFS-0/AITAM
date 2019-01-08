@@ -1,4 +1,4 @@
-package rfs0.aitam.model.needs;
+package rfs0.aitam.need;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
