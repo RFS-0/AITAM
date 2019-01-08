@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.distribution.AbstractRealDistribution;
-import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.LogNormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -111,7 +111,7 @@ public interface ISimulationSettings {
 	 * Additionally, the velocity is used to calculate travel times in {@link Individual#createAgendaWithTravelTime}.
 	 * <br><b>Note:</b> Currently the simulation does not model traffic and thus all {@link Individual}'s travel constantly at {@link ISimulationSettings#MAX_VELOCITY}</p>
 	 */
-	public static final double MAX_VELOCITY = 500; // max velocity in m/min (equivalent to 30 km/h)
+	public static final double MAX_VELOCITY = 166.66667; // max velocity in m/min (equivalent to 30 km/h)
 	
 	/**
 	 * @category Configuration of time related aspects
@@ -235,11 +235,11 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The probability of an {@link Individual} participating in an {@link Activity} with household members upon request by some other member of the same household network.</p>
 	 */
-	public static final double PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY = 0.9;
+	public static final double PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY = 0.8;
 	/**
 	 * <p>The maximum number of {@link Activity}s with household or family members an {@link Individual} is willing to participate in.</p>
 	 */
-	public static final int MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY = 5;
+	public static final int MAX_NUMBER_OF_HOUSEHOLD_NETWORK_ACTIVITIES_PER_DAY = 10;
 	/**
 	 * <p>The minimum number of {@link Individual}s in each {@link Network} representing work colleagues.</p>
 	 */
@@ -255,7 +255,7 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The probability of an {@link Individual} participating in an {@link Activity} with work colleagues upon request by some other member of the same household network.</p>
 	 */
-	public static final double PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY = 0.7;
+	public static final double PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY = 0.3;
 	/**
 	 * <p>The minimum number of {@link Individual}s in each {@link Network} representing friends.</p>
 	 */
@@ -271,7 +271,7 @@ public interface ISimulationSettings {
 	/**
 	 * <p>The probability of an {@link Individual} participating in an {@link Activity} with friends upon request by some other member of the same household network.</p>
 	 */
-	public static final double PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY = 0.7;
+	public static final double PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY = 0.5;
 	
 	
 	/**
@@ -317,18 +317,34 @@ public interface ISimulationSettings {
 	 */
 	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 15),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 45),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 15),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 45),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 15),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 45),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 9, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 15),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 45),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 15),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 45),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 15),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 45),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 15),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 45),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 20, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
 	/**
@@ -336,23 +352,48 @@ public interface ISimulationSettings {
 	 */
 	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_WORK_COLLEAGUES_NETWORK_ACTIVITIES = Stream.of(
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 15),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 45),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 9, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 9, 15),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 9, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 9, 45),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 10, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0))
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 15),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 12, 45),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 13, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 15),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 45),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 0))
 			.collect(Collectors.toCollection(ArrayList::new));
 	/**
 	 * <p>The possible start times for {@link Activity}s with friends.</p>
 	 */
 	public static final ArrayList<DateTime> AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES = Stream.of(
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 6, 30),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 0),
-			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 7, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 15),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 8, 45),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 9, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 9, 15),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 9, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 9, 45),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 10, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 15),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 16, 45),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 15),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 30),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 17, 45),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 0),
+			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 15),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 18, 30),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 0),
 			new DateTime(ISimulationSettings.BASE_YEAR, ISimulationSettings.BASE_MONTH, ISimulationSettings.BASE_DAY, 19, 30),
@@ -364,24 +405,21 @@ public interface ISimulationSettings {
 	 * <br><b>Note:</b> The distance is measured in units as defined by the CRS (see "Configuration of data representing the" above for more details). 
 	 * The current unit is <b>meter</b></p>
 	 */
-	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE = 300;
+	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_HOUSEHOLD_AND_FAMILY_CARE = 5000;
 	/**
 	 * <p>The maximum distance to other places for work. 
 	 * Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForWorkNodes}.
 	 * <br><b>Note:</b> The distance is measured in unites as defined by the CRS (see "Configuration of data representing the" above for more details). 
 	 * The current unit is <b>meter</b></p>
 	 */
-	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK = 300;
+	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_WORK = 10000;
 	/**
 	 * <p>The maximum distance to other places for leisure. 
 	 * Used to determine candidate buildings resp. nodes for {@link Individual#m_otherPlaceForLeisureNodes}.
 	 * <br><b>Note:</b> The distance is measured in unites as defined by the CRS (see "Configuration of data representing the" above for more details). 
 	 * The current unit is <b>meter</b></p>
 	 */
-	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_LEISURE = 500;
-	
-	// TODO: check if other place for personal care activities is necessary
-	
+	public static final double MAX_DISTANCE_TO_OTHER_PLACES_FOR_LEISURE = 15000;
 	
 	/**
 	 * @category Configuration of activity category related aspects
@@ -407,78 +445,77 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION}: The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}. It is used to sample durations for this category.</p>
 	 * <p>{@link ISimulationSettings#s_ActivityCategoryToDurationDistributionMap}: A mapping from activity category to the duration distribution of durations for this category.</p>
 	 */
-	// TODO: use empirical values
-	public static final double MEAN_OF_LEISURE_ACTIVITY_DURATION = 60;
+	public static final double MEAN_OF_LEISURE_ACTIVITY_DURATION = 4.4636;
 	/**
 	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#LEISURE} in minutes.</p>
 	 */
-	public static final double STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION = 5;
+	public static final double STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION = 0.7532;
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#LEISURE}.
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_LEISURE_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_LEISURE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION);
+	public static final LogNormalDistribution DISTRIBUTION_OF_LEISURE_DURATION = new LogNormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_LEISURE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_LEISURE_ACTIVITY_DURATION);
 	/**
 	 * <p>The mean duration of activities in {@link ActivityCategory#WORK} in minutes.</p>
 	 */
-	public static final double MEAN_OF_WORK_ACTIVITY_DURATION = 180;
+	public static final double MEAN_OF_WORK_ACTIVITY_DURATION = 5.0943;
 	/**
 	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#WORK} in minutes.</p>
 	 */
-	public static final double STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION = 30;
+	public static final double STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION = 0.8349;
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#WORK}.
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_WORK_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_WORK_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION);
+	public static final LogNormalDistribution DISTRIBUTION_OF_WORK_DURATION = new LogNormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_WORK_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_WORK_ACTIVITY_DURATION);
 	/**
 	 * <p>The mean duration of activities in {@link ActivityCategory#PERSONAL_CARE} in minutes.</p>
 	 */
-	public static final double MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION = 90;
+	public static final double MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION = 4.1460;
 	/**
 	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#PERSONAL_CARE} in minutes.</p>
 	 */
-	public static final double STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION = 30;
+	public static final double STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION = 0.8606;
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#PERSONAL_CARE}.
 	 * It is used to sample durations for this category.</p>
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_PERSONAL_CARE_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION);
+	public static final LogNormalDistribution DISTRIBUTION_OF_PERSONAL_CARE_DURATION = new LogNormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_PERSONAL_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_PERSONAL_CARE_ACTIVITY_DURATION);
 	/**
 	 * <p>The mean duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.</p>
 	 */
-	public static final double MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 60;
+	public static final double MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 3.9545;
 	/**
 	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE} in minutes.</p>
 	 */
-	public static final double STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 5;
+	public static final double STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION = 0.7740;
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#HOUSEHOLD_AND_FAMILY_CARE}. It is used to sample durations for this category.</p>
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION);
+	public static final LogNormalDistribution DISTRIBUTION_OF_HOUSEHOLD_AND_FAMILY_CARE_DURATION = new LogNormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_HOUSEHOLD_AND_FAMILY_CARE_ACTIVITY_DURATION);
 	/**
 	 * <p>The mean duration of activities in {@link ActivityCategory#SLEEP_AND_REST} in minutes.</p>
 	 */
-	public static final double MEAN_OF_SLEEP_AND_REST_ACTIVITY_DURATION = 420;
+	public static final double MEAN_OF_SLEEP_AND_REST_ACTIVITY_DURATION = 6.2278;
 	/**
 	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#SLEEP_AND_REST} in minutes.</p>
 	 */
-	public static final double STANDARD_DEVIATION_OF_SLEEP_AND_REST_ACTIVITY_DURATION = 60;
+	public static final double STANDARD_DEVIATION_OF_SLEEP_AND_REST_ACTIVITY_DURATION = 0.2091;
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#SLEEP_AND_REST}. It is used to sample durations for this category.</p>
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_SLEEP_AND_REST_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_SLEEP_AND_REST_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_SLEEP_AND_REST_ACTIVITY_DURATION);	
+	public static final LogNormalDistribution DISTRIBUTION_OF_SLEEP_AND_REST_DURATION = new LogNormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_SLEEP_AND_REST_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_SLEEP_AND_REST_ACTIVITY_DURATION);	
 	
 	/**
 	 * <p>The mean duration of activities in {@link ActivityCategory#IDLE} in minutes.</p>
 	 */
-	public static final double MEAN_OF_IDLE_ACTIVITY_DURATION = 15;
+	public static final double MEAN_OF_IDLE_ACTIVITY_DURATION = 3.2157;
 	/**
 	 * <p>The standard deviation of the duration of activities in {@link ActivityCategory#IDLE} in minutes.</p>
 	 */
-	public static final double STANDARD_DEVIATION_OF_IDLE_ACTIVITY_DURATION = 5;
+	public static final double STANDARD_DEVIATION_OF_IDLE_ACTIVITY_DURATION = 0.0799;
 	/**
 	 * <p>The normal distribution of the duration of {@link Activity}s in {@link ActivityCategory#IDLE}. It is used to sample durations for this category.</p>
 	 */
-	public static final NormalDistribution DISTRIBUTION_OF_IDLE_DURATION = new NormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_IDLE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_IDLE_ACTIVITY_DURATION);
+	public static final LogNormalDistribution DISTRIBUTION_OF_IDLE_DURATION = new LogNormalDistribution(RANDOM_NUMBER_GENERATOR, MEAN_OF_IDLE_ACTIVITY_DURATION, STANDARD_DEVIATION_OF_IDLE_ACTIVITY_DURATION);
 	/**
 	 * <p>A mapping from activity category to the duration distribution of durations for this category.</p>
 	 */
@@ -514,7 +551,7 @@ public interface ISimulationSettings {
 	 * <p>The maximum number of travel activities an {@link Individual} incorporates in the planning of a day. 
 	 * This is used to improve the performance of the simulation since calculating the travel time for plans with many travel activities consumes a lot of computing resources to calculate travel times, but those plans are not likely to be selected since travel time decreases the time the individual can spend on satisfying its needs.</p>
 	 */
-	public static final int MAX_NUMBER_OF_TRAVEL_ACTIVITIES = 100;
+	public static final int MAX_NUMBER_OF_TRAVEL_ACTIVITIES = 10;
 	/**
 	 * <p>If the duration of an {@link Activity} is smaller than this constant, the {@link Individual} must stay at it's current location, since traveling would otherwise consume most or all of the time the {@link Individual} intends to spend on the activity.</p>
 	 */

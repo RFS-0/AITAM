@@ -13,7 +13,7 @@ public class EnvironmentTest {
 	
 	public static final int MINUTES_IN_DAY = 1440;
 	public static final int MINUTES_IN_WEEK = 7 * MINUTES_IN_DAY;
-	public static final int NUMBER_OF_TEST_SIMULATIONS = 30;
+	public static final int NUMBER_OF_TEST_SIMULATIONS = 1;
 	
 
 	@Test
@@ -43,7 +43,7 @@ public class EnvironmentTest {
 	public void testWeek() {
 		Environment environment;
 		for (int s = 0; s < NUMBER_OF_TEST_SIMULATIONS; s++) {
-			environment = new Environment(s);
+			environment = new Environment(s+100);
 			environment.start();
 			for (int i = 0; i < MINUTES_IN_WEEK; i++) {
 				environment.schedule.step(environment);

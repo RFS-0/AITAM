@@ -28,6 +28,7 @@ public final class CalculationUtility {
 	public static final BigDecimal NINE = new BigDecimal(9, MATH_CONTEXT);
 	public static final BigDecimal ELEVEN = new BigDecimal(11, MATH_CONTEXT);
 	public static final BigDecimal TWELVE = new BigDecimal(12, MATH_CONTEXT);
+	public static final BigDecimal ONE_HUNDRED = new BigDecimal(100, MATH_CONTEXT);
 	
 	public  CalculationUtility() {}
 	

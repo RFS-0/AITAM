@@ -1117,8 +1117,8 @@ public class Individual {
 	 */
 	private int sampleDurationForCategory(ActivityCategory activityCategory) {
 		double durationSampleForCategory = ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.get(activityCategory).sample();
-		while (durationSampleForCategory < 1) {
-			durationSampleForCategory = ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.get(activityCategory).sample();
+		if (durationSampleForCategory < 1) {
+			LOG.log(Level.SEVERE, "The distribution must not sample negative durations! Make sure you handle this case by either changing the distribution parameters or resampling.");
 		}
 		return Math.toIntExact(Math.round(durationSampleForCategory));
 	}
