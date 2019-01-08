@@ -1,4 +1,4 @@
-package rfs0.aitam.model;
+package rfs0.aitam.environment;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;

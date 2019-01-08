@@ -1,4 +1,4 @@
-package rfs0.aitam.model;
+package rfs0.aitam.environment;
 
 import java.io.File;
 import java.io.IOException;
