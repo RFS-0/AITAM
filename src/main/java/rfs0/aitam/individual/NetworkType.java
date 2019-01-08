@@ -1,4 +1,4 @@
-package rfs0.aitam.individuals;
+package rfs0.aitam.individual;
 
 /**
  * This enumeration contains all types of network. 

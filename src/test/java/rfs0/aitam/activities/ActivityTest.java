@@ -12,6 +12,9 @@ import org.joda.time.DateTimeConstants;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import rfs0.aitam.activity.Activity;
+import rfs0.aitam.activity.ActivityCategory;
+import rfs0.aitam.activity.ActivityLocation;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;

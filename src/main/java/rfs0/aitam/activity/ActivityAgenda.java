@@ -1,4 +1,4 @@
-package rfs0.aitam.activities;
+package rfs0.aitam.activity;
 
 import java.util.Comparator;
 import java.util.Objects;

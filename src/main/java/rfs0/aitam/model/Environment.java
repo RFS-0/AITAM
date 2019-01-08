@@ -19,12 +19,12 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.planargraph.Node;
 
-import rfs0.aitam.activities.Activity;
-import rfs0.aitam.activities.ActivityAgenda;
-import rfs0.aitam.activities.ActivityCategory;
-import rfs0.aitam.activities.ActivityInitializer;
-import rfs0.aitam.individuals.Individual;
-import rfs0.aitam.individuals.IndividualInitializer;
+import rfs0.aitam.activity.Activity;
+import rfs0.aitam.activity.ActivityAgenda;
+import rfs0.aitam.activity.ActivityCategory;
+import rfs0.aitam.activity.ActivityInitializer;
+import rfs0.aitam.individual.Individual;
+import rfs0.aitam.individual.IndividualInitializer;
 import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.GeometryUtility;

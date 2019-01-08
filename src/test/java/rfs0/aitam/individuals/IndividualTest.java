@@ -7,8 +7,8 @@ import org.joda.time.DateTime;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import rfs0.aitam.activities.ActivityAgenda;
-import rfs0.aitam.individuals.Individual;
+import rfs0.aitam.activity.ActivityAgenda;
+import rfs0.aitam.individual.Individual;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.settings.ISimulationSettings;
 import sim.engine.SimState;

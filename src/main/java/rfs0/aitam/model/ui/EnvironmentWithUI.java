@@ -15,7 +15,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 
 import bsh.ParseException;
-import rfs0.aitam.individuals.Individual;
+import rfs0.aitam.individual.Individual;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.settings.ISimulationSettings;
 import sim.display.Console;

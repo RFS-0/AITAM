@@ -14,9 +14,9 @@ import org.apache.commons.math3.random.MersenneTwister;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
-import rfs0.aitam.activities.Activity;
-import rfs0.aitam.activities.ActivityCategory;
-import rfs0.aitam.individuals.Individual;
+import rfs0.aitam.activity.Activity;
+import rfs0.aitam.activity.ActivityCategory;
+import rfs0.aitam.individual.Individual;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.EnvironmentObserver;
 import rfs0.aitam.model.ui.EnvironmentWithUI;

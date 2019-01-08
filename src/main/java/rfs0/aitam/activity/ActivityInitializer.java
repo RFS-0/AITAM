@@ -1,8 +1,8 @@
-package rfs0.aitam.activities;
+package rfs0.aitam.activity;
 
 import java.math.BigDecimal;
 
-import rfs0.aitam.individuals.NetworkType;
+import rfs0.aitam.individual.NetworkType;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;

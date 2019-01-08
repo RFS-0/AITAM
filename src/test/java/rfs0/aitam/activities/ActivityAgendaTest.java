@@ -10,6 +10,8 @@ import org.junit.Test;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.planargraph.Node;
 
+import rfs0.aitam.activity.Activity;
+import rfs0.aitam.activity.ActivityAgenda;
 import rfs0.aitam.settings.ISimulationSettings;
 import sim.util.geo.MasonGeometry;
 

@@ -1,4 +1,4 @@
-package rfs0.aitam.activities;
+package rfs0.aitam.activity;
 
 /**
  * This enumeration contains all types of activity locations. 

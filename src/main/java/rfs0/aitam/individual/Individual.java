@@ -1,4 +1,4 @@
-package rfs0.aitam.individuals;
+package rfs0.aitam.individual;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,10 +15,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.linearref.LengthIndexedLine;
 import com.vividsolutions.jts.planargraph.Node;
 
-import rfs0.aitam.activities.Activity;
-import rfs0.aitam.activities.ActivityAgenda;
-import rfs0.aitam.activities.ActivityCategory;
-import rfs0.aitam.activities.ActivityLocation;
+import rfs0.aitam.activity.Activity;
+import rfs0.aitam.activity.ActivityAgenda;
+import rfs0.aitam.activity.ActivityCategory;
+import rfs0.aitam.activity.ActivityLocation;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.needs.AbsoluteNeedTimeSplit;
 import rfs0.aitam.model.needs.Need;

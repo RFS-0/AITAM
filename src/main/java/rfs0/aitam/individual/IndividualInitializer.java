@@ -1,4 +1,4 @@
-package rfs0.aitam.individuals;
+package rfs0.aitam.individual;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import rfs0.aitam.activities.ActivityCategory;
-import rfs0.aitam.activities.ActivityInitializer;
+import rfs0.aitam.activity.ActivityCategory;
+import rfs0.aitam.activity.ActivityInitializer;
 import rfs0.aitam.model.Environment;
 import rfs0.aitam.model.needs.Need;
 import rfs0.aitam.model.needs.NeedTimeSplit;
