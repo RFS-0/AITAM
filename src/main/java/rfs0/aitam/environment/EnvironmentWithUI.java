@@ -1,4 +1,4 @@
-package rfs0.aitam.model.ui;
+package rfs0.aitam.environment;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -15,7 +15,6 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 
 import bsh.ParseException;
-import rfs0.aitam.environment.Environment;
 import rfs0.aitam.individual.Individual;
 import rfs0.aitam.settings.ISimulationSettings;
 import sim.display.Console;

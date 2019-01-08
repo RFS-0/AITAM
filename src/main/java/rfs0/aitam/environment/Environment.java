@@ -174,7 +174,7 @@ public class Environment extends SimState {
 	/**
 	 * <p>The environment observer is used record the output by serializing each step as one line in a CSV-File which is generated for the whole simulation run.</p>
 	 */
-	private EnvironmentObserver m_environmentObserver;
+	private EnvironmentOutputRecorder m_environmentObserver;
 	
 	public Environment(long seed) { 
 		super(seed); 
@@ -204,7 +204,7 @@ public class Environment extends SimState {
 	 * 	<li>Schedule the {@link GeomVectorField} containing all {@link Point}'s wrapped in a {@link MasonGeometry}. 
 	 * 		These represent the {@link Individual}'s as dots.</li>
 	 * 	<li>Schedule the {@link DefaultCategoryDataset} to be updated with the information of the aggregated number of {@link Individual}'s per {@link ActivityCategory}.</li>
-	 * 	<li>Schedule the {@link EnvironmentObserver} to write all data in {@link Environment#m_outputHolder} to disk.
+	 * 	<li>Schedule the {@link EnvironmentOutputRecorder} to write all data in {@link Environment#m_outputHolder} to disk.
 	 * 	<li>Schedule the {@link SimulationTime} to be incremented. <b>Note:</b>Each step takes exactly one minute. 
 	 * 		The start point of simulation is 01.01.2018 00:00.
 	 *<ol>
@@ -588,7 +588,7 @@ public class Environment extends SimState {
 			}
 			m_activityCategoryToActivitiesyMap.get(category).addAll(activitiesOfCategory);
 		}
-		m_environmentObserver = new EnvironmentObserver(m_outputHolder.keySet());
+		m_environmentObserver = new EnvironmentOutputRecorder(m_outputHolder.keySet());
 	}
 	
 	/**
@@ -664,7 +664,7 @@ public class Environment extends SimState {
 		}
 	}
 
-	public EnvironmentObserver getEnvironmentObserver() {
+	public EnvironmentOutputRecorder getEnvironmentObserver() {
 		return m_environmentObserver;
 	}
 

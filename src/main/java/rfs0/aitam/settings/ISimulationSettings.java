@@ -17,9 +17,9 @@ import org.joda.time.DateTimeConstants;
 import rfs0.aitam.activity.Activity;
 import rfs0.aitam.activity.ActivityCategory;
 import rfs0.aitam.environment.Environment;
-import rfs0.aitam.environment.EnvironmentObserver;
+import rfs0.aitam.environment.EnvironmentOutputRecorder;
+import rfs0.aitam.environment.EnvironmentWithUI;
 import rfs0.aitam.individual.Individual;
-import rfs0.aitam.model.ui.EnvironmentWithUI;
 import rfs0.aitam.utilities.CalculationUtility;
 import sim.field.network.Network;
 import sim.util.geo.MasonGeometry;
@@ -223,7 +223,7 @@ public interface ISimulationSettings {
 	 * <p>{@link ISimulationSettings#MAX_NUMBER_OF_FRIENDS_NETWORK_ACTIVITIES_PER_DAY}: The maximum number of {@link Activity}s with friends an {@link Individual} is willing to participate in.</p>
 	 * <p>{@link ISimulationSettings#PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY}: The probability of an {@link Individual} participating in an {@link Activity} with friends upon request by some other member of the same household network.</p>
 	 */
-	public static final int NUMBER_OF_INDIVIDUALS = 20;
+	public static final int NUMBER_OF_INDIVIDUALS = 5;
 	/**
 	 * <p>The minimum number of {@link Individual}s in each {@link Network} representing a household or family.</p>
 	 */
@@ -616,7 +616,7 @@ public interface ISimulationSettings {
 	 * 
 	 * <p>This section contains all constants used to configure or handle aspects related to simulation output.</p>
 	 * 
-	 * <p>These constants are used as labels for the simulations output. As such they are used by {@link EnvironmentObserver}, {@link Environment#m_outputHolder}, {@link Environment#m_activityCategoryDataset} and {@link Activity#m_activityDescription}
+	 * <p>These constants are used as labels for the simulations output. As such they are used by {@link EnvironmentOutputRecorder}, {@link Environment#m_outputHolder}, {@link Environment#m_activityCategoryDataset} and {@link Activity#m_activityDescription}
 	 * to ensure consistent referral to information serialized as CSV to disk.</p>
 	 * 
 	 * <p><b>Note:</b>If you need additional attributes in order to capture the simulation's output make sure to add a corresponding constant here and use it at the aforementioned locations to refer to it.</p>

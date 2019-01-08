@@ -24,10 +24,10 @@ import sim.engine.Steppable;
  * The observer writes the values of all attributes to a CSV-File which is stored in the file as defined by {@link ISimulationSettings#SIMULATION_OUTPUT_FOLDER}.
  * The following attributes are used to do this:</p>
  * 
- * <p>{@link EnvironmentObserver#m_header}: The header of the CSV-File for the simulations output.</p>
- * <p>{@link EnvironmentObserver#m_csvPrinter}: A writer that writes all values currently hold in the output holder of the provided {@link Environment} to disk as one line in the CSV-File.</p>
+ * <p>{@link EnvironmentOutputRecorder#m_header}: The header of the CSV-File for the simulations output.</p>
+ * <p>{@link EnvironmentOutputRecorder#m_csvPrinter}: A writer that writes all values currently hold in the output holder of the provided {@link Environment} to disk as one line in the CSV-File.</p>
  */
-public class EnvironmentObserver implements Steppable {
+public class EnvironmentOutputRecorder implements Steppable {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -36,11 +36,11 @@ public class EnvironmentObserver implements Steppable {
 	 */
 	private Collection<String> m_header;
 	/**
-	 * <p>{@link EnvironmentObserver#m_csvPrinter}: A writer that writes all values currently hold in the output holder of the provided {@link Environment} to disk as one line in the CSV-File.</p>
+	 * <p>{@link EnvironmentOutputRecorder#m_csvPrinter}: A writer that writes all values currently hold in the output holder of the provided {@link Environment} to disk as one line in the CSV-File.</p>
 	 */
 	private CSVPrinter m_csvPrinter;
 	
-	public EnvironmentObserver(Collection<String> header) {
+	public EnvironmentOutputRecorder(Collection<String> header) {
 		m_header = header;
 		DateTimeFormat.forPattern("dd_MM_yyyy-HH_mm_ss").print(DateTime.now());
 		String fileName = DateTimeFormat.forPattern("dd_MM_yyyy--HH_mm_ss").print(DateTime.now()) + "_output.csv";
@@ -51,7 +51,7 @@ public class EnvironmentObserver implements Steppable {
 			m_csvPrinter.flush();
 		}
 		catch (IOException e) {
-			Logger.getLogger(EnvironmentObserver.class.getName()).log(Level.SEVERE, "Failed to create file for simulation output", e);
+			Logger.getLogger(EnvironmentOutputRecorder.class.getName()).log(Level.SEVERE, "Failed to create file for simulation output", e);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class EnvironmentObserver implements Steppable {
 	}
 
 	/**
-	 * <p>This method fills all attributes as defined by the header ({@link EnvironmentObserver#m_header}) into the provided list.</p>
+	 * <p>This method fills all attributes as defined by the header ({@link EnvironmentOutputRecorder#m_header}) into the provided list.</p>
 	 * 
 	 * @param environment - the environment resp. its current state.
 	 * @param values - a list with objects which will be filled with all the values defined in the header.
@@ -91,7 +91,7 @@ public class EnvironmentObserver implements Steppable {
 			getCsvPrinter().flush();
 		}
 		catch (IOException e) {
-			Logger.getLogger(EnvironmentObserver.class.getName()).log(Level.SEVERE, "Failed to write simulation output", e);
+			Logger.getLogger(EnvironmentOutputRecorder.class.getName()).log(Level.SEVERE, "Failed to write simulation output", e);
 		}
 	}
 

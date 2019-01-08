@@ -1,4 +1,4 @@
-package rfs0.aitam.needs;
+package rfs0.aitam.need;
 
 import static org.junit.Assert.assertEquals;
 

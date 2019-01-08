@@ -1,4 +1,4 @@
-package rfs0.aitam.activities;
+package rfs0.aitam.activity;
 
 import static org.junit.Assert.assertEquals;
 

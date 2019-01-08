@@ -1,4 +1,4 @@
-package rfs0.aitam.individuals;
+package rfs0.aitam.individual;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
