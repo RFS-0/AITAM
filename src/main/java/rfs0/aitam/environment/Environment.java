@@ -178,7 +178,6 @@ public class Environment extends SimState {
 	
 	public Environment(long seed) { 
 		super(seed); 
-		random.setSeed(seed); 
 		initEnvironment();
 		initActivities();
 		initBuildings();
@@ -531,8 +530,8 @@ public class Environment extends SimState {
 		long start = System.nanoTime();
 		m_individuals = new IndividualInitializer().initIndividuals(this);
 		for (Individual individual: m_individuals) {
+			individual.getCurrentLocationPoint().setUserData(individual);
 			m_individualsField.addGeometry(individual.getCurrentLocationPoint());
-			
 		}
 		m_individualsField.updateSpatialIndex();
 		System.out.println(String.format("Initialized individuals in %d ms", (System.nanoTime() - start) / 1000000));

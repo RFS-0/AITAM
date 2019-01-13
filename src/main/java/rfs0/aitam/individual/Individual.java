@@ -26,11 +26,9 @@ import rfs0.aitam.need.NeedTimeSplit;
 import rfs0.aitam.settings.ISimulationSettings;
 import rfs0.aitam.utilities.CalculationUtility;
 import rfs0.aitam.utilities.DebugUtility;
-import rfs0.aitam.utilities.GeometryUtility;
 import rfs0.aitam.utilities.GraphUtility;
 import rfs0.aitam.utilities.TimeUtility;
 import rfs0.aitam.utilities.Tuple;
-import sim.field.geo.GeomVectorField;
 import sim.field.network.Network;
 import sim.util.geo.GeomPlanarGraphDirectedEdge;
 import sim.util.geo.GeomPlanarGraphEdge;
@@ -797,12 +795,17 @@ public class Individual {
 		removeFutureJointActivities();
 		if (isOpenForNetworkActivities(NetworkType.HOUSEHOLD_NETWORK, ISimulationSettings.PROBABILITY_OF_PLANNING_HOUSEHOLD_NETWORK_ACTIVITY)) {
 			planActivityForNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK , ActivityCategory.HOUSEHOLD_AND_FAMILY_CARE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
+			planActivityForNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK , ActivityCategory.LEISURE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
+			planActivityForNetwork(m_householdMembersNetwork, NetworkType.HOUSEHOLD_NETWORK , ActivityCategory.PERSONAL_CARE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_HOUSEHOLD_NETWORK_ACTIVITIES);
 		}
 		if (isOpenForNetworkActivities(NetworkType.WORK_COLLEGUES_NETWORK, ISimulationSettings.PROBABILITY_OF_PLANNING_WORK_COLLEGUES_NETWORK_ACTIVITY)) {
 			planActivityForNetwork(m_workColleaguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK, ActivityCategory.WORK, ISimulationSettings.AVAILABLE_START_TIMES_FOR_WORK_COLLEAGUES_NETWORK_ACTIVITIES);
+			planActivityForNetwork(m_workColleaguesNetwork, NetworkType.WORK_COLLEGUES_NETWORK, ActivityCategory.PERSONAL_CARE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_WORK_COLLEAGUES_NETWORK_ACTIVITIES);
+			
 		}
 		if (isOpenForNetworkActivities(NetworkType.FRIENDS_NETWORK, ISimulationSettings.PROBABILITY_OF_PLANNING_FRIENDS_NETWORK_ACTIVITY)) {
 			planActivityForNetwork(m_friendsNetwork, NetworkType.FRIENDS_NETWORK, ActivityCategory.LEISURE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES);
+			planActivityForNetwork(m_friendsNetwork, NetworkType.FRIENDS_NETWORK, ActivityCategory.PERSONAL_CARE, ISimulationSettings.AVAILABLE_START_TIMES_FOR_FRIENDS_NETWORK_ACTIVITIES);
 		}
 	}
 	
@@ -1118,7 +1121,7 @@ public class Individual {
 	private int sampleDurationForCategory(ActivityCategory activityCategory) {
 		double durationSampleForCategory = ISimulationSettings.s_ActivityCategoryToDurationDistributionMap.get(activityCategory).sample();
 		if (durationSampleForCategory < 1) {
-			LOG.log(Level.SEVERE, "The distribution must not sample negative durations! Make sure you handle this case by either changing the distribution parameters or resampling.");
+			LOG.log(Level.SEVERE, String.format("Sampled a negative activity duration for activty category: %s .The distribution must not sample negative durations! Make sure you handle this case by either changing the distribution parameters or resampling.", activityCategory.toString()));
 		}
 		return Math.toIntExact(Math.round(durationSampleForCategory));
 	}
@@ -1513,10 +1516,9 @@ public class Individual {
 			}
 		}
 		if (ISimulationSettings.IS_DEBUG) {
-			m_environment.getClosestBuildingToNode(m_currentTargetNode).getGeometry().setUserData(DebugUtility.createLabelledPortrayal2DForBuilding(m_id, m_currentActivity));
+			DebugUtility.labelTargetBuilding(m_environment.getClosestBuildingToNode(m_currentTargetNode), m_id, m_currentActivity);
 		}
 	}
-	
 	
 	/**
 	 * @category Executing activities
@@ -1626,6 +1628,10 @@ public class Individual {
 	 * @param targetNode - the node to which the individual has to travel in order to be able to execute the next activity.
 	 */
 	private void initPathToTarget(Node currentNode, Node targetNode) {
+		if (ISimulationSettings.IS_DEBUG) {
+			DebugUtility.removeColorFromPathToTarget(m_environment, m_pathToNextTarget);
+			DebugUtility.removeLabelFromBuilding(m_environment.getClosestBuildingToNode(m_currentTargetNode));
+		}
 		m_pathToNextTarget.clear();
 		if (currentNode == null || targetNode == null) {
 			LOG.log(Level.WARNING, String.format("Can not initialize path to target building. Got values currentNode=%s; targetNode=%s.", String.valueOf(currentNode), String.valueOf(targetNode)));
@@ -1637,7 +1643,7 @@ public class Individual {
 			setupEdgeOfPath(0);
 			updatePosition(m_lengthIndexedLineOfEdge.extractPoint(m_currentIndexOnLineOfEdge));
 			if (ISimulationSettings.IS_DEBUG) {
-				colorPathToTarget();
+				DebugUtility.colorPathToTarget(m_environment, m_pathToNextTarget);
 			}
 		} 
 		else { // already at the target location
@@ -1715,24 +1721,6 @@ public class Individual {
 		// not at target yet
 		else {
 			return false;
-		}
-	}
-	
-	/**
-	 * <p>This method colors the path (but not exactly) of an agent to its next target. 
-	 * Its can be used for visual debugging.</p>
-	 */
-	public void colorPathToTarget() {
-		GeomVectorField pathField = m_environment.getPathField();
-		List<Coordinate> coordinatesOfPath = getPathToNextTarget()
-				.stream()
-				.map(path -> path.getCoordinate())
-				.collect(Collectors.toList());
-		for (Coordinate coordinate : coordinatesOfPath) {
-			ArrayList<MasonGeometry> coveringObjects = GeometryUtility.getCoveringObjects(new MasonGeometry(Environment.GEO_FACTORY.createPoint(coordinate)), pathField);
-			coveringObjects.forEach(mg -> {
-				mg.setUserData(DebugUtility.creatCircledPortrayal2DForPath());
-			});
 		}
 	}
 	

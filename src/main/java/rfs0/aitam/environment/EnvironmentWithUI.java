@@ -106,21 +106,7 @@ public class EnvironmentWithUI extends GUIState {
 		m_display.attach(m_pathsPortrayal, "Pedestrian Paths", true);
 		m_display.attach(m_agentPortrayal, "Agents", true);
 		
-		// Activity chart
-		JFreeChart barChart = ChartFactory.createBarChart("Aggregated Activities", "Activity Category", "Percentage", ((Environment) this.state).getActivityCategoryDataset(), PlotOrientation.VERTICAL, false, false, false);
-		barChart.setBackgroundPaint(Color.white);
-		barChart.getTitle().setPaint(Color.black);
-		CategoryPlot categoryPlot = barChart.getCategoryPlot();
-		categoryPlot.setBackgroundPaint(Color.white);
-		categoryPlot.setRangeGridlinePaint(Color.red);
-		NumberAxis numberAxis = (NumberAxis) categoryPlot.getRangeAxis();
-		numberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		numberAxis.setRange(0, 100);
-		ChartFrame frame = new ChartFrame("Activity Chart", barChart);
-		frame.setVisible(true);
-		frame.setSize(400, 400);
-		frame.pack();
-		controller.registerFrame(frame);
+		createBarChart();
 		
 		m_displayFrame = m_display.createFrame();
 		controller.registerFrame(m_displayFrame);
@@ -271,5 +257,25 @@ public class EnvironmentWithUI extends GUIState {
 						true) {
 					private static final long serialVersionUID = 1L;
 				});
+	}
+	
+	/**
+	 * <p>This method initializes the bar chart for information of the aggregated activities.</p>
+	 */
+	private void createBarChart() {
+		JFreeChart barChart = ChartFactory.createBarChart("Aggregated Activities", "Activity Category", "Percentage", ((Environment) this.state).getActivityCategoryDataset(), PlotOrientation.VERTICAL, false, false, false);
+		barChart.setBackgroundPaint(Color.white);
+		barChart.getTitle().setPaint(Color.black);
+		CategoryPlot categoryPlot = barChart.getCategoryPlot();
+		categoryPlot.setBackgroundPaint(Color.white);
+		categoryPlot.setRangeGridlinePaint(Color.red);
+		NumberAxis numberAxis = (NumberAxis) categoryPlot.getRangeAxis();
+		numberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		numberAxis.setRange(0, 100);
+		ChartFrame frame = new ChartFrame("Activity Chart", barChart);
+		frame.setVisible(true);
+		frame.setSize(400, 400);
+		frame.pack();
+		controller.registerFrame(frame);
 	}
 }
